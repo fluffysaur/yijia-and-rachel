@@ -1,5 +1,5 @@
 import { LoaderCircle } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RsvpDetail } from "./RsvpDetail";
 import { RsvpForm } from "./RsvpForm";
 import { getInviteWithRsvp, searchInviteGroups, submitGuestRsvp } from "../lib/rsvpRepository";
@@ -19,6 +19,19 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
   const [message, setMessage] = useState<string | null>(null);
   const searchRequestId = useRef(0);
   const searchTimeoutId = useRef<number | null>(null);
+  const selectedSectionRef = useRef<HTMLDivElement | null>(null);
+  const shouldScrollToSelectedRef = useRef(false);
+
+  useEffect(() => {
+    if (!compact || !selected || !shouldScrollToSelectedRef.current) {
+      return;
+    }
+
+    shouldScrollToSelectedRef.current = false;
+    window.requestAnimationFrame(() => {
+      selectedSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, [compact, selected]);
 
   const queueAutocomplete = (value: string) => {
     const normalizedQuery = value.trim();
@@ -62,6 +75,7 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
     setLoading(true);
     setMessage(null);
     try {
+      shouldScrollToSelectedRef.current = true;
       setSelected(filterInviteWithRsvpForRole(await getInviteWithRsvp(inviteGroupId), role));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to load RSVP details.");
@@ -158,7 +172,7 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
         {message ? <p className="mt-4 rounded-md bg-rose/10 p-3 text-sm text-rose">{message}</p> : null}
       </div>
 
-      <div className="mt-8">
+      <div ref={selectedSectionRef} className="mt-8 scroll-mt-6">
         {selected?.rsvp ? (
           <RsvpDetail inviteGroup={selected.inviteGroup} rsvp={selected.rsvp} />
         ) : selected ? (
