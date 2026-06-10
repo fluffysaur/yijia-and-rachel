@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ivory: #fffdf9;
+  --color-cream: #fbf4ea;
+  --color-blush: #f3d8d2;
+  --color-peach: #f5c9ac;
+  --color-sage: #bec9b7;
+  --color-taupe: #766b62;
+  --color-rose: #b77b75;
+  --color-gold: #c0a46b;
+  --color-ink: #332b27;
+  --font-display: "Snell Roundhand", "Brush Script MT", "Segoe Script", cursive;
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  color: var(--color-ink);
+  background: var(--color-ivory);
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.section-shell {
+  margin-inline: auto;
+  max-width: 1120px;
+  padding-inline: 1rem;
+}
+
+.reveal {
+  animation: reveal-up 920ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.reveal-delay-1 {
+  animation-delay: 160ms;
+}
+
+.reveal-delay-2 {
+  animation-delay: 320ms;
+}
+
+.reveal-delay-3 {
+  animation-delay: 480ms;
+}
+
+.float-slow {
+  animation: float-slow 9s ease-in-out infinite;
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-8px) scale(1.01);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal,
+  .float-slow {
+    animation: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .section-shell {
+    padding-inline: 2rem;
+  }
+}
