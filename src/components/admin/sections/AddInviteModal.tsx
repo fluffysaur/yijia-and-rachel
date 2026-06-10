@@ -130,15 +130,20 @@ export function AddInviteModal({
                                     <button
                                         className="inline-flex min-h-10 min-w-10 cursor-pointer items-center justify-center rounded-md border border-taupe/25 px-3 text-sm font-semibold text-ink transition hover:bg-cream disabled:cursor-not-allowed disabled:opacity-40"
                                         type="button"
-                                        onClick={() =>
+                                        onClick={() => {
+                                            const hasContent = Boolean(guest.fullName.trim() || guest.remarks.trim());
+                                            const confirmed = !hasContent || window.confirm("Delete this invitee row?");
+
+                                            if (!confirmed) return;
+
                                             setNewInvite((value) => ({
                                                 ...value,
                                                 guests:
                                                     value.guests.length > 1
                                                         ? value.guests.filter((row) => row.id !== guest.id)
                                                         : value.guests,
-                                            }))
-                                        }
+                                            }));
+                                        }}
                                         disabled={newInvite.guests.length <= 1}
                                         aria-label="Remove row"
                                     >

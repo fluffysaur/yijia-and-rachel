@@ -1,4 +1,6 @@
-import { Download, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { Download, MoreHorizontal, Plus, RefreshCw, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "../../Button";
 import { CheckInDropdown } from "./CheckInDropdown";
 import type { AdminInviteRow } from "../types";
@@ -10,6 +12,7 @@ export function InviteGroupsSection({
     filteredDinnerInvitedCount,
     onFilterChange,
     onAddInvite,
+    onImportCsv,
     onRefresh,
     onExport,
     onToggleCheckIn,
@@ -24,6 +27,7 @@ export function InviteGroupsSection({
     filteredDinnerInvitedCount: number;
     onFilterChange: (value: string) => void;
     onAddInvite: () => void;
+    onImportCsv: (file: File) => void;
     onRefresh: () => void;
     onExport: () => void;
     onToggleCheckIn: (row: AdminInviteRow, eventType: "ceremony" | "dinner", name: string) => void;
@@ -32,6 +36,103 @@ export function InviteGroupsSection({
     onEditRsvp: (row: AdminInviteRow) => void;
     onDeleteInvite: (row: AdminInviteRow) => void;
 }) {
+    const importCsvInputRef = useRef<HTMLInputElement | null>(null);
+    const toolbarMenuTriggerRef = useRef<HTMLButtonElement | null>(null);
+    const toolbarMenuRef = useRef<HTMLDivElement | null>(null);
+    const rowMenuRef = useRef<HTMLDivElement | null>(null);
+    const rowActionTriggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+    const [toolbarMenuOpen, setToolbarMenuOpen] = useState(false);
+    const [rowMenuOpenId, setRowMenuOpenId] = useState<string | null>(null);
+    const [toolbarMenuPosition, setToolbarMenuPosition] = useState({ left: 0, top: 0, width: 180 });
+    const [rowMenuPosition, setRowMenuPosition] = useState({ left: 0, top: 0, width: 152 });
+
+    const activeRow = rowMenuOpenId ? (rows.find((row) => row.id === rowMenuOpenId) ?? null) : null;
+
+    const updateToolbarMenuPosition = () => {
+        const rect = toolbarMenuTriggerRef.current?.getBoundingClientRect();
+        if (!rect) return;
+
+        setToolbarMenuPosition({
+            left: rect.right - 180,
+            top: rect.bottom + 8,
+            width: 180,
+        });
+    };
+
+    const updateRowMenuPosition = (rowId: string) => {
+        const trigger = rowActionTriggerRefs.current[rowId];
+        const rect = trigger?.getBoundingClientRect();
+        if (!rect) return;
+
+        setRowMenuPosition({
+            left: rect.right - 152,
+            top: rect.bottom + 8,
+            width: 152,
+        });
+    };
+
+    const toggleToolbarMenu = () => {
+        updateToolbarMenuPosition();
+        setToolbarMenuOpen((value) => !value);
+        setRowMenuOpenId(null);
+    };
+
+    const toggleRowMenu = (rowId: string) => {
+        if (rowMenuOpenId === rowId) {
+            setRowMenuOpenId(null);
+            return;
+        }
+
+        updateRowMenuPosition(rowId);
+        setRowMenuOpenId(rowId);
+        setToolbarMenuOpen(false);
+    };
+
+    useEffect(() => {
+        if (!toolbarMenuOpen && !rowMenuOpenId) return;
+
+        const handlePointerDown = (event: MouseEvent) => {
+            const target = event.target as Node;
+            const activeRowTrigger = rowMenuOpenId ? rowActionTriggerRefs.current[rowMenuOpenId] : null;
+
+            if (
+                toolbarMenuTriggerRef.current?.contains(target) ||
+                toolbarMenuRef.current?.contains(target) ||
+                activeRowTrigger?.contains(target) ||
+                rowMenuRef.current?.contains(target)
+            ) {
+                return;
+            }
+
+            setToolbarMenuOpen(false);
+            setRowMenuOpenId(null);
+        };
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setToolbarMenuOpen(false);
+                setRowMenuOpenId(null);
+            }
+        };
+
+        const handleReposition = () => {
+            if (toolbarMenuOpen) updateToolbarMenuPosition();
+            if (rowMenuOpenId) updateRowMenuPosition(rowMenuOpenId);
+        };
+
+        document.addEventListener("mousedown", handlePointerDown);
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("scroll", handleReposition, true);
+        window.addEventListener("resize", handleReposition);
+
+        return () => {
+            document.removeEventListener("mousedown", handlePointerDown);
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("scroll", handleReposition, true);
+            window.removeEventListener("resize", handleReposition);
+        };
+    }, [toolbarMenuOpen, rowMenuOpenId]);
+
     return (
         <section
             id="invites"
@@ -44,22 +145,44 @@ export function InviteGroupsSection({
                         Create, import, delete, export, edit submitted RSVPs, and mark day-of check-ins.
                     </p>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="ml-auto flex w-full flex-wrap justify-end gap-2 md:w-auto">
                     <Button onClick={onAddInvite}>
                         <Plus size={16} />
                         Add invite
                     </Button>
                     <Button
                         variant="secondary"
+                        className="min-w-11 px-3"
                         onClick={onRefresh}
+                        aria-label="Refresh invites"
+                        title="Refresh"
                     >
                         <RefreshCw size={16} />
-                        Refresh
                     </Button>
-                    <Button onClick={onExport}>
-                        <Download size={16} />
-                        Export CSV
-                    </Button>
+                    <button
+                        ref={toolbarMenuTriggerRef}
+                        className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md border border-taupe/20 bg-white/85 px-3 text-ink transition hover:bg-cream"
+                        type="button"
+                        aria-expanded={toolbarMenuOpen}
+                        aria-label="CSV actions"
+                        title="CSV actions"
+                        onClick={toggleToolbarMenu}
+                    >
+                        <MoreHorizontal size={16} />
+                    </button>
+                    <input
+                        ref={importCsvInputRef}
+                        className="sr-only"
+                        type="file"
+                        accept=".csv,text/csv"
+                        onChange={(event) => {
+                            const file = event.target.files?.[0];
+                            event.currentTarget.value = "";
+                            if (file) {
+                                onImportCsv(file);
+                            }
+                        }}
+                    />
                 </div>
             </div>
             <input
@@ -121,24 +244,18 @@ export function InviteGroupsSection({
                                     </div>
                                 </td>
                                 <td className="py-3">
-                                    <div className="flex justify-end gap-2">
-                                        {row.rsvp ? (
-                                            <button
-                                                className="inline-flex size-9 cursor-pointer items-center justify-center rounded-md border border-taupe/20 text-ink transition hover:border-rose/40 hover:bg-cream"
-                                                aria-label={`Edit RSVP for ${row.groupName}`}
-                                                title="Edit RSVP"
-                                                onClick={() => onEditRsvp(row)}
-                                            >
-                                                <Pencil size={15} />
-                                            </button>
-                                        ) : null}
+                                    <div className="flex justify-end">
                                         <button
-                                            className="inline-flex size-9 cursor-pointer items-center justify-center rounded-md border border-rose/30 text-rose transition hover:bg-rose/10"
-                                            aria-label={`Delete ${row.groupName}`}
-                                            title="Delete invite group"
-                                            onClick={() => onDeleteInvite(row)}
+                                            ref={(node) => {
+                                                rowActionTriggerRefs.current[row.id] = node;
+                                            }}
+                                            className="inline-flex size-9 cursor-pointer items-center justify-center rounded-md border border-taupe/20 text-ink transition hover:bg-cream"
+                                            aria-label={`Actions for ${row.groupName}`}
+                                            title="Actions"
+                                            type="button"
+                                            onClick={() => toggleRowMenu(row.id)}
                                         >
-                                            <Trash2 size={15} />
+                                            <MoreHorizontal size={15} />
                                         </button>
                                     </div>
                                 </td>
@@ -147,6 +264,87 @@ export function InviteGroupsSection({
                     </tbody>
                 </table>
             </div>
+
+            {toolbarMenuOpen
+                ? createPortal(
+                      <div
+                          ref={toolbarMenuRef}
+                          className="fixed z-100 rounded-md border border-taupe/20 bg-white p-1 shadow-lg"
+                          style={{
+                              left: toolbarMenuPosition.left,
+                              top: toolbarMenuPosition.top,
+                              width: toolbarMenuPosition.width,
+                          }}
+                      >
+                          <button
+                              className="flex w-full cursor-pointer items-center gap-2 rounded px-3 py-2 text-left text-sm text-ink transition hover:bg-cream"
+                              type="button"
+                              onClick={() => {
+                                  setToolbarMenuOpen(false);
+                                  importCsvInputRef.current?.click();
+                              }}
+                          >
+                              <Upload size={15} />
+                              Add by CSV
+                          </button>
+                          <button
+                              className="flex w-full cursor-pointer items-center gap-2 rounded px-3 py-2 text-left text-sm text-ink transition hover:bg-cream"
+                              type="button"
+                              onClick={() => {
+                                  setToolbarMenuOpen(false);
+                                  onExport();
+                              }}
+                          >
+                              <Download size={15} />
+                              Download CSV
+                          </button>
+                      </div>,
+                      document.body,
+                  )
+                : null}
+
+            {rowMenuOpenId && activeRow
+                ? createPortal(
+                      <div
+                          ref={rowMenuRef}
+                          className="fixed z-100 rounded-md border border-taupe/20 bg-white p-1 shadow-lg"
+                          style={{
+                              left: rowMenuPosition.left,
+                              top: rowMenuPosition.top,
+                              width: rowMenuPosition.width,
+                          }}
+                      >
+                          {activeRow.rsvp ? (
+                              <button
+                                  className="flex w-full cursor-pointer rounded px-3 py-2 text-left text-sm text-ink transition hover:bg-cream"
+                                  type="button"
+                                  onClick={() => {
+                                      onEditRsvp(activeRow);
+                                      setRowMenuOpenId(null);
+                                  }}
+                              >
+                                  Edit
+                              </button>
+                          ) : null}
+                          <button
+                              className="flex w-full cursor-pointer rounded px-3 py-2 text-left text-sm text-rose transition hover:bg-rose/10"
+                              type="button"
+                              onClick={() => {
+                                  setRowMenuOpenId(null);
+                                  const confirmed = window.confirm(
+                                      `Delete invite group "${activeRow.groupName}"? This cannot be undone.`,
+                                  );
+                                  if (confirmed) {
+                                      onDeleteInvite(activeRow);
+                                  }
+                              }}
+                          >
+                              Delete
+                          </button>
+                      </div>,
+                      document.body,
+                  )
+                : null}
         </section>
     );
 }

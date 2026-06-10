@@ -296,6 +296,7 @@ export function AdminPage() {
                                 filteredDinnerInvitedCount={filteredDinnerInvitedCount}
                                 onFilterChange={setFilter}
                                 onAddInvite={() => setCreateModalOpen(true)}
+                                onImportCsv={(file) => void importCsv(file)}
                                 onRefresh={() => void loadAdminData()}
                                 onExport={() => exportCsv(filteredRows)}
                                 onToggleCheckIn={(row, eventType, name) => void toggleCheckIn(row, eventType, name)}
