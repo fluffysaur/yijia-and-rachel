@@ -239,11 +239,29 @@ export async function deleteAdminInviteGroup(inviteGroupId: string) {
   await adminApiJson<{ ok: boolean }>(`/api/admin/invites/${inviteGroupId}`, { method: "DELETE" });
 }
 
+export async function updateAdminInviteGroup(input: {
+  id: string;
+  groupName: string;
+  guestNames: string[];
+  dinnerGuestNames: string[];
+  notes: string;
+}) {
+  const payload = await adminApiJson<{ invite: InviteGroup }>(`/api/admin/invites/${input.id}`, {
+    method: "PUT",
+    body: JSON.stringify(input),
+  });
+  return payload.invite;
+}
+
 export async function updateAdminRsvp(response: RsvpResponse) {
   await adminApiJson<{ ok: boolean }>(`/api/admin/rsvp/${response.id}`, {
     method: "PUT",
     body: JSON.stringify({ response }),
   });
+}
+
+export async function deleteAdminRsvp(responseId: string) {
+  await adminApiJson<{ ok: boolean }>(`/api/admin/rsvp/${responseId}`, { method: "DELETE" });
 }
 
 export async function setAdminCheckIn(inviteGroupId: string, eventType: "ceremony" | "dinner", checkedInNames: string[]) {

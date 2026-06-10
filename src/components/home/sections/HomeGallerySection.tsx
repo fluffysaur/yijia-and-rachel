@@ -12,7 +12,6 @@ export function HomeGallerySection({ onOpenImage }: { onOpenImage: (index: numbe
                         <p className="text-sm uppercase text-rose">Pre-wedding shoot</p>
                         <h2 className="mt-2 font-display text-5xl">Gallery</h2>
                     </div>
-                    <p className="max-w-md text-taupe">Replace these placeholders with PWS and highlight photos.</p>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {siteContent.gallery.map((image, index) => (

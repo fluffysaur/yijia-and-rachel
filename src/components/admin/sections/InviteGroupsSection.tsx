@@ -142,7 +142,7 @@ export function InviteGroupsSection({
                 <div>
                     <h2 className="font-display text-3xl">Invite Groups & RSVP</h2>
                     <p className="text-sm text-taupe">
-                        Create, import, delete, export, edit submitted RSVPs, and mark day-of check-ins.
+                        Create, import, delete, export, edit RSVPs, and mark day-of check-ins.
                     </p>
                 </div>
                 <div className="ml-auto flex w-full flex-wrap justify-end gap-2 md:w-auto">
@@ -314,18 +314,16 @@ export function InviteGroupsSection({
                               width: rowMenuPosition.width,
                           }}
                       >
-                          {activeRow.rsvp ? (
-                              <button
-                                  className="flex w-full cursor-pointer rounded px-3 py-2 text-left text-sm text-ink transition hover:bg-cream"
-                                  type="button"
-                                  onClick={() => {
-                                      onEditRsvp(activeRow);
-                                      setRowMenuOpenId(null);
-                                  }}
-                              >
-                                  Edit
-                              </button>
-                          ) : null}
+                          <button
+                              className="flex w-full cursor-pointer rounded px-3 py-2 text-left text-sm text-ink transition hover:bg-cream"
+                              type="button"
+                              onClick={() => {
+                                  onEditRsvp(activeRow);
+                                  setRowMenuOpenId(null);
+                              }}
+                          >
+                              Edit
+                          </button>
                           <button
                               className="flex w-full cursor-pointer rounded px-3 py-2 text-left text-sm text-rose transition hover:bg-rose/10"
                               type="button"

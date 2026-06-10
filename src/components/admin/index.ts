@@ -8,4 +8,4 @@ export { EditRsvpModal } from "./sections/EditRsvpModal";
 export { InviteGroupsSection } from "./sections/InviteGroupsSection";
 export { createNewInviteGuestRow } from "./createNewInviteGuestRow";
 export { exportCsv } from "./exportCsv";
-export type { AdminInviteRow, NewInviteFormState, NewInviteGuestRow } from "./types";
+export type { AdminInviteRow, AdminRsvpEditState, NewInviteFormState, NewInviteGuestRow } from "./types";

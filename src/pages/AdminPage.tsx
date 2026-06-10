@@ -15,12 +15,15 @@ import {
 import {
     createAdminInviteGroup,
     deleteAdminInviteGroup,
+    deleteAdminRsvp,
     getAdminSummary,
     listAdminInvites,
     setAdminCheckIn,
+    updateAdminInviteGroup,
     updateAdminRsvp,
 } from "../lib/rsvpRepository";
-import type { AdminSummary, RsvpResponse } from "../types/rsvp";
+import type { AdminSummary } from "../types/rsvp";
+import type { AdminRsvpEditState, NewInviteGuestRow } from "../components/admin";
 
 function readStoredCheckIns(inviteGroupId: string, eventType: "ceremony" | "dinner") {
     const stored = localStorage.getItem(`wedding-check-in:${inviteGroupId}:${eventType}`);
@@ -34,6 +37,58 @@ function readStoredCheckIns(inviteGroupId: string, eventType: "ceremony" | "dinn
     }
 }
 
+const inviteeRemarksHeading = "Invitee remarks:";
+
+function parseInviteNotes(notes: string | null | undefined) {
+    const rawNotes = notes ?? "";
+    const [baseNotes, remarksBlock = ""] = rawNotes.split(inviteeRemarksHeading);
+    const remarksByName = new Map<string, string>();
+
+    remarksBlock
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .forEach((line) => {
+            const separatorIndex = line.indexOf(":");
+            if (separatorIndex <= 0) return;
+
+            remarksByName.set(line.slice(0, separatorIndex).trim(), line.slice(separatorIndex + 1).trim());
+        });
+
+    return {
+        baseNotes: baseNotes.trim(),
+        remarksByName,
+    };
+}
+
+function composeInviteNotes(notes: string, guests: NewInviteGuestRow[]) {
+    const rowRemarks = guests
+        .filter((guest) => guest.fullName.trim() && guest.remarks.trim())
+        .map((guest) => `${guest.fullName.trim()}: ${guest.remarks.trim()}`)
+        .join("\n");
+
+    return [notes.trim(), rowRemarks ? `${inviteeRemarksHeading}\n${rowRemarks}` : ""].filter(Boolean).join("\n\n");
+}
+
+function createEditState(row: AdminInviteRow): AdminRsvpEditState {
+    const { baseNotes, remarksByName } = parseInviteNotes(row.notes);
+    const names = Array.from(new Set([...row.guestNames, ...row.dinnerGuestNames])).filter(Boolean);
+    const guests = (names.length ? names : [""]).map((name) => ({
+        id: crypto.randomUUID(),
+        fullName: name,
+        church: row.guestNames.includes(name),
+        dinner: row.dinnerGuestNames.includes(name),
+        remarks: remarksByName.get(name) ?? "",
+    }));
+
+    return {
+        ...row,
+        notes: baseNotes,
+        rsvpStatus: row.rsvp ? "submitted" : "pending",
+        guests,
+    };
+}
+
 export function AdminPage() {
     const [summary, setSummary] = useState<AdminSummary | null>(null);
     const [rows, setRows] = useState<AdminInviteRow[]>([]);
@@ -44,7 +99,7 @@ export function AdminPage() {
         guests: [createNewInviteGuestRow()],
         notes: "",
     });
-    const [editingRsvp, setEditingRsvp] = useState<RsvpResponse | null>(null);
+    const [editingRow, setEditingRow] = useState<AdminRsvpEditState | null>(null);
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [checkIns, setCheckIns] = useState<Record<string, string[]>>({});
@@ -150,9 +205,68 @@ export function AdminPage() {
     };
 
     const saveRsvpEdit = async () => {
-        if (!editingRsvp) return;
-        await updateAdminRsvp(editingRsvp);
+        if (!editingRow) return;
+
+        if (!editingRow.groupName.trim()) {
+            setMessage("Invite group name is required.");
+            return;
+        }
+
+        const guestRows = editingRow.guests
+            .map((guest) => ({
+                ...guest,
+                fullName: guest.fullName.trim(),
+                remarks: guest.remarks.trim(),
+            }))
+            .filter((guest) => guest.fullName);
+
+        if (!guestRows.length) {
+            setMessage("Please keep at least one invitee name.");
+            return;
+        }
+
+        await updateAdminInviteGroup({
+            id: editingRow.id,
+            groupName: editingRow.groupName.trim(),
+            guestNames: guestRows.filter((guest) => guest.church).map((guest) => guest.fullName),
+            dinnerGuestNames: guestRows.filter((guest) => guest.dinner).map((guest) => guest.fullName),
+            notes: composeInviteNotes(editingRow.notes ?? "", guestRows),
+        });
+
+        if (editingRow.rsvpStatus === "pending") {
+            if (editingRow.rsvp) {
+                await deleteAdminRsvp(editingRow.rsvp.id);
+            }
+        } else if (editingRow.rsvp) {
+            const ceremonyAttendees = editingRow.rsvp.ceremonyAttendees
+                .map((attendee) => ({
+                    ...attendee,
+                    attendeeLabel: attendee.attendeeLabel.trim(),
+                    dietaryPreference: attendee.dietaryPreference.trim(),
+                }))
+                .filter((attendee) => attendee.attendeeLabel);
+            const dinnerAttendees = editingRow.rsvp.dinnerAttendees
+                .map((attendee) => ({
+                    ...attendee,
+                    attendeeLabel: attendee.attendeeLabel.trim(),
+                    dietaryPreference: attendee.dietaryPreference.trim(),
+                }))
+                .filter((attendee) => attendee.attendeeLabel);
+
+            await updateAdminRsvp({
+                ...editingRow.rsvp,
+                responderName: editingRow.rsvp.responderName.trim() || editingRow.groupName.trim(),
+                ceremonyAttendingCount: ceremonyAttendees.length,
+                dinnerAttendingCount: dinnerAttendees.length,
+                generalNotes: editingRow.rsvp.generalNotes.trim(),
+                ceremonyAttendees,
+                dinnerAttendees,
+            });
+        }
+
+        setMessage(null);
         setEditModalOpen(false);
+        setEditingRow(null);
         await loadAdminData();
     };
 
@@ -215,10 +329,13 @@ export function AdminPage() {
 
                         <EditRsvpModal
                             open={editModalOpen}
-                            editingRsvp={editingRsvp}
-                            setEditingRsvp={setEditingRsvp}
+                            editingRow={editingRow}
+                            setEditingRow={setEditingRow}
                             onSave={() => void saveRsvpEdit()}
-                            onClose={() => setEditModalOpen(false)}
+                            onClose={() => {
+                                setEditModalOpen(false);
+                                setEditingRow(null);
+                            }}
                         />
 
                         <InviteGroupsSection
@@ -235,7 +352,7 @@ export function AdminPage() {
                             checkInAttendees={checkInAttendees}
                             getCheckedInNames={getCheckedInNames}
                             onEditRsvp={(row) => {
-                                setEditingRsvp(row.rsvp);
+                                setEditingRow(createEditState(row));
                                 setEditModalOpen(true);
                             }}
                             onDeleteInvite={(row) => {

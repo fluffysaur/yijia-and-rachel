@@ -15,3 +15,8 @@ export type NewInviteFormState = {
     guests: NewInviteGuestRow[];
     notes: string;
 };
+
+export type AdminRsvpEditState = AdminInviteRow & {
+    rsvpStatus: "submitted" | "pending";
+    guests: NewInviteGuestRow[];
+};

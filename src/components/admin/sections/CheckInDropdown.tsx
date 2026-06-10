@@ -16,7 +16,7 @@ export function CheckInDropdown({
     const triggerRef = useRef<HTMLButtonElement | null>(null);
     const menuRef = useRef<HTMLDivElement | null>(null);
     const [open, setOpen] = useState(false);
-    const [position, setPosition] = useState({ left: 0, top: 0, width: 224 });
+    const [position, setPosition] = useState({ left: 0, top: 0, width: 208 });
 
     const updatePosition = () => {
         const rect = triggerRef.current?.getBoundingClientRect();
@@ -25,7 +25,7 @@ export function CheckInDropdown({
         setPosition({
             left: rect.left,
             top: rect.bottom + 8,
-            width: Math.max(rect.width, 224),
+            width: Math.max(rect.width, 208),
         });
     };
 
@@ -68,7 +68,7 @@ export function CheckInDropdown({
         <>
             <button
                 ref={triggerRef}
-                className="flex min-w-40 cursor-pointer items-center justify-between gap-3 rounded-md border border-taupe/20 bg-white px-3 py-2 transition hover:bg-cream"
+                className="flex min-w-32 cursor-pointer items-center justify-between gap-2 rounded-md border border-taupe/20 bg-white px-2.5 py-2 transition hover:bg-cream"
                 type="button"
                 aria-expanded={open}
                 onClick={toggleOpen}
