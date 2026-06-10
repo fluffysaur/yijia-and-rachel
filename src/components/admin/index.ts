@@ -1,6 +1,7 @@
 export { AddInviteModal } from "./sections/AddInviteModal";
 export { AdminHeader } from "./sections/AdminHeader";
 export { AdminMealCounts } from "./sections/AdminMealCounts";
+export { AdminPasswordSettings } from "./sections/AdminPasswordSettings";
 export { AdminSignInCard } from "./sections/AdminSignInCard";
 export { AdminSummaryCards } from "./sections/AdminSummaryCards";
 export { EditRsvpModal } from "./sections/EditRsvpModal";

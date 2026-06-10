@@ -21,24 +21,20 @@ export function RsvpDetail({ inviteGroup, rsvp }: { inviteGroup: InviteGroup; rs
             ))}
           </ul>
         </div>
-        <div>
-          <h3 className="font-medium">Dinner banquet</h3>
-          {inviteGroup.dinnerAllowedCount === 0 ? (
-            <p className="text-taupe">Not invited for dinner banquet.</p>
-          ) : (
-            <>
-              <p className="text-taupe">{rsvp.dinnerAttendingCount} attending</p>
-              <ul className="mt-3 space-y-2 text-sm text-taupe">
-                {rsvp.dinnerAttendees.map((attendee) => (
-                  <li key={attendee.attendeeIndex}>
-                    {attendee.attendeeLabel}: {attendee.mealOption}
-                    {attendee.dietaryPreference ? `, ${attendee.dietaryPreference}` : ""}
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </div>
+        {inviteGroup.dinnerAllowedCount > 0 ? (
+          <div>
+            <h3 className="font-medium">Dinner banquet</h3>
+            <p className="text-taupe">{rsvp.dinnerAttendingCount} attending</p>
+            <ul className="mt-3 space-y-2 text-sm text-taupe">
+              {rsvp.dinnerAttendees.map((attendee) => (
+                <li key={attendee.attendeeIndex}>
+                  {attendee.attendeeLabel}: {attendee.mealOption}
+                  {attendee.dietaryPreference ? `, ${attendee.dietaryPreference}` : ""}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </div>
 
       {rsvp.generalNotes ? (

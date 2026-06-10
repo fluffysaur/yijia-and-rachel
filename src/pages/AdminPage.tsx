@@ -4,7 +4,7 @@ import {
     AddInviteModal,
     AdminHeader,
     AdminMealCounts,
-    AdminSignInCard,
+    AdminPasswordSettings,
     AdminSummaryCards,
     createNewInviteGuestRow,
     EditRsvpModal,
@@ -20,23 +20,7 @@ import {
     setAdminCheckIn,
     updateAdminRsvp,
 } from "../lib/rsvpRepository";
-import { getSupabaseBrowserClient, isDemoMode } from "../lib/supabase";
 import type { AdminSummary, RsvpResponse } from "../types/rsvp";
-
-const adminLoginStorageKey = "wedding-admin-login-expires-at";
-const adminLoginDurationMs = 2 * 60 * 60 * 1000;
-
-function hasSavedAdminLogin() {
-    return Number(localStorage.getItem(adminLoginStorageKey) ?? 0) > Date.now();
-}
-
-function saveAdminLogin() {
-    localStorage.setItem(adminLoginStorageKey, String(Date.now() + adminLoginDurationMs));
-}
-
-function clearAdminLogin() {
-    localStorage.removeItem(adminLoginStorageKey);
-}
 
 function readStoredCheckIns(inviteGroupId: string, eventType: "ceremony" | "dinner") {
     const stored = localStorage.getItem(`wedding-check-in:${inviteGroupId}:${eventType}`);
@@ -51,9 +35,6 @@ function readStoredCheckIns(inviteGroupId: string, eventType: "ceremony" | "dinn
 }
 
 export function AdminPage() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [authenticated, setAuthenticated] = useState(() => hasSavedAdminLogin());
     const [summary, setSummary] = useState<AdminSummary | null>(null);
     const [rows, setRows] = useState<AdminInviteRow[]>([]);
     const [filter, setFilter] = useState("");
@@ -196,122 +177,72 @@ export function AdminPage() {
             : (row.rsvp?.dinnerAttendees.map((attendee) => attendee.attendeeLabel) ?? []);
 
     useEffect(() => {
-        if (authenticated) {
-            void getAdminSummary().then(setSummary);
-            void listAdminInvites().then(setRows);
-        }
-    }, [authenticated]);
-
-    const signIn = async () => {
-        const supabase = getSupabaseBrowserClient();
-        if (!supabase) {
-            const staticPassword =
-                (import.meta.env.VITE_ADMIN_STATIC_PASSWORD as string | undefined) || "yijialovesrachel123";
-            if (password === staticPassword) {
-                setAuthenticated(true);
-                saveAdminLogin();
-                setMessage(null);
-                return;
-            }
-            setMessage("Invalid admin password.");
-            return;
-        }
-
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-            setMessage(error.message);
-            return;
-        }
-
-        setAuthenticated(true);
-        saveAdminLogin();
-    };
-
-    const signOut = async () => {
-        clearAdminLogin();
-        setAuthenticated(false);
-        setSummary(null);
-        setRows([]);
-        setPassword("");
-        setEmail("");
-        setMessage(null);
-
-        const supabase = getSupabaseBrowserClient();
-        if (supabase) {
-            await supabase.auth.signOut();
-        }
-    };
+        void getAdminSummary()
+            .then(setSummary)
+            .catch((error) => {
+                setMessage(error instanceof Error ? error.message : "Unable to load admin summary.");
+            });
+        void listAdminInvites()
+            .then(setRows)
+            .catch((error) => {
+                setMessage(error instanceof Error ? error.message : "Unable to load invite groups.");
+            });
+    }, []);
 
     return (
         <Layout>
             <main className="bg-cream/50 pb-14 pt-28">
                 <div className="section-shell">
-                    <AdminHeader
-                        authenticated={authenticated}
-                        onSignOut={() => void signOut()}
-                    />
+                    <AdminHeader />
 
-                    {!authenticated ? (
-                        <AdminSignInCard
-                            demoMode={isDemoMode()}
-                            email={email}
-                            password={password}
-                            message={message}
-                            onEmailChange={setEmail}
-                            onPasswordChange={setPassword}
-                            onSignIn={() => void signIn()}
+                    <div className="space-y-8">
+                        {message ? (
+                            <p className="rounded-md bg-rose/10 px-3 py-2 text-sm text-rose">{message}</p>
+                        ) : null}
+
+                        {summary ? <AdminSummaryCards summary={summary} /> : null}
+                        {summary ? <AdminMealCounts summary={summary} /> : null}
+                        <AdminPasswordSettings />
+
+                        <AddInviteModal
+                            open={createModalOpen}
+                            newInvite={newInvite}
+                            setNewInvite={setNewInvite}
+                            onClose={() => setCreateModalOpen(false)}
+                            onCreateInvite={() => void createInvite()}
+                            onImportCsv={(file) => void importCsv(file)}
                         />
-                    ) : (
-                        <div className="space-y-8">
-                            {isDemoMode() ? (
-                                <p className="rounded-md bg-gold/10 px-3 py-2 text-sm text-taupe">
-                                    Demo admin mode is active until Supabase environment variables are configured.
-                                </p>
-                            ) : null}
 
-                            {summary ? <AdminSummaryCards summary={summary} /> : null}
-                            {summary ? <AdminMealCounts summary={summary} /> : null}
+                        <EditRsvpModal
+                            open={editModalOpen}
+                            editingRsvp={editingRsvp}
+                            setEditingRsvp={setEditingRsvp}
+                            onSave={() => void saveRsvpEdit()}
+                            onClose={() => setEditModalOpen(false)}
+                        />
 
-                            <AddInviteModal
-                                open={createModalOpen}
-                                newInvite={newInvite}
-                                setNewInvite={setNewInvite}
-                                onClose={() => setCreateModalOpen(false)}
-                                onCreateInvite={() => void createInvite()}
-                                onImportCsv={(file) => void importCsv(file)}
-                            />
-
-                            <EditRsvpModal
-                                open={editModalOpen}
-                                editingRsvp={editingRsvp}
-                                setEditingRsvp={setEditingRsvp}
-                                onSave={() => void saveRsvpEdit()}
-                                onClose={() => setEditModalOpen(false)}
-                            />
-
-                            <InviteGroupsSection
-                                rows={filteredRows}
-                                filter={filter}
-                                filteredChurchInvitedCount={filteredChurchInvitedCount}
-                                filteredDinnerInvitedCount={filteredDinnerInvitedCount}
-                                onFilterChange={setFilter}
-                                onAddInvite={() => setCreateModalOpen(true)}
-                                onImportCsv={(file) => void importCsv(file)}
-                                onRefresh={() => void loadAdminData()}
-                                onExport={() => exportCsv(filteredRows)}
-                                onToggleCheckIn={(row, eventType, name) => void toggleCheckIn(row, eventType, name)}
-                                checkInAttendees={checkInAttendees}
-                                getCheckedInNames={getCheckedInNames}
-                                onEditRsvp={(row) => {
-                                    setEditingRsvp(row.rsvp);
-                                    setEditModalOpen(true);
-                                }}
-                                onDeleteInvite={(row) => {
-                                    void deleteAdminInviteGroup(row.id).then(loadAdminData);
-                                }}
-                            />
-                        </div>
-                    )}
+                        <InviteGroupsSection
+                            rows={filteredRows}
+                            filter={filter}
+                            filteredChurchInvitedCount={filteredChurchInvitedCount}
+                            filteredDinnerInvitedCount={filteredDinnerInvitedCount}
+                            onFilterChange={setFilter}
+                            onAddInvite={() => setCreateModalOpen(true)}
+                            onImportCsv={(file) => void importCsv(file)}
+                            onRefresh={() => void loadAdminData()}
+                            onExport={() => exportCsv(filteredRows)}
+                            onToggleCheckIn={(row, eventType, name) => void toggleCheckIn(row, eventType, name)}
+                            checkInAttendees={checkInAttendees}
+                            getCheckedInNames={getCheckedInNames}
+                            onEditRsvp={(row) => {
+                                setEditingRsvp(row.rsvp);
+                                setEditModalOpen(true);
+                            }}
+                            onDeleteInvite={(row) => {
+                                void deleteAdminInviteGroup(row.id).then(loadAdminData);
+                            }}
+                        />
+                    </div>
                 </div>
             </main>
         </Layout>

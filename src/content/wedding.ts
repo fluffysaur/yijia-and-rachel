@@ -106,16 +106,12 @@ export const siteContent = {
     ],
     faq: [
         {
-            question: "Can I attend only the church ceremony?",
-            answer: "Yes. All invited attendees are invited to the church ceremony and lunch buffet. Dinner invitations are separate.",
-        },
-        {
             question: "What should I wear?",
-            answer: "For church, smart casual or church wear is perfect. For dinner, semi-formal attire is recommended.",
+            answer: "Look under details for the dress code! But it's not strict - we'll be glad you came either way :)",
         },
         {
             question: "Can I change my RSVP after submitting?",
-            answer: "Guests can view submitted RSVP details, but only admins can edit after submission. Please contact us if changes are needed.",
+            answer: "You can only view your submitted RSVP details. Please contact us if you need to make any changes after submitting.",
         },
         {
             question: "How do I share dietary preferences?",
@@ -124,8 +120,8 @@ export const siteContent = {
     ],
     contact: {
         title: "Contact Us",
-        body: "Questions or RSVP changes? Reach out to us directly.",
-        email: "hello@yijiaxrachel.example",
-        phone: "+65 0000 0000",
+        body: "Questions or RSVP changes? Reach out to either one of us directly.",
+        email: "tanyijia@gmail.com",
+        phone: "+65 9678 4612",
     },
 };

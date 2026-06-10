@@ -2,6 +2,8 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { AdminPage } from "./pages/AdminPage";
+import { AuthProvider } from "./components/auth/AuthContext";
+import { EntryGate } from "./components/auth/EntryGate";
 import { RsvpModalProvider } from "./components/RsvpModal";
 import { HomePage } from "./pages/HomePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -11,14 +13,16 @@ import "./styles.css";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <RsvpModalProvider>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/rsvp" element={<RsvpPage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </RsvpModalProvider>
+      <AuthProvider>
+        <RsvpModalProvider>
+          <Routes>
+            <Route path="/" element={<EntryGate><HomePage /></EntryGate>} />
+            <Route path="/rsvp" element={<EntryGate><RsvpPage /></EntryGate>} />
+            <Route path="/admin" element={<EntryGate requireAdmin><AdminPage /></EntryGate>} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </RsvpModalProvider>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>
 );

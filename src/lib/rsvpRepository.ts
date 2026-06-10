@@ -7,8 +7,8 @@ import type {
   RsvpDraft,
   RsvpResponse
 } from "../types/rsvp";
-import { dinnerMealOptions } from "../types/rsvp";
 import { normalizeName } from "./name";
+import { readAccessSession } from "./access";
 import { getSupabaseBrowserClient } from "./supabase";
 
 const localStorageKey = (inviteGroupId: string) => `wedding-rsvp:${inviteGroupId}`;
@@ -30,33 +30,6 @@ const mapInviteGroup = (row: Record<string, unknown>): InviteGroup => ({
   dinnerAllowedCount: Number(row.dinner_allowed_count ?? row.dinnerAllowedCount),
   notes: row.notes ? String(row.notes) : null,
   hasSubmitted: Boolean(row.has_submitted ?? row.hasSubmitted)
-});
-
-const mapResponse = (
-  row: Record<string, unknown>,
-  ceremonyAttendees: Record<string, unknown>[] = [],
-  dinnerAttendees: Record<string, unknown>[] = []
-): RsvpResponse => ({
-  id: String(row.id),
-  inviteGroupId: String(row.invite_group_id ?? row.inviteGroupId),
-  responderName: String(row.responder_name ?? row.responderName),
-  ceremonyAttendingCount: Number(row.ceremony_attending_count ?? row.ceremonyAttendingCount),
-  dinnerAttendingCount: Number(row.dinner_attending_count ?? row.dinnerAttendingCount),
-  generalNotes: row.general_notes || row.generalNotes ? String(row.general_notes ?? row.generalNotes) : "",
-  lockedForGuestEdit: Boolean(row.locked_for_guest_edit ?? row.lockedForGuestEdit),
-  submittedAt: String(row.submitted_at ?? row.submittedAt),
-  updatedAt: String(row.updated_at ?? row.updatedAt),
-  ceremonyAttendees: ceremonyAttendees.map((attendee) => ({
-    attendeeIndex: Number(attendee.attendee_index ?? attendee.attendeeIndex),
-    attendeeLabel: String(attendee.attendee_label ?? attendee.attendeeLabel),
-    dietaryPreference: attendee.dietary_preference || attendee.dietaryPreference ? String(attendee.dietary_preference ?? attendee.dietaryPreference) : ""
-  })),
-  dinnerAttendees: dinnerAttendees.map((attendee) => ({
-    attendeeIndex: Number(attendee.attendee_index ?? attendee.attendeeIndex),
-    attendeeLabel: String(attendee.attendee_label ?? attendee.attendeeLabel),
-    mealOption: String(attendee.meal_option ?? attendee.mealOption) as DinnerMealOption,
-    dietaryPreference: attendee.dietary_preference || attendee.dietaryPreference ? String(attendee.dietary_preference ?? attendee.dietaryPreference) : ""
-  }))
 });
 
 function draftToResponse(draft: RsvpDraft): RsvpResponse {
@@ -83,6 +56,30 @@ function getDemoResponse(inviteGroupId: string) {
   }
 
   return demoResponses.find((response) => response.inviteGroupId === inviteGroupId) ?? null;
+}
+
+async function adminApiJson<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const session = readAccessSession();
+  if (session?.role !== "admin") {
+    throw new Error("Admin session required.");
+  }
+
+  const response = await fetch(path, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.token}`,
+      ...init.headers,
+    },
+  });
+  const payload = (await response.json().catch(() => null)) as (T & { error?: string }) | null;
+  if (!response.ok) {
+    throw new Error(payload?.error || "Admin request failed.");
+  }
+  if (!payload) {
+    throw new Error("Admin request returned an empty response.");
+  }
+  return payload;
 }
 
 export async function searchInviteGroups(query: string): Promise<InviteGroup[]> {
@@ -198,72 +195,13 @@ export async function submitGuestRsvp(draft: RsvpDraft): Promise<RsvpResponse> {
 }
 
 export async function getAdminSummary(): Promise<AdminSummary> {
-  const rows = await listAdminInvites();
-  const groups = rows;
-  const responses = rows.map((row) => row.rsvp).filter((response): response is RsvpResponse => response !== null);
-
-  const mealCounts = Object.fromEntries(dinnerMealOptions.map((option) => [option, 0])) as Record<DinnerMealOption, number>;
-  responses.forEach((response) => {
-    response.dinnerAttendees.forEach((attendee) => {
-      mealCounts[attendee.mealOption] += 1;
-    });
-  });
-
-  return {
-    totalInviteGroups: groups.length,
-    ceremonyInvited: groups.reduce((sum, group) => sum + group.ceremonyAllowedCount, 0),
-    ceremonyAttending: responses.reduce((sum, response) => sum + response.ceremonyAttendingCount, 0),
-    dinnerInvited: groups.reduce((sum, group) => sum + group.dinnerAllowedCount, 0),
-    dinnerAttending: responses.reduce((sum, response) => sum + response.dinnerAttendingCount, 0),
-    pendingResponses: groups.length - responses.length,
-    mealCounts
-  };
+  const payload = await adminApiJson<{ summary: AdminSummary }>("/api/admin/summary");
+  return payload.summary;
 }
 
 export async function listAdminInvites() {
-  const supabase = getSupabaseBrowserClient();
-  if (!supabase) {
-    return demoInviteGroups.map((group) => ({
-      ...group,
-      rsvp: getDemoResponse(group.id)
-    }));
-  }
-
-  const { data: inviteRows, error: inviteError } = await supabase
-    .from("invite_groups")
-    .select("*")
-    .order("group_name", { ascending: true });
-  if (inviteError) throw inviteError;
-
-  const { data: responseRows, error: responseError } = await supabase.from("rsvp_responses").select("*");
-  if (responseError) throw responseError;
-
-  const responseIds = (responseRows ?? []).map((row) => row.id);
-  const { data: ceremonyRows, error: ceremonyError } = responseIds.length
-    ? await supabase.from("ceremony_attendees").select("*").in("rsvp_response_id", responseIds)
-    : { data: [], error: null };
-  if (ceremonyError) throw ceremonyError;
-
-  const { data: dinnerRows, error: dinnerError } = responseIds.length
-    ? await supabase.from("dinner_attendees").select("*").in("rsvp_response_id", responseIds)
-    : { data: [], error: null };
-  if (dinnerError) throw dinnerError;
-
-  return (inviteRows ?? []).map((inviteRow) => {
-    const responseRow = (responseRows ?? []).find((row) => row.invite_group_id === inviteRow.id);
-    const rsvp = responseRow
-      ? mapResponse(
-          responseRow,
-          (ceremonyRows ?? []).filter((row) => row.rsvp_response_id === responseRow.id),
-          (dinnerRows ?? []).filter((row) => row.rsvp_response_id === responseRow.id)
-        )
-      : null;
-
-    return {
-      ...mapInviteGroup(inviteRow),
-      rsvp
-    };
-  });
+  const payload = await adminApiJson<{ rows: (InviteGroup & { rsvp: RsvpResponse | null })[] }>("/api/admin/invites");
+  return payload.rows;
 }
 
 export async function createAdminInviteGroup(input: {
@@ -274,7 +212,6 @@ export async function createAdminInviteGroup(input: {
   dinnerAllowedCount: number;
   notes: string;
 }) {
-  const supabase = getSupabaseBrowserClient();
   const providedGuestNames = input.guestNames?.filter(Boolean) ?? [];
   const guestNames = providedGuestNames.length
     ? providedGuestNames
@@ -291,109 +228,38 @@ export async function createAdminInviteGroup(input: {
     notes: input.notes
   };
 
-  if (!supabase) {
-    demoInviteGroups.push(inviteGroup);
-    return inviteGroup;
-  }
-
-  const { data, error } = await supabase
-    .from("invite_groups")
-    .insert({
-      group_name: input.groupName,
-      normalized_name: normalizeName([input.groupName, ...guestNames, ...dinnerGuestNames].join(" ")),
-      guest_names: guestNames,
-      dinner_guest_names: dinnerGuestNames,
-      ceremony_allowed_count: guestNames.length,
-      dinner_allowed_count: dinnerGuestNames.length,
-      notes: input.notes || null
-    })
-    .select("*")
-    .single();
-
-  if (error) throw error;
-  return mapInviteGroup(data);
+  const payload = await adminApiJson<{ invite: InviteGroup }>("/api/admin/invites", {
+    method: "POST",
+    body: JSON.stringify(inviteGroup),
+  });
+  return payload.invite;
 }
 
 export async function deleteAdminInviteGroup(inviteGroupId: string) {
-  const supabase = getSupabaseBrowserClient();
-  if (!supabase) {
-    const index = demoInviteGroups.findIndex((group) => group.id === inviteGroupId);
-    if (index >= 0) demoInviteGroups.splice(index, 1);
-    localStorage.removeItem(localStorageKey(inviteGroupId));
-    return;
-  }
-
-  const { error } = await supabase.from("invite_groups").delete().eq("id", inviteGroupId);
-  if (error) throw error;
+  await adminApiJson<{ ok: boolean }>(`/api/admin/invites/${inviteGroupId}`, { method: "DELETE" });
 }
 
 export async function updateAdminRsvp(response: RsvpResponse) {
-  const supabase = getSupabaseBrowserClient();
-  if (!supabase) {
-    localStorage.setItem(localStorageKey(response.inviteGroupId), JSON.stringify({ ...response, updatedAt: new Date().toISOString() }));
-    return;
-  }
-
-  const { error: responseError } = await supabase
-    .from("rsvp_responses")
-    .update({
-      responder_name: response.responderName,
-      ceremony_attending_count: response.ceremonyAttendingCount,
-      dinner_attending_count: response.dinnerAttendingCount,
-      general_notes: response.generalNotes,
-      updated_at: new Date().toISOString()
-    })
-    .eq("id", response.id);
-  if (responseError) throw responseError;
-
-  const { error: deleteCeremonyError } = await supabase.from("ceremony_attendees").delete().eq("rsvp_response_id", response.id);
-  if (deleteCeremonyError) throw deleteCeremonyError;
-
-  const { error: deleteDinnerError } = await supabase.from("dinner_attendees").delete().eq("rsvp_response_id", response.id);
-  if (deleteDinnerError) throw deleteDinnerError;
-
-  if (response.ceremonyAttendees.length) {
-    const { error } = await supabase.from("ceremony_attendees").insert(
-      response.ceremonyAttendees.map((attendee) => ({
-        rsvp_response_id: response.id,
-        attendee_index: attendee.attendeeIndex,
-        attendee_label: attendee.attendeeLabel,
-        dietary_preference: attendee.dietaryPreference
-      }))
-    );
-    if (error) throw error;
-  }
-
-  if (response.dinnerAttendees.length) {
-    const { error } = await supabase.from("dinner_attendees").insert(
-      response.dinnerAttendees.map((attendee) => ({
-        rsvp_response_id: response.id,
-        attendee_index: attendee.attendeeIndex,
-        attendee_label: attendee.attendeeLabel,
-        meal_option: attendee.mealOption,
-        dietary_preference: attendee.dietaryPreference
-      }))
-    );
-    if (error) throw error;
-  }
+  await adminApiJson<{ ok: boolean }>(`/api/admin/rsvp/${response.id}`, {
+    method: "PUT",
+    body: JSON.stringify({ response }),
+  });
 }
 
 export async function setAdminCheckIn(inviteGroupId: string, eventType: "ceremony" | "dinner", checkedInNames: string[]) {
-  const supabase = getSupabaseBrowserClient();
-  if (!supabase) {
-    localStorage.setItem(`wedding-check-in:${inviteGroupId}:${eventType}`, JSON.stringify(checkedInNames));
-    return;
-  }
+  await adminApiJson<{ ok: boolean }>("/api/admin/check-ins", {
+    method: "PUT",
+    body: JSON.stringify({ inviteGroupId, eventType, checkedInNames }),
+  });
+}
 
-  const { error } = await supabase.from("check_ins").upsert(
-    {
-      invite_group_id: inviteGroupId,
-      event_type: eventType,
-      checked_in_count: checkedInNames.length,
-      checked_in_names: checkedInNames,
-      checked_in_at: new Date().toISOString()
-    },
-    { onConflict: "invite_group_id,event_type" }
-  );
-  if (error) throw error;
+export async function getGuestPasswords() {
+  return adminApiJson<{ lunchPassword: string; fullPassword: string }>("/api/admin/settings/passwords");
+}
+
+export async function updateGuestPasswords(input: { lunchPassword: string; fullPassword: string }) {
+  return adminApiJson<{ lunchPassword: string; fullPassword: string }>("/api/admin/settings/passwords", {
+    method: "PUT",
+    body: JSON.stringify(input),
+  });
 }

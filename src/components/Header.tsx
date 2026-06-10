@@ -1,16 +1,18 @@
-import { Menu, X } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { Link, useLocation } from "react-router";
 import { clsx } from "clsx";
 import { siteContent } from "../content/wedding";
 import { Button } from "./Button";
 import { useRsvpModal } from "./RsvpModalContext";
+import { useAuth } from "./auth/AuthContext";
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
 export function Header() {
     const location = useLocation();
     const { openRsvp } = useRsvpModal();
+    const { session, signOut } = useAuth();
     const isAdmin = location.pathname === "/admin";
     const [menuOpen, setMenuOpen] = useState(false);
     const [observedSection, setObservedSection] = useState("");
@@ -21,6 +23,7 @@ export function Header() {
             ? [
                   { href: "#summary", label: "Summary" },
                   { href: "#meals", label: "Meals" },
+                  { href: "#settings", label: "Passwords" },
                   { href: "#invites", label: "Invites" },
               ]
             : siteContent.navigation;
@@ -123,6 +126,15 @@ export function Header() {
                         >
                             RSVP
                         </Button>
+                    ) : null}
+                    {session ? (
+                        <button
+                            className="inline-flex size-10 cursor-pointer items-center justify-center rounded-md border border-taupe/20 bg-white/85 text-taupe transition duration-300 hover:border-rose/40 hover:bg-cream hover:text-ink"
+                            aria-label="Sign out"
+                            onClick={signOut}
+                        >
+                            <LogOut size={16} />
+                        </button>
                     ) : null}
                     <button
                         className="relative inline-flex size-10 cursor-pointer items-center justify-center rounded-md border border-taupe/20 bg-white/85 text-ink transition duration-300 hover:border-rose/40 hover:bg-cream lg:hidden"

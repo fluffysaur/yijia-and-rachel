@@ -21,7 +21,9 @@ npm run dev
 
 Copy `.env.example` to `.env.local` and fill in Supabase values when ready.
 
-Without Supabase environment variables, the app runs in demo mode with sample invite groups and localStorage-backed RSVP data so the UI can be reviewed.
+`npm run dev` now defaults to demo mode (sample invite groups from `src/data/demo.ts` + localStorage-backed RSVP data), so local UI testing works out of the box.
+
+If you want to use Supabase while running Vite locally, set `VITE_ENABLE_SUPABASE_IN_DEV=true` in `.env.local`.
 
 ## Editable Content
 
@@ -50,7 +52,9 @@ The schema includes:
 - `rsvp_audit_log`
 - public RPC helpers for invite search and read-only RSVP viewing
 
-Admin access is handled through Supabase Auth. Create admin users in Supabase and add their UUIDs to the `admin_profiles` table.
+Guest access is handled by site passwords. `LUNCH_PASSWORD` and `FULL_PASSWORD` provide initial fallback values, and admins can view or update those guest passwords from the dashboard after `site_settings` exists.
+
+Admin access is handled by the server-only `ADMIN_PASSWORD`. The dashboard uses Vercel API routes with `SUPABASE_SERVICE_ROLE_KEY`, so the service-role key must never be exposed as a `VITE_` variable.
 
 ## Scripts
 
@@ -68,5 +72,9 @@ Deploy to Vercel and set:
 
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `ADMIN_PASSWORD`
+- `LUNCH_PASSWORD`
+- `FULL_PASSWORD`
 
 Point the final custom domain, for example `yijiaxrachel.<tld>`, to the Vercel project.

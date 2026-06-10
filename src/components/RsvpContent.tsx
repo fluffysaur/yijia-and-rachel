@@ -3,11 +3,14 @@ import { useRef, useState } from "react";
 import { RsvpDetail } from "./RsvpDetail";
 import { RsvpForm } from "./RsvpForm";
 import { getInviteWithRsvp, searchInviteGroups, submitGuestRsvp } from "../lib/rsvpRepository";
+import { filterInviteForRole, filterInviteWithRsvpForRole } from "../lib/access";
 import { validateRsvpDraft } from "../lib/rsvpValidation";
 import { isDemoMode } from "../lib/supabase";
+import { useAuth } from "./auth/AuthContext";
 import type { InviteGroup, InviteWithRsvp, RsvpDraft } from "../types/rsvp";
 
 export function RsvpContent({ compact = false }: { compact?: boolean }) {
+  const { role } = useAuth();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<InviteGroup[]>([]);
   const [selected, setSelected] = useState<InviteWithRsvp | null>(null);
@@ -39,7 +42,7 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
       void searchInviteGroups(normalizedQuery)
         .then((matches) => {
           if (searchRequestId.current === requestId) {
-            setResults(matches);
+            setResults(matches.map((invite) => filterInviteForRole(invite, role)));
           }
         })
         .catch((error) => {
@@ -59,7 +62,7 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
     setLoading(true);
     setMessage(null);
     try {
-      setSelected(await getInviteWithRsvp(inviteGroupId));
+      setSelected(filterInviteWithRsvpForRole(await getInviteWithRsvp(inviteGroupId), role));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to load RSVP details.");
     } finally {

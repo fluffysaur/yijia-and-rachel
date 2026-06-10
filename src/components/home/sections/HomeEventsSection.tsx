@@ -1,7 +1,12 @@
 import { EventCard } from "../../EventCard";
 import { siteContent } from "../../../content/wedding";
+import { useAuth } from "../../auth/AuthContext";
+import { filterEventsForRole } from "../../../lib/access";
 
 export function HomeEventsSection() {
+    const { role } = useAuth();
+    const events = filterEventsForRole(siteContent.events, role);
+
     return (
         <section
             id="events"
@@ -17,7 +22,7 @@ export function HomeEventsSection() {
                     </p>
                 </div>
                 <div className="grid gap-8">
-                    {siteContent.events.map((event) => (
+                    {events.map((event) => (
                         <EventCard
                             key={event.id}
                             event={event}
