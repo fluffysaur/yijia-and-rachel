@@ -67,6 +67,6 @@ npm run lint      # eslint
 Deploy to Vercel and set:
 
 - `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
 
 Point the final custom domain, for example `yijiaxrachel.<tld>`, to the Vercel project.
