@@ -18,7 +18,6 @@ export const siteContent = {
         { href: "#contact", label: "Contact" },
     ],
     hero: {
-        eyebrow: "We are getting married",
         headline: "Yi Jia & Rachel",
         body: "A gentle celebration of faith, family, and the people who have walked with us.",
         image: "https://images.unsplash.com/photo-1513278974582-3e1b4a4fa21e?auto=format&fit=crop&w=2000&q=88",
@@ -27,8 +26,9 @@ export const siteContent = {
     story: {
         title: "Our Story",
         paragraphs: [
-            "This is a placeholder for the story of how we met, grew together, and arrived at this season.",
-            "Replace this copy with a few short paragraphs that feel personal and easy for guests to read before the wedding day.",
+            "From a green-tinted drawing of a nurse sparked a love that blossomed to what it is today.",
+            "After the very first night they met, Yi Jia had already decided that Rachel was one worth pursuing, as he wrote in his journal.",
+            "<Work in progress>",
         ],
     },
     events: [
@@ -36,8 +36,8 @@ export const siteContent = {
             id: "ceremony",
             title: "Church Wedding Ceremony & Lunch Buffet",
             date: weddingDate,
-            startTime: "11:00",
-            endTime: "14:00",
+            startTime: "11:00 AM",
+            endTime: "2:00 PM",
             venueName: "Paya Lebar Methodist Church",
             address: "5 Boundary Rd, Singapore 549954",
             attire: "Smart casual, Sunday best",
@@ -51,8 +51,8 @@ export const siteContent = {
             id: "dinner",
             title: "Dinner Banquet",
             date: weddingDate,
-            startTime: "19:00",
-            endTime: "22:30",
+            startTime: "7:00 PM",
+            endTime: "11:00 PM",
             venueName: "Dinner banquet venue to be confirmed",
             address: "Add banquet address here",
             attire: "Semi-formal",
@@ -121,7 +121,5 @@ export const siteContent = {
     contact: {
         title: "Contact Us",
         body: "Questions or RSVP changes? Reach out to either one of us directly.",
-        email: "tanyijia@gmail.com",
-        phone: "+65 9678 4612",
     },
 };

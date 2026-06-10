@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GalleryModal } from "../components/GalleryModal";
 import {
     HomeContactSection,
@@ -31,6 +31,42 @@ export function HomePage() {
             return next;
         });
     };
+
+    useEffect(() => {
+        const revealElements = Array.from(document.querySelectorAll<HTMLElement>(".reveal, .hero-background-fade"));
+
+        if (!revealElements.length) {
+            return;
+        }
+
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+            revealElements.forEach((element) => element.classList.add("reveal-visible"));
+            return;
+        }
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    }
+
+                    entry.target.classList.add("reveal-visible");
+                    observer.unobserve(entry.target);
+                });
+            },
+            {
+                rootMargin: "0px 0px -12% 0px",
+                threshold: 0.1,
+            },
+        );
+
+        revealElements.forEach((element) => observer.observe(element));
+
+        return () => observer.disconnect();
+    }, []);
 
     return (
         <Layout>
