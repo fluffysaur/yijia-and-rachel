@@ -29,6 +29,7 @@ export default async function handler(req, res) {
       },
     });
   } catch (error) {
+    console.error("Unable to load summary.", error);
     res.status(500).json({ error: error instanceof Error ? error.message : "Unable to load summary." });
   }
 }

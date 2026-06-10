@@ -12,6 +12,12 @@ export default async function handler(req, res) {
     }
 
     const input = req.body || {};
+    const groupName = String(input.groupName || "").trim();
+    if (!groupName) {
+      res.status(400).json({ error: "Invite group name is required." });
+      return;
+    }
+
     const guestNames = Array.isArray(input.guestNames) ? input.guestNames.filter(Boolean).map(String) : [];
     const fallbackGuestNames = Array.from(
       { length: Number(input.ceremonyAllowedCount || guestNames.length || 1) },
@@ -29,8 +35,8 @@ export default async function handler(req, res) {
     const { data, error } = await supabase
       .from("invite_groups")
       .insert({
-        group_name: String(input.groupName || ""),
-        normalized_name: normalizeName([input.groupName, ...finalGuestNames, ...dinnerGuestNames].join(" ")),
+        group_name: groupName,
+        normalized_name: normalizeName([groupName, ...finalGuestNames, ...dinnerGuestNames].join(" ")),
         guest_names: finalGuestNames,
         dinner_guest_names: dinnerGuestNames,
         ceremony_allowed_count: finalGuestNames.length,
@@ -43,6 +49,7 @@ export default async function handler(req, res) {
     if (error) throw error;
     res.status(200).json({ invite: mapInviteGroup(data) });
   } catch (error) {
-    res.status(500).json({ error: error instanceof Error ? error.message : "Unable to save invite." });
+    console.error("Unable to save invite.", error);
+    res.status(500).json({ error: "Unable to save invite." });
   }
 }

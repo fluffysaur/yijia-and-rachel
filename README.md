@@ -54,7 +54,7 @@ The schema includes:
 
 Guest access is handled by site passwords. `LUNCH_PASSWORD` and `FULL_PASSWORD` provide initial fallback values, and admins can view or update those guest passwords from the dashboard after `site_settings` exists.
 
-Admin access is handled by the server-only `ADMIN_PASSWORD`. The dashboard uses Vercel API routes with `SUPABASE_SERVICE_ROLE_KEY`, so the service-role key must never be exposed as a `VITE_` variable.
+Admin access is handled by the server-only `ADMIN_PASSWORD`. The dashboard uses Vercel API routes with `SUPABASE_SECRET_KEY`, so the Supabase secret key must never be exposed as a `VITE_` variable.
 
 ## Scripts
 
@@ -72,7 +72,7 @@ Deploy to Vercel and set:
 
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_PUBLISHABLE_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_SECRET_KEY`
 - `ADMIN_PASSWORD`
 - `LUNCH_PASSWORD`
 - `FULL_PASSWORD`

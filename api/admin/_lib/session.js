@@ -3,7 +3,11 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 const sessionDurationMs = 2 * 60 * 60 * 1000;
 
 function secret() {
-  return [process.env.ADMIN_PASSWORD, process.env.SUPABASE_SERVICE_ROLE_KEY, process.env.VITE_SUPABASE_URL]
+  return [
+    process.env.ADMIN_PASSWORD,
+    process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY,
+    process.env.VITE_SUPABASE_URL,
+  ]
     .filter(Boolean)
     .join(":");
 }
