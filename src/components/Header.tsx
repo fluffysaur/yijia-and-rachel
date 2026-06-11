@@ -144,14 +144,14 @@ export function Header() {
                         onClick={() => setMenuOpen((value) => !value)}
                     >
                         <Menu
-                            size={18}
+                            size={20}
                             className={clsx(
                                 "absolute transition-all duration-300",
                                 menuOpen ? "rotate-90 scale-75 opacity-0" : "rotate-0 scale-100 opacity-100",
                             )}
                         />
                         <X
-                            size={18}
+                            size={20}
                             className={clsx(
                                 "absolute transition-all duration-300",
                                 menuOpen ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-75 opacity-0",

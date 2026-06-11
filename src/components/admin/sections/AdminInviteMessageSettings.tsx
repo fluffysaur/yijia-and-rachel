@@ -58,7 +58,7 @@ export function AdminInviteMessageSettings() {
                 </div>
                 <MessageSquareText
                     className="hidden text-sage md:block"
-                    size={28}
+                    size={32}
                     aria-hidden="true"
                 />
             </div>

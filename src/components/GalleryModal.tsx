@@ -52,14 +52,14 @@ export function GalleryModal({
         aria-label="Previous image"
         onClick={showPrevious}
       >
-        <ChevronLeft size={22} />
+        <ChevronLeft size={24} />
       </button>
       <button
         className="absolute right-4 top-1/2 z-10 inline-flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-white/10 transition hover:bg-white/20"
         aria-label="Next image"
         onClick={showNext}
       >
-        <ChevronRight size={22} />
+        <ChevronRight size={24} />
       </button>
       <div className="flex h-full flex-col items-center justify-center gap-5 px-4 py-16">
         <img src={activeImage.src} alt={activeImage.alt} className="max-h-[74vh] max-w-full rounded-lg object-contain shadow-2xl" />

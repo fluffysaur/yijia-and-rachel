@@ -250,8 +250,8 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
                     </label>
                     {loading ? (
                         <LoaderCircle
-                            className="absolute right-3 top-3.5 animate-spin text-taupe"
-                            size={18}
+                            className="absolute right-3 top-3 animate-spin text-taupe"
+                            size={24}
                             aria-hidden="true"
                         />
                     ) : null}
@@ -287,7 +287,7 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
                 <div className="flex items-center gap-2 rounded-lg border border-taupe/15 bg-white p-5 text-sm text-taupe shadow-sm">
                     <LoaderCircle
                         className="animate-spin"
-                        size={18}
+                        size={20}
                         aria-hidden="true"
                     />
                     Loading your invite...

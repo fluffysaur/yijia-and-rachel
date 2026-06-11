@@ -20,7 +20,7 @@ export function HomeQaSection() {
                         >
                             <Heart
                                 className="mb-5 text-rose"
-                                size={22}
+                                size={24}
                             />
                             <h3 className="text-lg font-medium">{item.question}</h3>
                             <p className="mt-3 text-taupe">{item.answer}</p>

@@ -48,7 +48,7 @@ export function FadeModal({
             aria-label={`Close ${title}`}
             onClick={onClose}
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </div>
         {children}

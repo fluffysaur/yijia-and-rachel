@@ -291,7 +291,7 @@ export function InviteGroupsSection({
                                             type="button"
                                             onClick={() => toggleRowMenu(row.id)}
                                         >
-                                            <MoreHorizontal size={15} />
+                                            <MoreHorizontal size={16} />
                                         </button>
                                     </div>
                                 </td>
@@ -320,7 +320,7 @@ export function InviteGroupsSection({
                                   importCsvInputRef.current?.click();
                               }}
                           >
-                              <Upload size={15} />
+                              <Upload size={16} />
                               Add by CSV
                           </button>
                           <button
@@ -331,7 +331,7 @@ export function InviteGroupsSection({
                                   onExport();
                               }}
                           >
-                              <Download size={15} />
+                              <Download size={16} />
                               Download CSV
                           </button>
                       </div>,

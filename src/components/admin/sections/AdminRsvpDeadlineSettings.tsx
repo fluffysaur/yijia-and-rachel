@@ -79,7 +79,7 @@ export function AdminRsvpDeadlineSettings() {
                 </div>
                 <CalendarClock
                     className="hidden text-sage md:block"
-                    size={28}
+                    size={32}
                     aria-hidden="true"
                 />
             </div>

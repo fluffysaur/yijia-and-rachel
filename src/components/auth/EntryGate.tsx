@@ -59,7 +59,7 @@ export function EntryGate({ children, requireAdmin = false }: { children: ReactN
       <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
         <section className="w-full max-w-md rounded-lg border border-white/35 bg-white/88 p-6 shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-md">
           <div className="mb-6">
-            <LockKeyhole className="mb-4 text-rose" size={28} />
+            <LockKeyhole className="mb-4 text-rose" size={32} />
             <p className="text-sm uppercase tracking-[0.24em] text-rose">{siteContent.couple.dateLabel}</p>
             <h1 className="mt-3 font-display text-5xl leading-none text-ink">{siteContent.couple.names}</h1>
             <p className="mt-4 text-sm leading-6 text-taupe">

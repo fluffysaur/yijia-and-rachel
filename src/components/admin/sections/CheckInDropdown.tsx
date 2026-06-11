@@ -68,7 +68,7 @@ export function CheckInDropdown({
         <>
             <button
                 ref={triggerRef}
-                className="flex min-w-32 cursor-pointer items-center justify-between gap-2 rounded-md border border-taupe/20 bg-white px-2.5 py-2 transition hover:bg-cream"
+                className="flex min-w-32 cursor-pointer items-center justify-between gap-2 rounded-md border border-taupe/20 bg-white px-3 py-2 transition hover:bg-cream"
                 type="button"
                 aria-expanded={open}
                 onClick={toggleOpen}

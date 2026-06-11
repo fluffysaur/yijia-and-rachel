@@ -223,7 +223,7 @@ export function EditRsvpModal({
                                                 disabled={editingRow.guests.length <= 1}
                                                 aria-label="Remove invitee"
                                             >
-                                                <Trash2 size={15} />
+                                                <Trash2 size={16} />
                                             </button>
                                         </td>
                                     </tr>
@@ -300,7 +300,7 @@ export function EditRsvpModal({
                                             })
                                         }
                                     >
-                                        <Plus size={15} />
+                                        <Plus size={16} />
                                         Add lunch
                                     </button>
                                 </div>
@@ -357,7 +357,7 @@ export function EditRsvpModal({
                                                     }
                                                     aria-label="Remove lunch attendee"
                                                 >
-                                                    <Trash2 size={15} />
+                                                    <Trash2 size={16} />
                                                 </button>
                                             </div>
                                         </div>
@@ -392,7 +392,7 @@ export function EditRsvpModal({
                                             })
                                         }
                                     >
-                                        <Plus size={15} />
+                                        <Plus size={16} />
                                         Add dinner
                                     </button>
                                 </div>
@@ -471,7 +471,7 @@ export function EditRsvpModal({
                                                     }
                                                     aria-label="Remove dinner attendee"
                                                 >
-                                                    <Trash2 size={15} />
+                                                    <Trash2 size={16} />
                                                 </button>
                                             </div>
                                         </div>
