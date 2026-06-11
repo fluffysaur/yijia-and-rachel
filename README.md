@@ -1,67 +1,91 @@
 # Yi Jia and Rachel's Wedding Site
 
-Minimal wedding web app for guests to view event details and RSVP for the church ceremony/lunch and dinner banquet.
+Password-gated wedding site for event details, gallery content, guest RSVP, admin invite management, invite messages, RSVP deadlines, and day-of check-ins.
 
 ## Stack
 
-- Node 24
-- TypeScript
-- React 19
-- React Router
-- Tailwind CSS v4
-- Supabase
-- Vercel
+- Node 24+
+- React 19, TypeScript, React Router
+- Vite and Tailwind CSS v4
+- Supabase for production data
+- Vercel serverless API routes for auth and admin actions
 
-## Local Setup
+## Local Development
 
 ```sh
 npm install
 npm run dev
 ```
 
-Copy `.env.example` to `.env.local` and fill in Supabase values when ready.
+Copy `.env.example` to `.env.local` when you want to configure real credentials.
 
-`npm run dev` now defaults to demo mode (sample invite groups from `src/data/demo.ts` + localStorage-backed RSVP data), so local UI testing works out of the box.
+Vite development uses demo mode by default. Demo mode loads sample invite groups from `src/data/demo.ts` and stores RSVP/admin changes in `localStorage`, so the app works without Supabase.
 
-Demo mode passwords:
+Demo passwords:
 
-- Admin dashboard: `adminpass` (or set `VITE_DEMO_ADMIN_PASSWORD`)
+- Admin dashboard: `adminpass` or `VITE_DEMO_ADMIN_PASSWORD`
 - Full-detail guest access: `sampledinnerpass`
 - Lunch-only guest access: `samplechurchpass`
-- Direct invite access: use the invite password shown in the dashboard, for example `demo-family-tan`
+- Direct invite access: use an invite password from the admin dashboard, such as `demo-family-tan`
 
-If you want to use Supabase while running Vite locally, set `VITE_ENABLE_SUPABASE_IN_DEV=true` in `.env.local`.
+To use Supabase locally, set `VITE_ENABLE_SUPABASE_IN_DEV=true` and provide the Supabase env vars below.
+
+## Environment
+
+Client-safe values:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+- `VITE_ENABLE_SUPABASE_IN_DEV` optional, only needed for local Supabase testing
+- `VITE_DEMO_ADMIN_PASSWORD` optional demo-mode override
+
+Server-only values:
+
+- `SUPABASE_SECRET_KEY` or `SUPABASE_SERVICE_ROLE_KEY`
+- `ADMIN_PASSWORD`
+- `LUNCH_PASSWORD`
+- `FULL_PASSWORD`
+
+Never expose the Supabase service-role key as a `VITE_` variable.
+
+## Supabase
+
+Fresh projects only need the consolidated migration:
+
+```sh
+supabase/migrations/0001_initial.sql
+```
+
+It creates the current schema in one file:
+
+- invite groups with per-invite passwords and invite-sent timestamps
+- RSVP responses, ceremony attendees, dinner attendees, check-ins, and audit logs
+- site settings for guest passwords, RSVP deadline, and invite message templates
+- public RPC helpers for invite search, RSVP reads, RSVP settings, and guest RSVP submission
+- RLS policies and grants for authenticated admins plus Vercel service-role API routes
+
+If an existing Supabase project has already run the old numbered migrations, do not re-run this squashed migration against that database.
 
 ## Editable Content
 
 Most public site copy lives in `src/content/wedding.ts`.
 
-Update this file for:
+Update that file for:
 
-- Names and hero text
-- Event times and venue details
-- Map links
-- Calendar metadata
-- Story, Q&A, FAQ, and contact copy
-- Gallery and highlight image URLs
+- names, hero text, and story copy
+- event times, venue details, map links, and calendar metadata
+- Q&A, FAQ, and contact copy
+- gallery and highlight image URLs
 
-## Supabase Setup
+Invite message templates, guest passwords, and the RSVP deadline can also be edited from the admin dashboard.
 
-Apply `supabase/migrations/0001_initial.sql` in your Supabase project.
+## Routes
 
-The schema includes:
-
-- `invite_groups`
-- `rsvp_responses`
-- `ceremony_attendees`
-- `dinner_attendees`
-- `check_ins`
-- `rsvp_audit_log`
-- public RPC helpers for invite search and read-only RSVP viewing
-
-Guest access is handled by site passwords. `LUNCH_PASSWORD` and `FULL_PASSWORD` provide initial fallback values, and admins can view or update those guest passwords from the dashboard after `site_settings` exists.
-
-Admin access is handled by the server-only `ADMIN_PASSWORD`. The dashboard uses Vercel API routes with `SUPABASE_SECRET_KEY`, so the Supabase secret key must never be exposed as a `VITE_` variable.
+- `/` guest home page
+- `/rsvp` RSVP flow
+- `/admin` admin dashboard
+- `/api/auth/login` password login endpoint
+- `/api/admin/*` admin-only Vercel API routes
 
 ## Scripts
 
@@ -75,13 +99,4 @@ npm run lint      # eslint
 
 ## Deployment
 
-Deploy to Vercel and set:
-
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_PUBLISHABLE_KEY`
-- `SUPABASE_SECRET_KEY`
-- `ADMIN_PASSWORD`
-- `LUNCH_PASSWORD`
-- `FULL_PASSWORD`
-
-Point the final custom domain, for example `yijiaxrachel.<tld>`, to the Vercel project.
+Deploy to Vercel, add the environment variables above, and point the custom domain to the Vercel project.
