@@ -129,7 +129,7 @@ export function Header() {
                     ) : null}
                     {session ? (
                         <button
-                            className="inline-flex size-10 cursor-pointer items-center justify-center rounded-md border border-taupe/20 bg-white/85 text-taupe transition duration-300 hover:border-rose/40 hover:bg-cream hover:text-ink"
+                            className="hidden size-10 cursor-pointer items-center justify-center rounded-md border border-taupe/20 bg-white/85 text-taupe transition duration-300 hover:border-rose/40 hover:bg-cream hover:text-ink lg:inline-flex"
                             aria-label="Sign out"
                             onClick={signOut}
                         >
@@ -186,6 +186,18 @@ export function Header() {
                         >
                             RSVP
                         </Button>
+                    ) : null}
+                    {session ? (
+                        <button
+                            className="mt-2 rounded-md px-1 py-2 text-left font-semibold text-rose transition hover:bg-rose/10 cursor-pointer"
+                            type="button"
+                            onClick={() => {
+                                setMenuOpen(false);
+                                signOut();
+                            }}
+                        >
+                            Sign out
+                        </button>
                     ) : null}
                 </nav>
             </div>
