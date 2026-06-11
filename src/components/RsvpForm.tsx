@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { Button } from "./Button";
 import type { CeremonyAttendee, DinnerAttendee, InviteGroup, RsvpDraft, RsvpResponse } from "../types/rsvp";
 import { dinnerMealOptions } from "../types/rsvp";
@@ -178,26 +179,33 @@ export function RsvpForm({
                     <div className="mt-3 grid gap-3 md:grid-cols-2">
                       <label className="block">
                         <span className="text-sm font-medium">Meal</span>
-                        <select
-                          className="mt-2 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
-                          value={attendee.mealOption}
-                          onChange={(event) =>
-                            setDraft((current) => ({
-                              ...current,
-                              dinnerAttendees: current.dinnerAttendees.map((row, rowIndex) =>
-                                rowIndex === attendeeIndex
-                                  ? { ...row, mealOption: event.target.value as DinnerAttendee["mealOption"] }
-                                  : row
-                              )
-                            }))
-                          }
-                        >
-                          {dinnerMealOptions.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
+                        <span className="relative mt-2 block">
+                          <select
+                            className="w-full appearance-none rounded-md border border-taupe/20 bg-white py-2 pl-3 pr-10"
+                            value={attendee.mealOption}
+                            onChange={(event) =>
+                              setDraft((current) => ({
+                                ...current,
+                                dinnerAttendees: current.dinnerAttendees.map((row, rowIndex) =>
+                                  rowIndex === attendeeIndex
+                                    ? { ...row, mealOption: event.target.value as DinnerAttendee["mealOption"] }
+                                    : row
+                                )
+                              }))
+                            }
+                          >
+                            {dinnerMealOptions.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown
+                            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink"
+                            size={16}
+                            aria-hidden="true"
+                          />
+                        </span>
                       </label>
                       <label className="block">
                         <span className="text-sm font-medium">Other dietary preference</span>
@@ -229,7 +237,7 @@ export function RsvpForm({
       )}
 
       <label className="block">
-        <span className="text-sm font-medium">General notes</span>
+        <span className="text-sm font-medium">Remarks</span>
         <textarea
           className="mt-2 min-h-24 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
           value={draft.generalNotes}

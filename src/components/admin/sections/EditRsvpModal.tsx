@@ -1,4 +1,4 @@
-import { Plus, Trash2 } from "lucide-react";
+import { ChevronDown, Plus, Trash2 } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "../../Button";
 import { FadeModal } from "../../FadeModal";
@@ -140,28 +140,35 @@ export function EditRsvpModal({
                         </label>
                         <label className="block">
                             <span className="text-sm font-medium text-ink">RSVP status</span>
-                            <select
-                                className={`mt-2 ${inputClass}`}
-                                value={editingRow.rsvpStatus}
-                                onChange={(event) =>
-                                    setEditingRow((value) => {
-                                        if (!value) return value;
-                                        const rsvpStatus = event.target.value as AdminRsvpEditState["rsvpStatus"];
+                            <span className="relative mt-2 block">
+                                <select
+                                    className="w-full appearance-none rounded-md border border-taupe/20 bg-white py-2 pl-3 pr-10"
+                                    value={editingRow.rsvpStatus}
+                                    onChange={(event) =>
+                                        setEditingRow((value) => {
+                                            if (!value) return value;
+                                            const rsvpStatus = event.target.value as AdminRsvpEditState["rsvpStatus"];
 
-                                        return {
-                                            ...value,
-                                            rsvpStatus,
-                                            rsvp:
-                                                rsvpStatus === "submitted"
-                                                    ? (value.rsvp ?? createEmptyRsvp(value.id, value.groupName))
-                                                    : value.rsvp,
-                                        };
-                                    })
-                                }
-                            >
-                                <option value="submitted">Submitted</option>
-                                <option value="pending">Awaiting RSVP</option>
-                            </select>
+                                            return {
+                                                ...value,
+                                                rsvpStatus,
+                                                rsvp:
+                                                    rsvpStatus === "submitted"
+                                                        ? (value.rsvp ?? createEmptyRsvp(value.id, value.groupName))
+                                                        : value.rsvp,
+                                            };
+                                        })
+                                    }
+                                >
+                                    <option value="submitted">RSVPed</option>
+                                    <option value="pending">Awaiting RSVP</option>
+                                </select>
+                                <ChevronDown
+                                    className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink"
+                                    size={16}
+                                    aria-hidden="true"
+                                />
+                            </span>
                         </label>
                     </div>
 
@@ -423,25 +430,32 @@ export function EditRsvpModal({
                                             </label>
                                             <label className="block">
                                                 <span className="text-sm font-medium text-ink">Meal option</span>
-                                                <select
-                                                    className={`mt-2 ${inputClass}`}
-                                                    value={attendee.mealOption}
-                                                    onChange={(event) =>
-                                                        updateDinnerAttendee(index, {
-                                                            mealOption: event.target
-                                                                .value as RsvpResponse["dinnerAttendees"][number]["mealOption"],
-                                                        })
-                                                    }
-                                                >
-                                                    {dinnerMealOptions.map((option) => (
-                                                        <option
-                                                            key={option}
-                                                            value={option}
-                                                        >
-                                                            {option}
-                                                        </option>
-                                                    ))}
-                                                </select>
+                                                <span className="relative mt-2 block">
+                                                    <select
+                                                        className="w-full appearance-none rounded-md border border-taupe/20 bg-white py-2 pl-3 pr-10"
+                                                        value={attendee.mealOption}
+                                                        onChange={(event) =>
+                                                            updateDinnerAttendee(index, {
+                                                                mealOption: event.target
+                                                                    .value as RsvpResponse["dinnerAttendees"][number]["mealOption"],
+                                                            })
+                                                        }
+                                                    >
+                                                        {dinnerMealOptions.map((option) => (
+                                                            <option
+                                                                key={option}
+                                                                value={option}
+                                                            >
+                                                                {option}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <ChevronDown
+                                                        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink"
+                                                        size={16}
+                                                        aria-hidden="true"
+                                                    />
+                                                </span>
                                             </label>
                                             <label className="block">
                                                 <span className="text-sm font-medium text-ink">Dietary preference</span>
@@ -487,7 +501,7 @@ export function EditRsvpModal({
                             </div>
 
                             <label className="block">
-                                <span className="text-sm font-medium text-ink">General notes</span>
+                                <span className="text-sm font-medium text-ink">Remarks</span>
                                 <textarea
                                     className="mt-2 min-h-20 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
                                     value={editingRow.rsvp.generalNotes}

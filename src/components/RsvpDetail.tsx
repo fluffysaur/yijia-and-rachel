@@ -16,7 +16,7 @@ export function RsvpDetail({
 }) {
   return (
     <section className="rounded-lg border border-sage/30 bg-sage/10 p-5">
-      <p className="text-sm font-medium uppercase text-sage">Submitted RSVP</p>
+      <p className="text-sm font-medium uppercase text-sage">RSVPed</p>
       <h2 className="mt-1 font-display text-3xl">{inviteGroup.groupName}</h2>
       <p className="mt-2 text-sm text-taupe">
         Submitted by {rsvp.responderName} on {new Date(rsvp.submittedAt).toLocaleDateString()}.

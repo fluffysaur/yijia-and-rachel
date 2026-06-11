@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Layout } from "../components/Layout";
 import {
     AddInviteModal,
@@ -34,6 +34,7 @@ import type { AdminSummary, InviteMessageTemplates } from "../types/rsvp";
 import type { AdminRsvpEditState, NewInviteGuestRow } from "../components/admin";
 
 const LOCAL_ADMIN_LOAD_DELAY_MS = 1200;
+const MODAL_CLOSE_ANIMATION_MS = 300;
 
 function wait(ms: number) {
     return new Promise<void>((resolve) => {
@@ -136,28 +137,8 @@ export function AdminPage() {
     const [savingRsvpEdit, setSavingRsvpEdit] = useState(false);
     const [deletingInvite, setDeletingInvite] = useState(false);
     const [checkIns, setCheckIns] = useState<Record<string, string[]>>({});
-
-    const filteredRows = useMemo(() => {
-        const search = filter.trim().toLowerCase();
-        if (!search) return rows;
-
-        return rows.filter((row) => {
-            const searchable = [row.groupName, row.invitePassword ?? "", ...row.guestNames, ...row.dinnerGuestNames]
-                .join(" ")
-                .toLowerCase();
-            return searchable.includes(search);
-        });
-    }, [filter, rows]);
-
-    const filteredChurchInvitedCount = useMemo(
-        () => filteredRows.reduce((sum, row) => sum + (row.guestNames.length || row.ceremonyAllowedCount), 0),
-        [filteredRows],
-    );
-
-    const filteredDinnerInvitedCount = useMemo(
-        () => filteredRows.reduce((sum, row) => sum + (row.dinnerGuestNames.length || row.dinnerAllowedCount), 0),
-        [filteredRows],
-    );
+    const editModalCloseTimeoutRef = useRef<number | null>(null);
+    const inviteMessageModalCloseTimeoutRef = useRef<number | null>(null);
 
     const fetchAdminData = useCallback(async () => {
         const [nextSummary, nextRows] = await Promise.all([
@@ -341,8 +322,7 @@ export function AdminPage() {
                 });
             }
 
-            setEditModalOpen(false);
-            setEditingRow(null);
+            closeEditModal();
             await loadAdminData();
         } catch (error) {
             setMessage(error instanceof Error ? error.message : "Unable to save RSVP.");
@@ -366,12 +346,20 @@ export function AdminPage() {
         await setAdminCheckIn(row.id, eventType, next);
     };
 
-    const checkInAttendees = (row: AdminInviteRow, eventType: "ceremony" | "dinner") =>
-        eventType === "ceremony"
-            ? (row.rsvp?.ceremonyAttendees.map((attendee) => attendee.attendeeLabel) ?? [])
-            : (row.rsvp?.dinnerAttendees.map((attendee) => attendee.attendeeLabel) ?? []);
+    const checkInSummary = rows.reduce(
+        (counts, row) => ({
+            churchCheckedIn: counts.churchCheckedIn + getCheckedInNames(row, "ceremony").length,
+            dinnerCheckedIn: counts.dinnerCheckedIn + getCheckedInNames(row, "dinner").length,
+        }),
+        { churchCheckedIn: 0, dinnerCheckedIn: 0 },
+    );
 
     const openInviteMessage = async (row: AdminInviteRow) => {
+        if (inviteMessageModalCloseTimeoutRef.current) {
+            window.clearTimeout(inviteMessageModalCloseTimeoutRef.current);
+            inviteMessageModalCloseTimeoutRef.current = null;
+        }
+
         setMessage(null);
         setInviteMessageRow(row);
         setInviteMessageTemplates(null);
@@ -385,6 +373,30 @@ export function AdminPage() {
             setMessage(error instanceof Error ? error.message : "Unable to load invite message.");
         }
     };
+
+    function closeEditModal() {
+        setEditModalOpen(false);
+        if (editModalCloseTimeoutRef.current) {
+            window.clearTimeout(editModalCloseTimeoutRef.current);
+        }
+        editModalCloseTimeoutRef.current = window.setTimeout(() => {
+            setEditingRow(null);
+            editModalCloseTimeoutRef.current = null;
+        }, MODAL_CLOSE_ANIMATION_MS);
+    }
+
+    function closeInviteMessageModal() {
+        setInviteMessageModalOpen(false);
+        if (inviteMessageModalCloseTimeoutRef.current) {
+            window.clearTimeout(inviteMessageModalCloseTimeoutRef.current);
+        }
+        inviteMessageModalCloseTimeoutRef.current = window.setTimeout(() => {
+            setInviteMessageRow(null);
+            setInviteMessageTemplates(null);
+            setInviteMessageDeadline(null);
+            inviteMessageModalCloseTimeoutRef.current = null;
+        }, MODAL_CLOSE_ANIMATION_MS);
+    }
 
     const updateInviteStatus = async (row: AdminInviteRow, invitedAt: string | null) => {
         const updated = await updateAdminInviteStatus(row.id, invitedAt);
@@ -438,6 +450,18 @@ export function AdminPage() {
         };
     }, [fetchAdminData]);
 
+    useEffect(
+        () => () => {
+            if (editModalCloseTimeoutRef.current) {
+                window.clearTimeout(editModalCloseTimeoutRef.current);
+            }
+            if (inviteMessageModalCloseTimeoutRef.current) {
+                window.clearTimeout(inviteMessageModalCloseTimeoutRef.current);
+            }
+        },
+        [],
+    );
+
     return (
         <Layout>
             <main className="bg-cream/50 pb-14 pt-28">
@@ -470,8 +494,7 @@ export function AdminPage() {
                             onSave={() => void saveRsvpEdit()}
                             onClose={() => {
                                 if (savingRsvpEdit) return;
-                                setEditModalOpen(false);
-                                setEditingRow(null);
+                                closeEditModal();
                             }}
                         />
 
@@ -482,10 +505,7 @@ export function AdminPage() {
                             rsvpDeadline={inviteMessageDeadline}
                             onMarkInvited={(row) => updateInviteStatus(row, new Date().toISOString())}
                             onClearInvited={(row) => updateInviteStatus(row, null)}
-                            onClose={() => {
-                                setInviteMessageModalOpen(false);
-                                setInviteMessageRow(null);
-                            }}
+                            onClose={closeInviteMessageModal}
                         />
 
                         <DeleteInviteModal
@@ -500,7 +520,11 @@ export function AdminPage() {
 
                         <div className="mt-8 space-y-8">
                             {summary && !adminDataRefreshing ? (
-                                <AdminSummaryCards summary={summary} />
+                                <AdminSummaryCards
+                                    summary={summary}
+                                    churchCheckedIn={checkInSummary.churchCheckedIn}
+                                    dinnerCheckedIn={checkInSummary.dinnerCheckedIn}
+                                />
                             ) : (
                                 <AdminSummaryCardsSkeleton />
                             )}
@@ -514,22 +538,23 @@ export function AdminPage() {
                             <AdminInviteMessageSettings />
 
                             <InviteGroupsSection
-                                rows={filteredRows}
+                                rows={rows}
                                 filter={filter}
-                                filteredChurchInvitedCount={filteredChurchInvitedCount}
-                                filteredDinnerInvitedCount={filteredDinnerInvitedCount}
                                 onFilterChange={setFilter}
                                 onAddInvite={() => setCreateModalOpen(true)}
                                 onImportCsv={(file) => void importCsv(file)}
                                 onRefresh={() => void loadAdminData()}
                                 loading={adminDataLoading || adminDataRefreshing}
                                 refreshing={adminDataRefreshing}
-                                onExport={() => exportCsv(filteredRows)}
+                                onExport={exportCsv}
                                 onToggleCheckIn={(row, eventType, name) => void toggleCheckIn(row, eventType, name)}
-                                checkInAttendees={checkInAttendees}
                                 getCheckedInNames={getCheckedInNames}
                                 onInviteMessage={(row) => void openInviteMessage(row)}
                                 onEditRsvp={(row) => {
+                                    if (editModalCloseTimeoutRef.current) {
+                                        window.clearTimeout(editModalCloseTimeoutRef.current);
+                                        editModalCloseTimeoutRef.current = null;
+                                    }
                                     setEditingRow(createEditState(row));
                                     setEditModalOpen(true);
                                 }}
@@ -547,16 +572,26 @@ function AdminSummaryCardsSkeleton() {
     return (
         <section
             id="summary"
-            className="grid gap-4 scroll-mt-24 md:grid-cols-3 lg:grid-cols-6"
+            className="grid gap-4 scroll-mt-24 lg:grid-cols-3"
             aria-label="Loading summary"
         >
-            {Array.from({ length: 6 }).map((_, index) => (
+            {Array.from({ length: 3 }).map((_, index) => (
                 <article
                     key={index}
-                    className="rounded-lg bg-ivory p-4 shadow-sm"
+                    className="rounded-lg bg-ivory p-5 shadow-sm"
                 >
-                    <div className="h-4 w-24 animate-pulse rounded bg-taupe/15" />
-                    <div className="mt-4 h-9 w-14 animate-pulse rounded bg-taupe/15" />
+                    <div className="h-6 w-24 animate-pulse rounded bg-taupe/15" />
+                    <div className="mt-4 grid grid-cols-3 gap-3">
+                        {Array.from({ length: 3 }).map((__, statIndex) => (
+                            <div
+                                key={statIndex}
+                                className="rounded-md bg-cream p-3"
+                            >
+                                <div className="h-3 w-14 animate-pulse rounded bg-taupe/15" />
+                                <div className="mt-3 h-8 w-10 animate-pulse rounded bg-taupe/15" />
+                            </div>
+                        ))}
+                    </div>
                 </article>
             ))}
         </section>

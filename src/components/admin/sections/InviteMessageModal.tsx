@@ -1,6 +1,7 @@
-import { Check, Clipboard, RotateCcw, X } from "lucide-react";
+import { Check, Clipboard, RotateCcw } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "../../Button";
+import { FadeModal } from "../../FadeModal";
 import { buildInviteMessage } from "../../../lib/inviteMessage";
 import type { AdminInviteRow } from "../types";
 import type { InviteMessageTemplates } from "../../../types/rsvp";
@@ -64,9 +65,7 @@ export function InviteMessageModal({
         return () => window.clearTimeout(timeoutId);
     }, [copied]);
 
-    if (!open || !row) return null;
-
-    const invitedAt = formatInvitedAt(row.invitedAt);
+    const invitedAt = formatInvitedAt(row?.invitedAt);
     const closeModal = () => {
         setCopyMessage(null);
         setCopied(false);
@@ -74,6 +73,8 @@ export function InviteMessageModal({
     };
 
     const copyToClipboard = async () => {
+        if (!row) return;
+
         try {
             await navigator.clipboard.writeText(messageTextRef.current?.value ?? generatedMessage);
             setCopyMessage(null);
@@ -85,6 +86,8 @@ export function InviteMessageModal({
     };
 
     const runStatusUpdate = async (action: () => Promise<void>) => {
+        if (!row) return;
+
         setSaving(true);
         setCopyMessage(null);
         setCopied(false);
@@ -96,25 +99,17 @@ export function InviteMessageModal({
     };
 
     return (
-        <div className="fixed inset-0 z-100 flex items-center justify-center bg-ink/40 px-4 py-8">
-            <div className="max-h-full w-full max-w-3xl overflow-y-auto rounded-lg bg-ivory p-5 shadow-xl">
-                <div className="flex items-start justify-between gap-4">
-                    <div>
-                        <h2 className="font-display text-3xl">Invite Message</h2>
-                        <p className="text-sm text-taupe">
-                            {row.groupName} · {invitedAt ? `Invited ${invitedAt}` : "Not invited"}
-                        </p>
-                    </div>
-                    <button
-                        className="inline-flex size-9 cursor-pointer items-center justify-center rounded-md border border-taupe/20 text-ink transition hover:bg-cream"
-                        type="button"
-                        aria-label="Close invite message"
-                        onClick={closeModal}
-                    >
-                        <X size={16} />
-                    </button>
-                </div>
-
+        <FadeModal
+            open={open && Boolean(row)}
+            title="Invite Message"
+            onClose={closeModal}
+            closeDisabled={saving}
+        >
+            {row ? (
+                <>
+                    <p className="text-sm text-taupe">
+                        {row.groupName} · {invitedAt ? `Invited ${invitedAt}` : "Not invited"}
+                    </p>
                 {templates ? (
                     <textarea
                         key={generatedMessage}
@@ -155,7 +150,8 @@ export function InviteMessageModal({
                     </Button>
                     {copyMessage ? <p className="text-sm text-taupe">{copyMessage}</p> : null}
                 </div>
-            </div>
-        </div>
+                </>
+            ) : null}
+        </FadeModal>
     );
 }

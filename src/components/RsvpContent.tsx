@@ -184,7 +184,7 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
             const response = await submitGuestRsvp(draft);
             setSelected({ inviteGroup: selected.inviteGroup, rsvp: response });
             setEditingRsvp(false);
-            setMessage(wasEditing ? "RSVP updated." : "RSVP submitted.");
+            setMessage(wasEditing ? "RSVP updated." : "RSVPed.");
         } catch (error) {
             setMessage(error instanceof Error ? error.message : "Unable to submit RSVP.");
         } finally {
@@ -268,7 +268,7 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
                                 <span className="block font-medium">{invite.groupName}</span>
                                 <span className="mt-1 block text-sm text-taupe">{invite.guestNames.join(", ")}</span>
                                 <span className="mt-2 flex flex-wrap gap-x-2 gap-y-1 text-sm text-taupe">
-                                    {invite.hasSubmitted ? <span>RSVP submitted</span> : null}
+                                    {invite.hasSubmitted ? <span>RSVPed</span> : null}
                                 </span>
                             </button>
                         ))}
