@@ -4,6 +4,7 @@ export function exportCsv(rows: AdminInviteRow[]) {
     const headers = [
         "group_name",
         "invite_password",
+        "invited_at",
         "ceremony_allowed",
         "dinner_allowed",
         "rsvp_submitted",
@@ -16,6 +17,7 @@ export function exportCsv(rows: AdminInviteRow[]) {
         [
             row.groupName,
             row.invitePassword ?? "",
+            row.invitedAt ?? "",
             row.ceremonyAllowedCount,
             row.dinnerAllowedCount,
             row.rsvp ? "yes" : "no",

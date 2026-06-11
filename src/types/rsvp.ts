@@ -6,6 +6,7 @@ export type InviteGroup = {
   id: string;
   groupName: string;
   invitePassword?: string | null;
+  invitedAt?: string | null;
   guestNames: string[];
   dinnerGuestNames: string[];
   ceremonyAllowedCount: number;
@@ -63,6 +64,11 @@ export type InviteWithRsvp = {
 
 export type RsvpSettings = {
   rsvpDeadline: string | null;
+};
+
+export type InviteMessageTemplates = {
+  lunchTemplate: string;
+  dinnerTemplate: string;
 };
 
 export type AdminSummary = {

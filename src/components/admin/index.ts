@@ -1,11 +1,13 @@
 export { AddInviteModal } from "./sections/AddInviteModal";
 export { AdminHeader } from "./sections/AdminHeader";
+export { AdminInviteMessageSettings } from "./sections/AdminInviteMessageSettings";
 export { AdminMealCounts } from "./sections/AdminMealCounts";
 export { AdminPasswordSettings } from "./sections/AdminPasswordSettings";
 export { AdminRsvpDeadlineSettings } from "./sections/AdminRsvpDeadlineSettings";
 export { AdminSignInCard } from "./sections/AdminSignInCard";
 export { AdminSummaryCards } from "./sections/AdminSummaryCards";
 export { EditRsvpModal } from "./sections/EditRsvpModal";
+export { InviteMessageModal } from "./sections/InviteMessageModal";
 export { InviteGroupsSection } from "./sections/InviteGroupsSection";
 export { createNewInviteGuestRow } from "./createNewInviteGuestRow";
 export { exportCsv } from "./exportCsv";

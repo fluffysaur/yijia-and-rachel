@@ -25,6 +25,7 @@ export function mapInviteGroup(row) {
     groupName: String(row.group_name ?? row.groupName),
     invitePassword:
       row.invite_password || row.invitePassword ? String(row.invite_password ?? row.invitePassword) : null,
+    invitedAt: row.invited_at || row.invitedAt ? String(row.invited_at ?? row.invitedAt) : null,
     guestNames: Array.isArray(row.guest_names) ? row.guest_names.map(String) : [],
     dinnerGuestNames: Array.isArray(row.dinner_guest_names) ? row.dinner_guest_names.map(String) : [],
     ceremonyAllowedCount: Number(row.ceremony_allowed_count ?? row.ceremonyAllowedCount),
@@ -181,5 +182,51 @@ export async function readRsvpSettings() {
     return {
       rsvpDeadline: null,
     };
+  }
+}
+
+export const defaultInviteMessageTemplates = {
+  lunchTemplate: [
+    "Dear {groupName}, you are invited to our wedding ceremony and lunch!",
+    "",
+    "{lunchDetails}",
+    "",
+    "Please RSVP on our wedding site by {rsvpDeadline}:",
+    "{siteUrl}",
+    "",
+    "Your wedding site password is: {password}",
+    "",
+    "Please reply here if you have any questions.",
+  ].join("\n"),
+  dinnerTemplate: [
+    "Dear {groupName}, you are invited to our wedding ceremony, lunch, and dinner banquet!",
+    "",
+    "{eventDetails}",
+    "",
+    "Please RSVP on our wedding site by {rsvpDeadline}:",
+    "{siteUrl}",
+    "",
+    "Your wedding site password is: {password}",
+    "",
+    "Please reply here if you have any questions.",
+  ].join("\n"),
+};
+
+export async function readInviteMessageTemplates() {
+  try {
+    const supabase = getServiceClient();
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("key,value")
+      .in("key", ["invite_template_lunch", "invite_template_dinner"]);
+    if (error) throw error;
+
+    const values = Object.fromEntries((data ?? []).map((row) => [row.key, row.value]));
+    return {
+      lunchTemplate: values.invite_template_lunch || defaultInviteMessageTemplates.lunchTemplate,
+      dinnerTemplate: values.invite_template_dinner || defaultInviteMessageTemplates.dinnerTemplate,
+    };
+  } catch {
+    return defaultInviteMessageTemplates;
   }
 }

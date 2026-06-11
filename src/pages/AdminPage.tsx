@@ -3,6 +3,7 @@ import { Layout } from "../components/Layout";
 import {
     AddInviteModal,
     AdminHeader,
+    AdminInviteMessageSettings,
     AdminMealCounts,
     AdminPasswordSettings,
     AdminRsvpDeadlineSettings,
@@ -11,6 +12,7 @@ import {
     EditRsvpModal,
     exportCsv,
     InviteGroupsSection,
+    InviteMessageModal,
     type AdminInviteRow,
 } from "../components/admin";
 import {
@@ -18,13 +20,16 @@ import {
     deleteAdminInviteGroup,
     deleteAdminRsvp,
     getAdminSummary,
+    getInviteMessageTemplates,
+    getRsvpSettings,
     listAdminInvites,
     setAdminCheckIn,
+    updateAdminInviteStatus,
     updateAdminInviteGroup,
     updateAdminRsvp,
 } from "../lib/rsvpRepository";
 import { createInvitePassword } from "../lib/invitePassword";
-import type { AdminSummary } from "../types/rsvp";
+import type { AdminSummary, InviteMessageTemplates } from "../types/rsvp";
 import type { AdminRsvpEditState, NewInviteGuestRow } from "../components/admin";
 
 function readStoredCheckIns(inviteGroupId: string, eventType: "ceremony" | "dinner") {
@@ -103,8 +108,12 @@ export function AdminPage() {
         notes: "",
     });
     const [editingRow, setEditingRow] = useState<AdminRsvpEditState | null>(null);
+    const [inviteMessageRow, setInviteMessageRow] = useState<AdminInviteRow | null>(null);
+    const [inviteMessageTemplates, setInviteMessageTemplates] = useState<InviteMessageTemplates | null>(null);
+    const [inviteMessageDeadline, setInviteMessageDeadline] = useState<string | null>(null);
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
+    const [inviteMessageModalOpen, setInviteMessageModalOpen] = useState(false);
     const [checkIns, setCheckIns] = useState<Record<string, string[]>>({});
 
     const filteredRows = useMemo(() => {
@@ -303,6 +312,31 @@ export function AdminPage() {
             ? (row.rsvp?.ceremonyAttendees.map((attendee) => attendee.attendeeLabel) ?? [])
             : (row.rsvp?.dinnerAttendees.map((attendee) => attendee.attendeeLabel) ?? []);
 
+    const openInviteMessage = async (row: AdminInviteRow) => {
+        setMessage(null);
+        setInviteMessageRow(row);
+        setInviteMessageTemplates(null);
+        setInviteMessageDeadline(null);
+        setInviteMessageModalOpen(true);
+        try {
+            const [templates, settings] = await Promise.all([getInviteMessageTemplates(), getRsvpSettings()]);
+            setInviteMessageTemplates(templates);
+            setInviteMessageDeadline(settings.rsvpDeadline);
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : "Unable to load invite message.");
+        }
+    };
+
+    const updateInviteStatus = async (row: AdminInviteRow, invitedAt: string | null) => {
+        const updated = await updateAdminInviteStatus(row.id, invitedAt);
+        setRows((value) =>
+            value.map((item) => (item.id === row.id ? { ...item, invitedAt: updated.invitedAt ?? null } : item)),
+        );
+        setInviteMessageRow((value) =>
+            value?.id === row.id ? { ...value, invitedAt: updated.invitedAt ?? null } : value,
+        );
+    };
+
     useEffect(() => {
         void getAdminSummary()
             .then(setSummary)
@@ -331,6 +365,7 @@ export function AdminPage() {
                         {summary ? <AdminMealCounts summary={summary} /> : null}
                         <AdminRsvpDeadlineSettings />
                         <AdminPasswordSettings />
+                        <AdminInviteMessageSettings />
 
                         <AddInviteModal
                             open={createModalOpen}
@@ -352,6 +387,19 @@ export function AdminPage() {
                             }}
                         />
 
+                        <InviteMessageModal
+                            open={inviteMessageModalOpen}
+                            row={inviteMessageRow}
+                            templates={inviteMessageTemplates}
+                            rsvpDeadline={inviteMessageDeadline}
+                            onMarkInvited={(row) => updateInviteStatus(row, new Date().toISOString())}
+                            onClearInvited={(row) => updateInviteStatus(row, null)}
+                            onClose={() => {
+                                setInviteMessageModalOpen(false);
+                                setInviteMessageRow(null);
+                            }}
+                        />
+
                         <InviteGroupsSection
                             rows={filteredRows}
                             filter={filter}
@@ -365,6 +413,7 @@ export function AdminPage() {
                             onToggleCheckIn={(row, eventType, name) => void toggleCheckIn(row, eventType, name)}
                             checkInAttendees={checkInAttendees}
                             getCheckedInNames={getCheckedInNames}
+                            onInviteMessage={(row) => void openInviteMessage(row)}
                             onEditRsvp={(row) => {
                                 setEditingRow(createEditState(row));
                                 setEditModalOpen(true);

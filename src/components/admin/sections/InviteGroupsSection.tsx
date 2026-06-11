@@ -18,6 +18,7 @@ export function InviteGroupsSection({
     onToggleCheckIn,
     checkInAttendees,
     getCheckedInNames,
+    onInviteMessage,
     onEditRsvp,
     onDeleteInvite,
 }: {
@@ -33,6 +34,7 @@ export function InviteGroupsSection({
     onToggleCheckIn: (row: AdminInviteRow, eventType: "ceremony" | "dinner", name: string) => void;
     checkInAttendees: (row: AdminInviteRow, eventType: "ceremony" | "dinner") => string[];
     getCheckedInNames: (row: AdminInviteRow, eventType: "ceremony" | "dinner") => string[];
+    onInviteMessage: (row: AdminInviteRow) => void;
     onEditRsvp: (row: AdminInviteRow) => void;
     onDeleteInvite: (row: AdminInviteRow) => void;
 }) {
@@ -44,7 +46,7 @@ export function InviteGroupsSection({
     const [toolbarMenuOpen, setToolbarMenuOpen] = useState(false);
     const [rowMenuOpenId, setRowMenuOpenId] = useState<string | null>(null);
     const [toolbarMenuPosition, setToolbarMenuPosition] = useState({ left: 0, top: 0, width: 180 });
-    const [rowMenuPosition, setRowMenuPosition] = useState({ left: 0, top: 0, width: 152 });
+    const [rowMenuPosition, setRowMenuPosition] = useState({ left: 0, top: 0, width: 176 });
 
     const activeRow = rowMenuOpenId ? (rows.find((row) => row.id === rowMenuOpenId) ?? null) : null;
 
@@ -65,10 +67,23 @@ export function InviteGroupsSection({
         if (!rect) return;
 
         setRowMenuPosition({
-            left: rect.right - 152,
+            left: rect.right - 176,
             top: rect.bottom + 8,
-            width: 152,
+            width: 176,
         });
+    };
+
+    const formatInvitedAt = (value: string | null | undefined) => {
+        if (!value) return null;
+
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return null;
+
+        return new Intl.DateTimeFormat("en-SG", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+        }).format(date);
     };
 
     const toggleToolbarMenu = () => {
@@ -142,7 +157,7 @@ export function InviteGroupsSection({
                 <div>
                     <h2 className="font-display text-3xl">Invite Groups & RSVP</h2>
                     <p className="text-sm text-taupe">
-                        Create, import, delete, export, edit RSVPs, and mark day-of check-ins.
+                        Create, import, invite, export, edit RSVPs, and mark day-of check-ins.
                     </p>
                 </div>
                 <div className="ml-auto flex w-full flex-wrap justify-end gap-2 md:w-auto">
@@ -199,6 +214,7 @@ export function InviteGroupsSection({
                             <th className="py-3 pr-4">Password</th>
                             <th className="py-3 pr-4">Church ({filteredChurchInvitedCount})</th>
                             <th className="py-3 pr-4">Dinner ({filteredDinnerInvitedCount})</th>
+                            <th className="py-3 pr-4">Invite</th>
                             <th className="py-3 pr-4">RSVP</th>
                             <th className="py-3 pr-4">Check in</th>
                             <th className="py-3 text-right">Actions</th>
@@ -224,6 +240,24 @@ export function InviteGroupsSection({
                                     <span className="mt-1 block text-xs text-taupe">
                                         {row.dinnerGuestNames.length || row.dinnerAllowedCount} invited
                                     </span>
+                                </td>
+                                <td className="py-3 pr-4">
+                                    {row.invitedAt ? (
+                                        <span>
+                                            Invited
+                                            <span className="mt-1 block text-xs text-taupe">
+                                                {formatInvitedAt(row.invitedAt)}
+                                            </span>
+                                        </span>
+                                    ) : (
+                                        <button
+                                            className="cursor-pointer text-left text-taupe underline decoration-taupe/40 underline-offset-4 transition hover:text-ink"
+                                            type="button"
+                                            onClick={() => onInviteMessage(row)}
+                                        >
+                                            Not invited
+                                        </button>
+                                    )}
                                 </td>
                                 <td className="py-3 pr-4">{row.rsvp ? "Submitted" : "Pending"}</td>
                                 <td className="py-3 pr-4">
@@ -316,6 +350,16 @@ export function InviteGroupsSection({
                               width: rowMenuPosition.width,
                           }}
                       >
+                          <button
+                              className="flex w-full cursor-pointer items-center gap-2 rounded px-3 py-2 text-left text-sm text-ink transition hover:bg-cream"
+                              type="button"
+                              onClick={() => {
+                                  onInviteMessage(activeRow);
+                                  setRowMenuOpenId(null);
+                              }}
+                          >
+                              Invite message
+                          </button>
                           <button
                               className="flex w-full cursor-pointer rounded px-3 py-2 text-left text-sm text-ink transition hover:bg-cream"
                               type="button"

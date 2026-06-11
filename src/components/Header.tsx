@@ -24,6 +24,7 @@ export function Header() {
                   { href: "#summary", label: "Summary" },
                   { href: "#rsvp-settings", label: "Deadline" },
                   { href: "#settings", label: "Passwords" },
+                  { href: "#invite-message-settings", label: "Templates" },
                   { href: "#invites", label: "Invites" },
               ]
             : siteContent.navigation;

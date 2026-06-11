@@ -5,12 +5,15 @@ import {
   deleteAdminInviteGroup,
   getAdminSummary,
   getGuestPasswords,
+  getInviteMessageTemplates,
   getRsvpSettings,
   listAdminInvites,
   searchInviteGroups,
   submitGuestRsvp,
+  updateAdminInviteStatus,
   updateAdminInviteGroup,
   updateGuestPasswords,
+  updateInviteMessageTemplates,
   updateRsvpSettings,
 } from "./rsvpRepository";
 
@@ -95,6 +98,42 @@ describe("demo RSVP repository", () => {
     await updateRsvpSettings({ rsvpDeadline: deadline });
 
     expect(await getRsvpSettings()).toEqual({ rsvpDeadline: deadline });
+  });
+
+  it("persists demo invite message templates", async () => {
+    expect(await getInviteMessageTemplates()).toMatchObject({
+      lunchTemplate: expect.stringContaining("{groupName}"),
+      dinnerTemplate: expect.stringContaining("{eventDetails}"),
+    });
+
+    await updateInviteMessageTemplates({
+      lunchTemplate: "Lunch invite for {groupName}",
+      dinnerTemplate: "Dinner invite for {groupName}",
+    });
+
+    expect(await getInviteMessageTemplates()).toEqual({
+      lunchTemplate: "Lunch invite for {groupName}",
+      dinnerTemplate: "Dinner invite for {groupName}",
+    });
+  });
+
+  it("persists and clears demo invited status", async () => {
+    const created = await createAdminInviteGroup({
+      groupName: "Invited Local Group",
+      invitePassword: "invited-local-pass",
+      guestNames: ["Invited One"],
+      dinnerGuestNames: [],
+      ceremonyAllowedCount: 1,
+      dinnerAllowedCount: 0,
+      notes: "",
+    });
+    const invitedAt = new Date("2026-06-11T10:00:00.000Z").toISOString();
+
+    await updateAdminInviteStatus(created.id, invitedAt);
+    expect(await listAdminInvites()).toContainEqual(expect.objectContaining({ id: created.id, invitedAt }));
+
+    await updateAdminInviteStatus(created.id, null);
+    expect(await listAdminInvites()).toContainEqual(expect.objectContaining({ id: created.id, invitedAt: null }));
   });
 
   it("allows demo guest RSVP submission and edits before the deadline", async () => {

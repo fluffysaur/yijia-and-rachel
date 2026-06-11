@@ -3,11 +3,13 @@ import type {
   AdminSummary,
   DinnerMealOption,
   InviteGroup,
+  InviteMessageTemplates,
   InviteWithRsvp,
   RsvpDraft,
   RsvpResponse,
   RsvpSettings
 } from "../types/rsvp";
+import { defaultInviteMessageTemplates } from "./inviteMessage";
 import { normalizeName } from "./name";
 import { readAccessSession, type AccessRole, type AccessSession } from "./access";
 import { getSupabaseBrowserClient } from "./supabase";
@@ -17,6 +19,7 @@ const demoInviteGroupsStorageKey = "wedding-demo-invite-groups";
 const demoResponsesStorageKey = "wedding-demo-rsvp-responses";
 const demoGuestPasswordsStorageKey = "wedding-demo-guest-passwords";
 const demoRsvpSettingsStorageKey = "wedding-demo-rsvp-settings";
+const demoInviteMessageTemplatesStorageKey = "wedding-demo-invite-message-templates";
 
 function demoInvitePassword(invite: InviteGroup) {
   return invite.invitePassword?.trim() || `demo-${invite.id.replace(/^demo-/, "")}`;
@@ -93,6 +96,13 @@ function readDemoRsvpSettings(): RsvpSettings {
   return readJson<RsvpSettings>(demoRsvpSettingsStorageKey, { rsvpDeadline: null });
 }
 
+function readDemoInviteMessageTemplates(): InviteMessageTemplates {
+  return {
+    ...defaultInviteMessageTemplates,
+    ...readJson<Partial<InviteMessageTemplates>>(demoInviteMessageTemplatesStorageKey, {})
+  };
+}
+
 function assertRsvpWritesOpen(settings = readDemoRsvpSettings()) {
   if (settings.rsvpDeadline && Date.now() >= new Date(settings.rsvpDeadline).getTime()) {
     throw new Error("The RSVP deadline has passed. Please contact us for changes.");
@@ -130,6 +140,7 @@ const mapInviteGroup = (row: Record<string, unknown>): InviteGroup => ({
   id: String(row.id),
   groupName: String(row.group_name ?? row.groupName),
   invitePassword: row.invite_password || row.invitePassword ? String(row.invite_password ?? row.invitePassword) : null,
+  invitedAt: row.invited_at || row.invitedAt ? String(row.invited_at ?? row.invitedAt) : null,
   guestNames: Array.isArray(row.guest_names)
     ? row.guest_names.map(String)
     : Array.isArray(row.guestNames)
@@ -403,7 +414,8 @@ export async function createAdminInviteGroup(input: {
     dinnerGuestNames,
     ceremonyAllowedCount: input.ceremonyAllowedCount,
     dinnerAllowedCount: input.dinnerAllowedCount,
-    notes: input.notes
+    notes: input.notes,
+    invitedAt: null
   };
 
   if (!getSupabaseBrowserClient()) {
@@ -564,4 +576,52 @@ export async function updateRsvpSettings(input: RsvpSettings): Promise<RsvpSetti
     method: "PUT",
     body: JSON.stringify({ rsvpDeadline }),
   });
+}
+
+export async function getInviteMessageTemplates(): Promise<InviteMessageTemplates> {
+  if (!getSupabaseBrowserClient()) {
+    return readDemoInviteMessageTemplates();
+  }
+
+  return adminApiJson<InviteMessageTemplates>("/api/admin/settings/invite-messages");
+}
+
+export async function updateInviteMessageTemplates(input: InviteMessageTemplates): Promise<InviteMessageTemplates> {
+  const templates = {
+    lunchTemplate: input.lunchTemplate.trim(),
+    dinnerTemplate: input.dinnerTemplate.trim()
+  };
+  if (!templates.lunchTemplate || !templates.dinnerTemplate) {
+    throw new Error("Both invite message templates are required.");
+  }
+
+  if (!getSupabaseBrowserClient()) {
+    localStorage.setItem(demoInviteMessageTemplatesStorageKey, JSON.stringify(templates));
+    return templates;
+  }
+
+  return adminApiJson<InviteMessageTemplates>("/api/admin/settings/invite-messages", {
+    method: "PUT",
+    body: JSON.stringify(templates),
+  });
+}
+
+export async function updateAdminInviteStatus(inviteGroupId: string, invitedAt: string | null) {
+  if (!getSupabaseBrowserClient()) {
+    const invites = readDemoInviteGroups();
+    const existing = invites.find((invite) => invite.id === inviteGroupId);
+    if (!existing) {
+      throw new Error("Invite group not found.");
+    }
+
+    const updated = { ...existing, invitedAt };
+    writeDemoInviteGroups(invites.map((invite) => (invite.id === inviteGroupId ? updated : invite)));
+    return updated;
+  }
+
+  const payload = await adminApiJson<{ invite: InviteGroup }>(`/api/admin/invites/${inviteGroupId}/status`, {
+    method: "PUT",
+    body: JSON.stringify({ invitedAt }),
+  });
+  return payload.invite;
 }
