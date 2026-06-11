@@ -15,7 +15,6 @@ export const siteContent = {
         { href: "#gallery", label: "Gallery" },
         { href: "#qa", label: "Q&A" },
         { href: "#faq", label: "FAQ" },
-        { href: "#contact", label: "Contact" },
     ],
     hero: {
         headline: "Yi Jia & Rachel",
