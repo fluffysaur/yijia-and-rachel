@@ -1,6 +1,19 @@
 import type { InviteGroup, RsvpResponse } from "../types/rsvp";
+import { Button } from "./Button";
 
-export function RsvpDetail({ inviteGroup, rsvp }: { inviteGroup: InviteGroup; rsvp: RsvpResponse }) {
+export function RsvpDetail({
+  inviteGroup,
+  rsvp,
+  canEdit = false,
+  lockedMessage = "This RSVP is locked for guest editing. Please contact us for changes.",
+  onEdit
+}: {
+  inviteGroup: InviteGroup;
+  rsvp: RsvpResponse;
+  canEdit?: boolean;
+  lockedMessage?: string;
+  onEdit?: () => void;
+}) {
   return (
     <section className="rounded-lg border border-sage/30 bg-sage/10 p-5">
       <p className="text-sm font-medium uppercase text-sage">Submitted RSVP</p>
@@ -42,7 +55,17 @@ export function RsvpDetail({ inviteGroup, rsvp }: { inviteGroup: InviteGroup; rs
           <span className="font-medium text-ink">Notes:</span> {rsvp.generalNotes}
         </div>
       ) : null}
-      <p className="mt-5 text-sm text-rose">This RSVP is locked for guest editing. Please contact us for changes.</p>
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        {canEdit ? (
+          <Button
+            type="button"
+            onClick={onEdit}
+          >
+            Edit RSVP
+          </Button>
+        ) : null}
+        <p className={`text-sm ${canEdit ? "text-taupe" : "text-rose"}`}>{lockedMessage}</p>
+      </div>
     </section>
   );
 }

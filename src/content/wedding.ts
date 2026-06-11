@@ -111,7 +111,7 @@ export const siteContent = {
         },
         {
             question: "Can I change my RSVP after submitting?",
-            answer: "You can only view your submitted RSVP details. Please contact us if you need to make any changes after submitting.",
+            answer: "You can edit your submitted RSVP with your invite password until the RSVP deadline. Please contact us if you need changes after the deadline.",
         },
         {
             question: "How do I share dietary preferences?",

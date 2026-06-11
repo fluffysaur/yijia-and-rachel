@@ -5,7 +5,8 @@ import type {
   InviteGroup,
   InviteWithRsvp,
   RsvpDraft,
-  RsvpResponse
+  RsvpResponse,
+  RsvpSettings
 } from "../types/rsvp";
 import { normalizeName } from "./name";
 import { readAccessSession, type AccessRole, type AccessSession } from "./access";
@@ -15,6 +16,7 @@ const localStorageKey = (inviteGroupId: string) => `wedding-rsvp:${inviteGroupId
 const demoInviteGroupsStorageKey = "wedding-demo-invite-groups";
 const demoResponsesStorageKey = "wedding-demo-rsvp-responses";
 const demoGuestPasswordsStorageKey = "wedding-demo-guest-passwords";
+const demoRsvpSettingsStorageKey = "wedding-demo-rsvp-settings";
 
 function demoInvitePassword(invite: InviteGroup) {
   return invite.invitePassword?.trim() || `demo-${invite.id.replace(/^demo-/, "")}`;
@@ -85,6 +87,16 @@ function readDemoGuestPasswords() {
     lunchPassword: "samplechurchpass",
     fullPassword: "sampledinnerpass"
   });
+}
+
+function readDemoRsvpSettings(): RsvpSettings {
+  return readJson<RsvpSettings>(demoRsvpSettingsStorageKey, { rsvpDeadline: null });
+}
+
+function assertRsvpWritesOpen(settings = readDemoRsvpSettings()) {
+  if (settings.rsvpDeadline && Date.now() >= new Date(settings.rsvpDeadline).getTime()) {
+    throw new Error("The RSVP deadline has passed. Please contact us for changes.");
+  }
 }
 
 export function createDemoSessionForPassword(password: string): AccessSession | null {
@@ -307,7 +319,15 @@ export async function getInviteWithRsvp(inviteGroupId: string): Promise<InviteWi
 export async function submitGuestRsvp(draft: RsvpDraft): Promise<RsvpResponse> {
   const supabase = getSupabaseBrowserClient();
   if (!supabase) {
-    const response = draftToResponse(draft);
+    assertRsvpWritesOpen();
+    const existing = getDemoResponse(draft.inviteGroupId);
+    const response = existing
+      ? {
+          ...draftToResponse(draft),
+          id: existing.id,
+          submittedAt: existing.submittedAt
+        }
+      : draftToResponse(draft);
     upsertDemoResponse(response);
     return response;
   }
@@ -509,5 +529,39 @@ export async function updateGuestPasswords(input: { lunchPassword: string; fullP
   return adminApiJson<{ lunchPassword: string; fullPassword: string }>("/api/admin/settings/passwords", {
     method: "PUT",
     body: JSON.stringify(input),
+  });
+}
+
+export async function getRsvpSettings(): Promise<RsvpSettings> {
+  const supabase = getSupabaseBrowserClient();
+  if (!supabase) {
+    return readDemoRsvpSettings();
+  }
+
+  const { data, error } = await supabase.rpc("get_rsvp_settings");
+  if (error) {
+    throw error;
+  }
+
+  return {
+    rsvpDeadline: data?.rsvp_deadline ? String(data.rsvp_deadline) : null
+  };
+}
+
+export async function updateRsvpSettings(input: RsvpSettings): Promise<RsvpSettings> {
+  const rsvpDeadline = input.rsvpDeadline?.trim() || null;
+  if (rsvpDeadline && Number.isNaN(new Date(rsvpDeadline).getTime())) {
+    throw new Error("RSVP deadline must be a valid date and time.");
+  }
+
+  if (!getSupabaseBrowserClient()) {
+    const settings = { rsvpDeadline };
+    localStorage.setItem(demoRsvpSettingsStorageKey, JSON.stringify(settings));
+    return settings;
+  }
+
+  return adminApiJson<RsvpSettings>("/api/admin/settings/rsvp", {
+    method: "PUT",
+    body: JSON.stringify({ rsvpDeadline }),
   });
 }

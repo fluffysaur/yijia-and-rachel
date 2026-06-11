@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Button } from "./Button";
-import type { CeremonyAttendee, DinnerAttendee, InviteGroup, RsvpDraft } from "../types/rsvp";
+import type { CeremonyAttendee, DinnerAttendee, InviteGroup, RsvpDraft, RsvpResponse } from "../types/rsvp";
 import { dinnerMealOptions } from "../types/rsvp";
 import { validateRsvpDraft } from "../lib/rsvpValidation";
 
@@ -24,12 +24,16 @@ const namedDinnerAttendee = (
 
 export function RsvpForm({
   inviteGroup,
+  initialRsvp = null,
   onSubmit,
-  submitting
+  submitting,
+  submitLabel = "Submit RSVP"
 }: {
   inviteGroup: InviteGroup;
+  initialRsvp?: RsvpResponse | null;
   onSubmit: (draft: RsvpDraft) => Promise<void>;
   submitting: boolean;
+  submitLabel?: string;
 }) {
   const ceremonyNames =
     inviteGroup.guestNames.length > 0
@@ -40,15 +44,20 @@ export function RsvpForm({
       ? inviteGroup.dinnerGuestNames
       : ceremonyNames.slice(0, inviteGroup.dinnerAllowedCount);
 
-  const [draft, setDraft] = useState<RsvpDraft>({
-    inviteGroupId: inviteGroup.id,
-    responderName: "",
-    ceremonyAttendingCount: 0,
-    dinnerAttendingCount: 0,
-    generalNotes: "",
-    ceremonyAttendees: [],
-    dinnerAttendees: []
-  });
+  const initialDraft = useMemo<RsvpDraft>(
+    () => ({
+      inviteGroupId: inviteGroup.id,
+      responderName: initialRsvp?.responderName ?? "",
+      ceremonyAttendingCount: initialRsvp?.ceremonyAttendingCount ?? 0,
+      dinnerAttendingCount: initialRsvp?.dinnerAttendingCount ?? 0,
+      generalNotes: initialRsvp?.generalNotes ?? "",
+      ceremonyAttendees: initialRsvp?.ceremonyAttendees ?? [],
+      dinnerAttendees: initialRsvp?.dinnerAttendees ?? []
+    }),
+    [initialRsvp, inviteGroup.id]
+  );
+
+  const [draft, setDraft] = useState<RsvpDraft>(initialDraft);
 
   const validation = useMemo(() => validateRsvpDraft(inviteGroup, draft), [draft, inviteGroup]);
 
@@ -91,7 +100,7 @@ export function RsvpForm({
       }}
     >
       <div>
-        <p className="text-sm uppercase text-rose">RSVP for</p>
+        <p className="text-sm uppercase text-rose">{initialRsvp ? "Edit RSVP for" : "RSVP for"}</p>
         <h2 className="font-display text-3xl">{inviteGroup.groupName}</h2>
       </div>
 
@@ -238,7 +247,7 @@ export function RsvpForm({
       ) : null}
 
       <Button type="submit" disabled={!validation.valid || submitting}>
-        {submitting ? "Submitting..." : "Submit RSVP"}
+        {submitting ? "Saving..." : submitLabel}
       </Button>
     </form>
   );

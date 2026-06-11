@@ -61,6 +61,10 @@ export type InviteWithRsvp = {
   rsvp: RsvpResponse | null;
 };
 
+export type RsvpSettings = {
+  rsvpDeadline: string | null;
+};
+
 export type AdminSummary = {
   totalInviteGroups: number;
   ceremonyInvited: number;

@@ -5,6 +5,7 @@ import {
     AdminHeader,
     AdminMealCounts,
     AdminPasswordSettings,
+    AdminRsvpDeadlineSettings,
     AdminSummaryCards,
     createNewInviteGuestRow,
     EditRsvpModal,
@@ -328,6 +329,7 @@ export function AdminPage() {
 
                         {summary ? <AdminSummaryCards summary={summary} /> : null}
                         {summary ? <AdminMealCounts summary={summary} /> : null}
+                        <AdminRsvpDeadlineSettings />
                         <AdminPasswordSettings />
 
                         <AddInviteModal

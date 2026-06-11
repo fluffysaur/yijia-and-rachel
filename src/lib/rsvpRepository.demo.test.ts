@@ -5,10 +5,13 @@ import {
   deleteAdminInviteGroup,
   getAdminSummary,
   getGuestPasswords,
+  getRsvpSettings,
   listAdminInvites,
   searchInviteGroups,
+  submitGuestRsvp,
   updateAdminInviteGroup,
   updateGuestPasswords,
+  updateRsvpSettings,
 } from "./rsvpRepository";
 
 describe("demo RSVP repository", () => {
@@ -83,5 +86,77 @@ describe("demo RSVP repository", () => {
       fullPassword: "full-local",
     });
     expect(createDemoSessionForPassword("full-local")).toMatchObject({ role: "full" });
+  });
+
+  it("persists demo RSVP deadline settings", async () => {
+    expect(await getRsvpSettings()).toEqual({ rsvpDeadline: null });
+
+    const deadline = new Date(Date.now() + 60_000).toISOString();
+    await updateRsvpSettings({ rsvpDeadline: deadline });
+
+    expect(await getRsvpSettings()).toEqual({ rsvpDeadline: deadline });
+  });
+
+  it("allows demo guest RSVP submission and edits before the deadline", async () => {
+    const created = await createAdminInviteGroup({
+      groupName: "Editable RSVP Group",
+      invitePassword: "editable-pass",
+      guestNames: ["Editable One"],
+      dinnerGuestNames: [],
+      ceremonyAllowedCount: 1,
+      dinnerAllowedCount: 0,
+      notes: "",
+    });
+    await updateRsvpSettings({ rsvpDeadline: new Date(Date.now() + 60_000).toISOString() });
+
+    const submitted = await submitGuestRsvp({
+      inviteGroupId: created.id,
+      responderName: "Editable One",
+      ceremonyAttendingCount: 1,
+      dinnerAttendingCount: 0,
+      generalNotes: "Original note",
+      ceremonyAttendees: [{ attendeeIndex: 1, attendeeLabel: "Editable One", dietaryPreference: "" }],
+      dinnerAttendees: [],
+    });
+
+    const edited = await submitGuestRsvp({
+      inviteGroupId: created.id,
+      responderName: "Editable One",
+      ceremonyAttendingCount: 0,
+      dinnerAttendingCount: 0,
+      generalNotes: "Updated note",
+      ceremonyAttendees: [],
+      dinnerAttendees: [],
+    });
+
+    expect(edited.id).toBe(submitted.id);
+    expect(edited.submittedAt).toBe(submitted.submittedAt);
+    expect(edited.generalNotes).toBe("Updated note");
+    expect(edited.ceremonyAttendingCount).toBe(0);
+  });
+
+  it("blocks demo guest RSVP writes after the deadline", async () => {
+    const created = await createAdminInviteGroup({
+      groupName: "Closed RSVP Group",
+      invitePassword: "closed-pass",
+      guestNames: ["Closed One"],
+      dinnerGuestNames: [],
+      ceremonyAllowedCount: 1,
+      dinnerAllowedCount: 0,
+      notes: "",
+    });
+    await updateRsvpSettings({ rsvpDeadline: new Date(Date.now() - 60_000).toISOString() });
+
+    await expect(
+      submitGuestRsvp({
+        inviteGroupId: created.id,
+        responderName: "Closed One",
+        ceremonyAttendingCount: 1,
+        dinnerAttendingCount: 0,
+        generalNotes: "",
+        ceremonyAttendees: [{ attendeeIndex: 1, attendeeLabel: "Closed One", dietaryPreference: "" }],
+        dinnerAttendees: [],
+      }),
+    ).rejects.toThrow("The RSVP deadline has passed.");
   });
 });

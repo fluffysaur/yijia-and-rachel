@@ -2,7 +2,7 @@ import { LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { RsvpDetail } from "./RsvpDetail";
 import { RsvpForm } from "./RsvpForm";
-import { getInviteWithRsvp, searchInviteGroups, submitGuestRsvp } from "../lib/rsvpRepository";
+import { getInviteWithRsvp, getRsvpSettings, searchInviteGroups, submitGuestRsvp } from "../lib/rsvpRepository";
 import { filterInviteForRole, filterInviteWithRsvpForRole } from "../lib/access";
 import { validateRsvpDraft } from "../lib/rsvpValidation";
 import { isDemoMode } from "../lib/supabase";
@@ -19,10 +19,51 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
+    const [rsvpDeadline, setRsvpDeadline] = useState<string | null>(null);
+    const [editingRsvp, setEditingRsvp] = useState(false);
+    const [nowMs, setNowMs] = useState(() => Date.now());
     const searchRequestId = useRef(0);
     const searchTimeoutId = useRef<number | null>(null);
     const selectedSectionRef = useRef<HTMLDivElement | null>(null);
     const shouldScrollToSelectedRef = useRef(false);
+
+    useEffect(() => {
+        let active = true;
+
+        void getRsvpSettings()
+            .then((settings) => {
+                if (active) {
+                    setRsvpDeadline(settings.rsvpDeadline);
+                }
+            })
+            .catch((error) => {
+                if (active) {
+                    setMessage(error instanceof Error ? error.message : "Unable to load RSVP deadline.");
+                }
+            });
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        const deadlineTime = rsvpDeadline ? new Date(rsvpDeadline).getTime() : Number.NaN;
+        if (Number.isNaN(deadlineTime)) {
+            return;
+        }
+
+        const timeoutMs = deadlineTime - Date.now();
+        if (timeoutMs <= 0) {
+            return;
+        }
+
+        const timeoutId = window.setTimeout(() => {
+            setNowMs(Date.now());
+        }, timeoutMs);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [rsvpDeadline]);
 
     useEffect(() => {
         if (!compact || !selected || !shouldScrollToSelectedRef.current) {
@@ -46,6 +87,7 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
                 if (active) {
                     setLoading(true);
                     setMessage(null);
+                    setEditingRsvp(false);
                 }
                 return getInviteWithRsvp(directInviteGroupId);
             })
@@ -111,6 +153,7 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
     const selectInvite = async (inviteGroupId: string) => {
         setLoading(true);
         setMessage(null);
+        setEditingRsvp(false);
         try {
             shouldScrollToSelectedRef.current = true;
             setSelected(filterInviteWithRsvpForRole(await getInviteWithRsvp(inviteGroupId), role));
@@ -123,6 +166,11 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
 
     const handleSubmit = async (draft: RsvpDraft) => {
         if (!selected) return;
+        if (!isRsvpOpen) {
+            setMessage("The RSVP deadline has passed. Please contact us for changes.");
+            return;
+        }
+
         const validation = validateRsvpDraft(selected.inviteGroup, draft);
         if (!validation.valid) {
             setMessage(validation.errors.join(" "));
@@ -132,15 +180,35 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
         setSubmitting(true);
         setMessage(null);
         try {
+            const wasEditing = Boolean(selected.rsvp);
             const response = await submitGuestRsvp(draft);
             setSelected({ inviteGroup: selected.inviteGroup, rsvp: response });
-            setMessage("RSVP submitted. Your details are now view-only. Please contact us for changes.");
+            setEditingRsvp(false);
+            setMessage(wasEditing ? "RSVP updated." : "RSVP submitted.");
         } catch (error) {
             setMessage(error instanceof Error ? error.message : "Unable to submit RSVP.");
         } finally {
             setSubmitting(false);
         }
     };
+
+    const deadlineDate = rsvpDeadline ? new Date(rsvpDeadline) : null;
+    const isRsvpOpen = !deadlineDate || Number.isNaN(deadlineDate.getTime()) || nowMs < deadlineDate.getTime();
+    const deadlineLabel = deadlineDate && !Number.isNaN(deadlineDate.getTime())
+        ? deadlineDate.toLocaleString([], {
+              dateStyle: "medium",
+              timeStyle: "short",
+          })
+        : null;
+    const isSelectedInviteSession = Boolean(directInviteGroupId && selected?.inviteGroup.id === directInviteGroupId);
+    const canEditSelectedRsvp = Boolean(selected?.rsvp && isRsvpOpen && isSelectedInviteSession);
+    const lockedMessage = !isRsvpOpen
+        ? "The RSVP deadline has passed. Please contact us for changes."
+        : isSelectedInviteSession
+            ? deadlineLabel
+                ? `You can edit this RSVP until ${deadlineLabel}.`
+                : "You can edit this RSVP until the RSVP deadline is set."
+            : "This RSVP is view-only from shared guest access. Sign in with your invite password to edit.";
 
     return (
         <div className={compact ? "" : "section-shell max-w-4xl"}>
@@ -231,16 +299,37 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
                 className="mt-8 scroll-mt-6"
             >
                 {selected?.rsvp ? (
-                    <RsvpDetail
-                        inviteGroup={selected.inviteGroup}
-                        rsvp={selected.rsvp}
-                    />
+                    editingRsvp && canEditSelectedRsvp ? (
+                        <RsvpForm
+                            key={`${selected.inviteGroup.id}:${selected.rsvp.updatedAt}`}
+                            inviteGroup={selected.inviteGroup}
+                            initialRsvp={selected.rsvp}
+                            onSubmit={handleSubmit}
+                            submitting={submitting}
+                            submitLabel="Save RSVP"
+                        />
+                    ) : (
+                        <RsvpDetail
+                            inviteGroup={selected.inviteGroup}
+                            rsvp={selected.rsvp}
+                            canEdit={canEditSelectedRsvp}
+                            lockedMessage={lockedMessage}
+                            onEdit={() => setEditingRsvp(true)}
+                        />
+                    )
                 ) : selected ? (
-                    <RsvpForm
-                        inviteGroup={selected.inviteGroup}
-                        onSubmit={handleSubmit}
-                        submitting={submitting}
-                    />
+                    isRsvpOpen ? (
+                        <RsvpForm
+                            key={selected.inviteGroup.id}
+                            inviteGroup={selected.inviteGroup}
+                            onSubmit={handleSubmit}
+                            submitting={submitting}
+                        />
+                    ) : (
+                        <section className="rounded-lg border border-rose/30 bg-rose/10 p-5 text-sm text-rose">
+                            The RSVP deadline has passed. Please contact us for changes.
+                        </section>
+                    )
                 ) : null}
             </div>
         </div>

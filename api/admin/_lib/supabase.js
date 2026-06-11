@@ -163,3 +163,23 @@ export async function readGuestPasswords() {
     return fallback;
   }
 }
+
+export async function readRsvpSettings() {
+  try {
+    const supabase = getServiceClient();
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("key,value")
+      .eq("key", "rsvp_deadline")
+      .maybeSingle();
+    if (error) throw error;
+
+    return {
+      rsvpDeadline: data?.value || null,
+    };
+  } catch {
+    return {
+      rsvpDeadline: null,
+    };
+  }
+}

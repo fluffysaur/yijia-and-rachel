@@ -22,7 +22,7 @@ export function Header() {
         const items = isAdmin
             ? [
                   { href: "#summary", label: "Summary" },
-                  { href: "#meals", label: "Meals" },
+                  { href: "#rsvp-settings", label: "Deadline" },
                   { href: "#settings", label: "Passwords" },
                   { href: "#invites", label: "Invites" },
               ]
