@@ -73,13 +73,13 @@ export function EntryGate({ children, requireAdmin = false }: { children: ReactN
                             className="auth-rise-in mb-4 text-rose"
                             size={32}
                         />
-                        <p className="auth-rise-in auth-delay-1 text-sm uppercase tracking-[0.24em] text-rose">
+                        <p className="auth-rise-in auth-delay-1 text-label uppercase tracking-[0.24em] text-rose">
                             {siteContent.couple.dateLabel}
                         </p>
                         <h1 className="auth-rise-in auth-delay-2 mt-3 font-display text-5xl leading-none text-ink">
                             {siteContent.couple.names}
                         </h1>
-                        <p className="auth-rise-in auth-delay-3 mt-4 text-sm leading-6 text-taupe">
+                        <p className="auth-rise-in auth-delay-3 mt-4 text-small leading-6 text-taupe">
                             Enter your invite password to view wedding details and RSVP.
                         </p>
                     </div>
@@ -109,7 +109,7 @@ export function EntryGate({ children, requireAdmin = false }: { children: ReactN
                         </Button>
                     </form>
                     {message ? (
-                        <p className="auth-message-enter mt-4 rounded-md bg-rose/10 p-3 text-sm text-rose">{message}</p>
+                        <p className="auth-message-enter mt-4 rounded-md bg-rose/10 p-3 text-small text-rose">{message}</p>
                     ) : null}
                 </section>
             </div>

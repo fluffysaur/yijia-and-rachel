@@ -17,7 +17,7 @@ export function HomeHeroSection({ onOpenRsvp }: { onOpenRsvp: () => void }) {
                     <h1 className="reveal reveal-delay-1 mt-5 font-display text-7xl leading-none text-ink md:text-9xl">
                         {siteContent.hero.headline}
                     </h1>
-                    <p className="reveal reveal-delay-2 mt-5 text-base font-medium uppercase tracking-[0.22em] text-gold">
+                    <p className="reveal reveal-delay-2 mt-5 text-label font-medium uppercase tracking-[0.22em] text-gold">
                         {siteContent.couple.dateLabel} · {siteContent.couple.locationLabel}
                     </p>
                     <p className="reveal reveal-delay-2 mt-6 max-w-xl text-lg leading-8 text-taupe">

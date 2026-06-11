@@ -9,7 +9,7 @@ export function HomeQaSection() {
         >
             <div className="section-shell">
                 <div className="reveal mb-10 max-w-2xl">
-                    <p className="text-sm uppercase text-rose">For fun</p>
+                    <p className="text-label uppercase text-rose">For fun</p>
                     <h2 className="mt-2 font-display text-5xl">Q&A</h2>
                 </div>
                 <div className="grid gap-4 md:grid-cols-3">

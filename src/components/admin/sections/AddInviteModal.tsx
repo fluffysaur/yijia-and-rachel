@@ -36,7 +36,7 @@ export function AddInviteModal({
             >
                 <div className="grid gap-3 md:grid-cols-[1fr_14rem]">
                     <label className="block">
-                        <span className="text-sm font-medium text-ink">Group name</span>
+                        <span className="text-label font-medium text-ink">Group name</span>
                         <input
                             className="mt-2 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
                             value={newInvite.groupName}
@@ -47,7 +47,7 @@ export function AddInviteModal({
                         />
                     </label>
                     <label className="block">
-                        <span className="text-sm font-medium text-ink">Invite password</span>
+                        <span className="text-label font-medium text-ink">Invite password</span>
                         <div className="mt-2 flex gap-2">
                             <input
                                 className="w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
@@ -58,7 +58,7 @@ export function AddInviteModal({
                                 placeholder="Auto-generated"
                             />
                             <button
-                                className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-md border border-taupe/25 px-3 text-sm font-semibold text-ink transition hover:bg-cream"
+                                className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-md border border-taupe/25 px-3 text-control font-semibold text-ink transition hover:bg-cream"
                                 type="button"
                                 onClick={() =>
                                     setNewInvite((value) => ({ ...value, invitePassword: createInvitePassword() }))
@@ -70,7 +70,7 @@ export function AddInviteModal({
                     </label>
                 </div>
                 <div className="mt-3 overflow-x-auto">
-                    <table className="w-full min-w-160 text-left text-sm">
+                    <table className="w-full min-w-160 text-left text-small">
                         <thead className="border-b border-taupe/15 text-taupe">
                             <tr>
                                 <th className="py-2 pr-3">Full name</th>
@@ -161,7 +161,7 @@ export function AddInviteModal({
                                     </td>
                                     <td className="py-2 text-right align-top">
                                         <button
-                                            className="inline-flex min-h-10 min-w-10 cursor-pointer items-center justify-center rounded-md border border-taupe/25 px-3 text-sm font-semibold text-ink transition hover:bg-cream disabled:cursor-not-allowed disabled:opacity-40"
+                                            className="inline-flex min-h-10 min-w-10 cursor-pointer items-center justify-center rounded-md border border-taupe/25 px-3 text-control font-semibold text-ink transition hover:bg-cream disabled:cursor-not-allowed disabled:opacity-40"
                                             type="button"
                                             onClick={() => {
                                                 const hasContent = Boolean(guest.fullName.trim() || guest.remarks.trim());
@@ -188,7 +188,7 @@ export function AddInviteModal({
                         </tbody>
                     </table>
                     <button
-                        className="mt-3 inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md border border-taupe/30 bg-white px-4 py-2 text-sm font-medium text-ink transition hover:bg-cream"
+                        className="mt-3 inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md border border-taupe/30 bg-white px-4 py-2 text-control font-medium text-ink transition hover:bg-cream"
                         type="button"
                         onClick={() =>
                             setNewInvite((value) => ({
@@ -201,7 +201,7 @@ export function AddInviteModal({
                     </button>
                 </div>
                 <label className="mt-3 block">
-                    <span className="text-sm font-medium text-ink">Internal notes</span>
+                    <span className="text-label font-medium text-ink">Internal notes</span>
                     <textarea
                         className="mt-2 min-h-20 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
                         value={newInvite.notes}
@@ -218,7 +218,7 @@ export function AddInviteModal({
                     {submitting ? "Creating..." : "Create invite"}
                 </Button>
                 <label
-                    className={`inline-flex min-h-11 items-center justify-center rounded-md border border-taupe/30 bg-ivory/80 px-5 py-2 text-sm font-medium text-ink transition ${
+                    className={`inline-flex min-h-11 items-center justify-center rounded-md border border-taupe/30 bg-ivory/80 px-5 py-2 text-control font-medium text-ink transition ${
                         submitting ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-cream"
                     }`}
                 >

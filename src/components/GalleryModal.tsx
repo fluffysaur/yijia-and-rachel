@@ -63,7 +63,7 @@ export function GalleryModal({
       </button>
       <div className="flex h-full flex-col items-center justify-center gap-5 px-4 py-16">
         <img src={activeImage.src} alt={activeImage.alt} className="max-h-[74vh] max-w-full rounded-lg object-contain shadow-2xl" />
-        <div className="text-center text-sm text-white/75">
+        <div className="text-center text-small text-white/75">
           <p>{activeImage.alt}</p>
           <p className="mt-1">
             {activeIndex + 1} / {images.length}

@@ -23,7 +23,7 @@ export function AdminSignInCard({
             <Lock className="mb-4 text-rose" />
             <div className="grid gap-3">
                 {demoMode ? (
-                    <p className="rounded-md bg-gold/10 px-3 py-2 text-sm text-taupe">
+                    <p className="rounded-md bg-gold/10 px-3 py-2 text-small text-taupe">
                         Supabase is not configured. Use the static admin password from your environment.
                     </p>
                 ) : (
@@ -47,7 +47,7 @@ export function AdminSignInCard({
                     Sign in
                 </Button>
             </div>
-            {message ? <p className="mt-3 text-sm text-rose">{message}</p> : null}
+            {message ? <p className="mt-3 text-small text-rose">{message}</p> : null}
         </section>
     );
 }

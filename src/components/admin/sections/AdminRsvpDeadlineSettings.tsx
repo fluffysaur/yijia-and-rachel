@@ -73,7 +73,7 @@ export function AdminRsvpDeadlineSettings() {
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
                     <h2 className="font-display text-3xl">RSVP Deadline</h2>
-                    <p className="text-sm text-taupe">
+                    <p className="text-small text-taupe">
                         Guests can submit and edit RSVPs until this date and time.
                     </p>
                 </div>
@@ -86,7 +86,7 @@ export function AdminRsvpDeadlineSettings() {
 
             <div className="mt-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
                 <label className="block">
-                    <span className="text-sm font-medium">Deadline</span>
+                    <span className="text-label font-medium">Deadline</span>
                     <input
                         className="mt-2 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
                         value={deadlineValue}
@@ -115,7 +115,7 @@ export function AdminRsvpDeadlineSettings() {
                     <Save size={16} />
                     {saving ? "Saving..." : "Save deadline"}
                 </Button>
-                {message ? <p className="text-sm text-taupe">{message}</p> : null}
+                {message ? <p className="text-small text-taupe">{message}</p> : null}
             </div>
         </section>
     );

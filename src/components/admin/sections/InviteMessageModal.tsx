@@ -107,14 +107,14 @@ export function InviteMessageModal({
         >
             {row ? (
                 <>
-                    <p className="text-sm text-taupe">
+                    <p className="text-small text-taupe">
                         {row.groupName} · {invitedAt ? `Invited ${invitedAt}` : "Not invited"}
                     </p>
                 {templates ? (
                     <textarea
                         key={generatedMessage}
                         ref={messageTextRef}
-                        className="mt-5 min-h-96 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 text-sm leading-6"
+                        className="mt-5 min-h-96 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 text-small leading-6"
                         defaultValue={generatedMessage}
                         onChange={() => {
                             setCopyMessage(null);
@@ -122,7 +122,7 @@ export function InviteMessageModal({
                         }}
                     />
                 ) : (
-                    <div className="mt-5 flex min-h-96 items-center justify-center rounded-md border border-taupe/20 bg-white px-3 py-2 text-sm text-taupe">
+                    <div className="mt-5 flex min-h-96 items-center justify-center rounded-md border border-taupe/20 bg-white px-3 py-2 text-small text-taupe">
                         Loading invite message...
                     </div>
                 )}
@@ -148,7 +148,7 @@ export function InviteMessageModal({
                         {row.invitedAt ? <RotateCcw size={16} /> : <Check size={16} />}
                         {row.invitedAt ? "Clear invited" : "Mark invited"}
                     </Button>
-                    {copyMessage ? <p className="text-sm text-taupe">{copyMessage}</p> : null}
+                    {copyMessage ? <p className="text-small text-taupe">{copyMessage}</p> : null}
                 </div>
                 </>
             ) : null}

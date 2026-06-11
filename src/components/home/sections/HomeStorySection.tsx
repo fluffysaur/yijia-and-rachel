@@ -15,7 +15,7 @@ export function HomeStorySection() {
                     />
                 </div>
                 <div className="reveal reveal-delay-1 space-y-5 text-lg leading-8 text-taupe">
-                    <p className="text-sm uppercase text-rose">A little background</p>
+                    <p className="text-label uppercase text-rose">A little background</p>
                     <h2 className="mt-2 font-display text-5xl">{siteContent.story.title}</h2>
                     {siteContent.story.paragraphs.map((paragraph) => (
                         <p key={paragraph}>{paragraph}</p>

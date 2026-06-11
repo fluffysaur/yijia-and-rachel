@@ -54,7 +54,7 @@ export function AdminSummaryCards({
                                 key={label}
                                 className="rounded-md bg-cream p-3"
                             >
-                                <p className="text-xs text-taupe">{label}</p>
+                                <p className="text-caption text-taupe">{label}</p>
                                 <p className="mt-2 font-display text-3xl">{value}</p>
                             </div>
                         ))}

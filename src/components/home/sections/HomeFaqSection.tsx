@@ -15,7 +15,7 @@ export function HomeFaqSection({
         >
             <div className="section-shell grid gap-10 md:grid-cols-[0.8fr_1.2fr]">
                 <div className="reveal">
-                    <p className="text-sm uppercase text-rose">Questions</p>
+                    <p className="text-label uppercase text-rose">Questions</p>
                     <h2 className="mt-2 font-display text-5xl">FAQ</h2>
                 </div>
                 <div className="reveal reveal-delay-1 divide-y divide-taupe/15 rounded-lg border border-taupe/15 bg-white">

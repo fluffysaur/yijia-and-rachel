@@ -34,7 +34,7 @@ export function DeleteInviteModal({
                             Cancel
                         </Button>
                         <button
-                            className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-rose px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-rose/85 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-rose px-5 py-2 text-control font-medium text-white shadow-sm transition hover:bg-rose/85 disabled:cursor-not-allowed disabled:opacity-50"
                             type="button"
                             onClick={onDelete}
                             disabled={deleting}

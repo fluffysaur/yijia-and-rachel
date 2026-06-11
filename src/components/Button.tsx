@@ -23,7 +23,7 @@ export function Button({ className, variant = "primary", ...props }: ButtonProps
   return (
     <button
       className={clsx(
-        "inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md px-5 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md px-5 py-2 text-control font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
         variants[variant],
         className
       )}
@@ -34,7 +34,7 @@ export function Button({ className, variant = "primary", ...props }: ButtonProps
 
 export function LinkButton({ className, variant = "primary", to, href, children, ...props }: LinkButtonProps) {
   const classes = clsx(
-    "inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md px-5 py-2 text-sm font-medium transition",
+    "inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md px-5 py-2 text-control font-medium transition",
     variants[variant],
     className
   );

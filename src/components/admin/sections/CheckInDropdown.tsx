@@ -73,7 +73,7 @@ export function CheckInDropdown({
                 aria-expanded={open}
                 onClick={toggleOpen}
             >
-                <span className="text-sm font-medium">
+                <span className="text-label font-medium">
                     {label} {checkedNames.length}/{attendeeNames.length}
                 </span>
                 <ChevronDown
@@ -98,7 +98,7 @@ export function CheckInDropdown({
                               return (
                                   <button
                                       key={name}
-                                      className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm transition hover:bg-cream"
+                                      className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-small transition hover:bg-cream"
                                       onClick={() => onToggle(name)}
                                       type="button"
                                   >

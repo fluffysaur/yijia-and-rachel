@@ -13,7 +13,7 @@ export function AdminMealCounts({ summary }: { summary: AdminSummary }) {
                         key={meal}
                         className="rounded-md bg-cream p-3"
                     >
-                        <p className="text-sm text-taupe">{meal}</p>
+                        <p className="text-small text-taupe">{meal}</p>
                         <p className="font-display text-3xl">{count}</p>
                     </div>
                 ))}

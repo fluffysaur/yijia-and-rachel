@@ -9,7 +9,7 @@ export function HomeGallerySection({ onOpenImage }: { onOpenImage: (index: numbe
             <div className="section-shell">
                 <div className="reveal mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                     <div>
-                        <p className="text-sm uppercase text-rose">Pre-wedding shoot</p>
+                        <p className="text-label uppercase text-rose">Pre-wedding shoot</p>
                         <h2 className="mt-2 font-display text-5xl">Gallery</h2>
                     </div>
                 </div>

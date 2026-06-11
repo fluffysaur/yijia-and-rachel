@@ -107,7 +107,7 @@ export function Header() {
                 >
                     {isAdmin ? "Yi Jia & Rachel Admin" : siteContent.couple.names}
                 </Link>
-                <nav className="hidden flex-1 flex-wrap items-center justify-start gap-x-5 gap-y-2 text-sm lg:flex ml-8">
+                <nav className="hidden flex-1 flex-wrap items-center justify-start gap-x-5 gap-y-2 text-small lg:flex ml-8">
                     {navItems.map((item) => (
                         <a
                             key={item.href}
@@ -166,7 +166,7 @@ export function Header() {
                     menuOpen ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0",
                 )}
             >
-                <nav className="section-shell grid gap-2 py-4 text-sm">
+                <nav className="section-shell grid gap-2 py-4 text-small">
                     {navItems.map((item) => (
                         <a
                             key={item.href}

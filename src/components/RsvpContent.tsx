@@ -213,7 +213,7 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
     return (
         <div className={compact ? "" : "section-shell max-w-4xl"}>
             <div className="mb-8">
-                <p className="text-sm uppercase tracking-[0.22em] text-rose">RSVP</p>
+                <p className="text-label uppercase tracking-[0.22em] text-rose">RSVP</p>
                 <h1 className="mt-2 font-display text-5xl">
                     {isDirectInviteSession ? "Your Invite" : "Find Your Invite"}
                 </h1>
@@ -224,7 +224,7 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
                     </p>
                 ) : null}
                 {!isDirectInviteSession && isDemoMode() ? (
-                    <p className="mt-3 rounded-md bg-gold/10 px-3 py-2 text-sm text-taupe">
+                    <p className="mt-3 rounded-md bg-gold/10 px-3 py-2 text-small text-taupe">
                         Demo mode is active. Try searching for “Tan”, “Lee”, or “Ong”.
                     </p>
                 ) : null}
@@ -266,8 +266,8 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
                                 onClick={() => void selectInvite(invite.id)}
                             >
                                 <span className="block font-medium">{invite.groupName}</span>
-                                <span className="mt-1 block text-sm text-taupe">{invite.guestNames.join(", ")}</span>
-                                <span className="mt-2 flex flex-wrap gap-x-2 gap-y-1 text-sm text-taupe">
+                                <span className="mt-1 block text-small text-taupe">{invite.guestNames.join(", ")}</span>
+                                <span className="mt-2 flex flex-wrap gap-x-2 gap-y-1 text-small text-taupe">
                                     {invite.hasSubmitted ? <span>RSVPed</span> : null}
                                 </span>
                             </button>
@@ -276,15 +276,15 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
                 ) : null}
 
                 {query.trim().length >= 2 && !loading && !results.length ? (
-                    <p className="mt-4 rounded-md bg-cream/60 p-3 text-sm text-taupe">No matching invite found yet.</p>
+                    <p className="mt-4 rounded-md bg-cream/60 p-3 text-small text-taupe">No matching invite found yet.</p>
                 ) : null}
 
-                {message ? <p className="mt-4 rounded-md bg-rose/10 p-3 text-sm text-rose">{message}</p> : null}
+                {message ? <p className="mt-4 rounded-md bg-rose/10 p-3 text-small text-rose">{message}</p> : null}
             </div>
             ) : message ? (
-                <p className="rounded-md bg-rose/10 p-3 text-sm text-rose">{message}</p>
+                <p className="rounded-md bg-rose/10 p-3 text-small text-rose">{message}</p>
             ) : loading ? (
-                <div className="flex items-center gap-2 rounded-lg border border-taupe/15 bg-white p-5 text-sm text-taupe shadow-sm">
+                <div className="flex items-center gap-2 rounded-lg border border-taupe/15 bg-white p-5 text-small text-taupe shadow-sm">
                     <LoaderCircle
                         className="animate-spin"
                         size={20}
@@ -326,7 +326,7 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
                             submitting={submitting}
                         />
                     ) : (
-                        <section className="rounded-lg border border-rose/30 bg-rose/10 p-5 text-sm text-rose">
+                        <section className="rounded-lg border border-rose/30 bg-rose/10 p-5 text-small text-rose">
                             The RSVP deadline has passed. Please contact us for changes.
                         </section>
                     )

@@ -16,9 +16,9 @@ export function RsvpDetail({
 }) {
   return (
     <section className="rounded-lg border border-sage/30 bg-sage/10 p-5">
-      <p className="text-sm font-medium uppercase text-sage">RSVPed</p>
+      <p className="text-label font-medium uppercase text-sage">RSVPed</p>
       <h2 className="mt-1 font-display text-3xl">{inviteGroup.groupName}</h2>
-      <p className="mt-2 text-sm text-taupe">
+      <p className="mt-2 text-small text-taupe">
         Submitted by {rsvp.responderName} on {new Date(rsvp.submittedAt).toLocaleDateString()}.
       </p>
 
@@ -26,7 +26,7 @@ export function RsvpDetail({
         <div>
           <h3 className="font-medium">Church ceremony & lunch</h3>
           <p className="text-taupe">{rsvp.ceremonyAttendingCount} attending</p>
-          <ul className="mt-3 space-y-2 text-sm text-taupe">
+          <ul className="mt-3 space-y-2 text-small text-taupe">
             {rsvp.ceremonyAttendees.map((attendee) => (
               <li key={attendee.attendeeIndex}>
                 {attendee.attendeeLabel}: {attendee.dietaryPreference || "No dietary preference"}
@@ -38,7 +38,7 @@ export function RsvpDetail({
           <div>
             <h3 className="font-medium">Dinner banquet</h3>
             <p className="text-taupe">{rsvp.dinnerAttendingCount} attending</p>
-            <ul className="mt-3 space-y-2 text-sm text-taupe">
+            <ul className="mt-3 space-y-2 text-small text-taupe">
               {rsvp.dinnerAttendees.map((attendee) => (
                 <li key={attendee.attendeeIndex}>
                   {attendee.attendeeLabel}: {attendee.mealOption}
@@ -51,7 +51,7 @@ export function RsvpDetail({
       </div>
 
       {rsvp.generalNotes ? (
-        <div className="mt-5 rounded-md bg-ivory p-4 text-sm text-taupe">
+        <div className="mt-5 rounded-md bg-ivory p-4 text-small text-taupe">
           <span className="font-medium text-ink">Notes:</span> {rsvp.generalNotes}
         </div>
       ) : null}
@@ -64,7 +64,7 @@ export function RsvpDetail({
             Edit RSVP
           </Button>
         ) : null}
-        <p className={`text-sm ${canEdit ? "text-taupe" : "text-rose"}`}>{lockedMessage}</p>
+        <p className={`text-small ${canEdit ? "text-taupe" : "text-rose"}`}>{lockedMessage}</p>
       </div>
     </section>
   );

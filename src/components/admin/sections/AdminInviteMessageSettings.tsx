@@ -54,7 +54,7 @@ export function AdminInviteMessageSettings() {
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
                     <h2 className="font-display text-3xl">Invite Message Templates</h2>
-                    <p className="text-sm text-taupe">Edit the templates used when copying RSVP invite messages.</p>
+                    <p className="text-small text-taupe">Edit the templates used when copying RSVP invite messages.</p>
                 </div>
                 <MessageSquareText
                     className="hidden text-sage md:block"
@@ -63,22 +63,22 @@ export function AdminInviteMessageSettings() {
                 />
             </div>
 
-            <p className="mt-4 text-sm text-taupe">Placeholders: {placeholders}</p>
+            <p className="mt-4 text-small text-taupe">Placeholders: {placeholders}</p>
 
             <div className="mt-5 grid gap-4 lg:grid-cols-2">
                 <label className="block">
-                    <span className="text-sm font-medium">Lunch-only invite template</span>
+                    <span className="text-label font-medium">Lunch-only invite template</span>
                     <textarea
-                        className="mt-2 min-h-72 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 font-mono text-sm"
+                        className="mt-2 min-h-72 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 font-mono text-small"
                         value={templates.lunchTemplate}
                         onChange={(event) => setTemplates((value) => ({ ...value, lunchTemplate: event.target.value }))}
                         disabled={loading}
                     />
                 </label>
                 <label className="block">
-                    <span className="text-sm font-medium">Dinner invite template</span>
+                    <span className="text-label font-medium">Dinner invite template</span>
                     <textarea
-                        className="mt-2 min-h-72 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 font-mono text-sm"
+                        className="mt-2 min-h-72 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 font-mono text-small"
                         value={templates.dinnerTemplate}
                         onChange={(event) => setTemplates((value) => ({ ...value, dinnerTemplate: event.target.value }))}
                         disabled={loading}
@@ -95,7 +95,7 @@ export function AdminInviteMessageSettings() {
                     <Save size={16} />
                     {saving ? "Saving..." : "Save templates"}
                 </Button>
-                {message ? <p className="text-sm text-taupe">{message}</p> : null}
+                {message ? <p className="text-small text-taupe">{message}</p> : null}
             </div>
         </section>
     );

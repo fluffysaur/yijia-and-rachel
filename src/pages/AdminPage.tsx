@@ -470,7 +470,7 @@ export function AdminPage() {
 
                     <div>
                         {message ? (
-                            <p className="rounded-md bg-rose/10 px-3 py-2 text-sm text-rose">{message}</p>
+                            <p className="rounded-md bg-rose/10 px-3 py-2 text-small text-rose">{message}</p>
                         ) : null}
 
                         <AddInviteModal

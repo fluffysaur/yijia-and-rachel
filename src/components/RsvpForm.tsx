@@ -101,12 +101,12 @@ export function RsvpForm({
       }}
     >
       <div>
-        <p className="text-sm uppercase text-rose">{initialRsvp ? "Edit RSVP for" : "RSVP for"}</p>
+        <p className="text-label uppercase text-rose">{initialRsvp ? "Edit RSVP for" : "RSVP for"}</p>
         <h2 className="font-display text-3xl">{inviteGroup.groupName}</h2>
       </div>
 
       <label className="block">
-        <span className="text-sm font-medium">Responder name</span>
+        <span className="text-label font-medium">Responder name</span>
         <input
           className="mt-2 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
           value={draft.responderName}
@@ -117,7 +117,7 @@ export function RsvpForm({
 
       <section className="rounded-lg bg-cream/60 p-4">
         <h3 className="font-display text-2xl">Church ceremony & lunch buffet</h3>
-        <p className="mt-1 text-sm text-taupe">All invited attendees are invited to this portion.</p>
+        <p className="mt-1 text-small text-taupe">All invited attendees are invited to this portion.</p>
         <div className="mt-4 grid gap-3">
           {ceremonyNames.map((name) => {
             const attendeeIndex = draft.ceremonyAttendees.findIndex((attendee) => attendee.attendeeLabel === name);
@@ -158,7 +158,7 @@ export function RsvpForm({
       {inviteGroup.dinnerAllowedCount > 0 ? (
         <section className="rounded-lg bg-blush/20 p-4">
           <h3 className="font-display text-2xl">Dinner banquet</h3>
-          <p className="mt-1 text-sm text-taupe">Dinner invitations are separate from the church ceremony.</p>
+          <p className="mt-1 text-small text-taupe">Dinner invitations are separate from the church ceremony.</p>
           <div className="mt-4 grid gap-4">
             {dinnerNames.map((name) => {
               const attendeeIndex = draft.dinnerAttendees.findIndex((attendee) => attendee.attendeeLabel === name);
@@ -178,7 +178,7 @@ export function RsvpForm({
                   {attendee ? (
                     <div className="mt-3 grid gap-3 md:grid-cols-2">
                       <label className="block">
-                        <span className="text-sm font-medium">Meal</span>
+                        <span className="text-label font-medium">Meal</span>
                         <span className="relative mt-2 block">
                           <select
                             className="w-full appearance-none rounded-md border border-taupe/20 bg-white py-2 pl-3 pr-10"
@@ -208,7 +208,7 @@ export function RsvpForm({
                         </span>
                       </label>
                       <label className="block">
-                        <span className="text-sm font-medium">Other dietary preference</span>
+                        <span className="text-label font-medium">Other dietary preference</span>
                         <input
                           className="mt-2 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
                           value={attendee.dietaryPreference}
@@ -231,13 +231,13 @@ export function RsvpForm({
           </div>
         </section>
       ) : (
-        <section className="rounded-lg bg-cream/60 p-4 text-sm text-taupe">
+        <section className="rounded-lg bg-cream/60 p-4 text-small text-taupe">
           This invite is for the church ceremony and lunch buffet only.
         </section>
       )}
 
       <label className="block">
-        <span className="text-sm font-medium">Remarks</span>
+        <span className="text-label font-medium">Remarks</span>
         <textarea
           className="mt-2 min-h-24 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
           value={draft.generalNotes}
@@ -247,7 +247,7 @@ export function RsvpForm({
       </label>
 
       {validation.errors.length ? (
-        <div className="rounded-md border border-rose/30 bg-rose/10 p-3 text-sm text-rose">
+        <div className="rounded-md border border-rose/30 bg-rose/10 p-3 text-small text-rose">
           {validation.errors.map((error) => (
             <p key={error}>{error}</p>
           ))}

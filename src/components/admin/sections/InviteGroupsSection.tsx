@@ -65,12 +65,29 @@ function includesSearch(values: Array<string | number | null | undefined>, searc
         .includes(search);
 }
 
-function RsvpStatus({ row }: { row: AdminInviteRow }) {
+function InviteStatus({
+    row,
+    onInviteMessage,
+}: {
+    row: AdminInviteRow;
+    onInviteMessage: (row: AdminInviteRow) => void;
+}) {
+    if (row.rsvp) {
+        return <span>RSVPed</span>;
+    }
+
+    if (row.invitedAt) {
+        return <span className="text-taupe">Invited</span>;
+    }
+
     return (
-        <div className="space-y-1">
-            {row.invitedAt ? <span>Invited</span> : <span className="text-taupe">Not invited</span>}
-            <span className="block text-xs text-taupe">{row.rsvp ? "RSVPed" : "RSVP pending"}</span>
-        </div>
+        <button
+            className="cursor-pointer text-left text-taupe underline decoration-taupe/40 underline-offset-4 transition hover:text-ink"
+            type="button"
+            onClick={() => onInviteMessage(row)}
+        >
+            Not invited
+        </button>
     );
 }
 
@@ -89,7 +106,7 @@ function AttendeeCheckInButton({
 }) {
     return (
         <button
-            className={`inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm transition ${
+            className={`inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-caption transition ${
                 checked
                     ? "border-sage/40 bg-sage/10 text-ink hover:bg-sage/15"
                     : "border-taupe/20 bg-white text-taupe hover:bg-cream hover:text-ink"
@@ -451,7 +468,7 @@ export function InviteGroupsSection({
                             <p>
                                 <span className="font-medium">Church: </span>
                                 {row.guestNames.join(", ") || row.ceremonyAllowedCount}
-                                <span className="ml-2 text-xs text-taupe">
+                                <span className="ml-2 text-caption text-taupe">
                                     ({row.guestNames.length || row.ceremonyAllowedCount} invited)
                                 </span>
                             </p>
@@ -459,7 +476,7 @@ export function InviteGroupsSection({
                                 <p>
                                     <span className="font-medium">Dinner: </span>
                                     {row.dinnerGuestNames.join(", ") || row.dinnerAllowedCount}
-                                    <span className="ml-2 text-xs text-taupe">
+                                    <span className="ml-2 text-caption text-taupe">
                                         ({row.dinnerGuestNames.length || row.dinnerAllowedCount} invited)
                                     </span>
                                 </p>
@@ -467,20 +484,10 @@ export function InviteGroupsSection({
                         </div>
                     </td>
                     <td className="py-3 pr-4">
-                        {row.invitedAt ? (
-                            <RsvpStatus row={row} />
-                        ) : (
-                            <div className="space-y-1">
-                                <button
-                                    className="cursor-pointer text-left text-taupe underline decoration-taupe/40 underline-offset-4 transition hover:text-ink"
-                                    type="button"
-                                    onClick={() => onInviteMessage(row)}
-                                >
-                                    Not invited
-                                </button>
-                                <span className="block text-xs text-taupe">{row.rsvp ? "RSVPed" : "RSVP pending"}</span>
-                            </div>
-                        )}
+                        <InviteStatus
+                            row={row}
+                            onInviteMessage={onInviteMessage}
+                        />
                     </td>
                     <td className="max-w-72 py-3 pr-4">{remarks || <EmptyValue />}</td>
                     <td className="py-3">{renderActionButton(row.id, row)}</td>
@@ -496,7 +503,10 @@ export function InviteGroupsSection({
                 </td>
                 <td className="py-3 pr-4">{row.groupName}</td>
                 <td className="py-3 pr-4">
-                    <RsvpStatus row={row} />
+                    <InviteStatus
+                        row={row}
+                        onInviteMessage={onInviteMessage}
+                    />
                 </td>
                 <td className="py-3 pr-4">{attendee.dietaryPreference || <EmptyValue />}</td>
                 <td className="max-w-72 py-3 pr-4">{remarks || <EmptyValue />}</td>
@@ -519,7 +529,10 @@ export function InviteGroupsSection({
                 </td>
                 <td className="py-3 pr-4">{row.groupName}</td>
                 <td className="py-3 pr-4">
-                    <RsvpStatus row={row} />
+                    <InviteStatus
+                        row={row}
+                        onInviteMessage={onInviteMessage}
+                    />
                 </td>
                 <td className="py-3 pr-4">{attendee.mealOption}</td>
                 <td className="py-3 pr-4">{attendee.dietaryPreference || <EmptyValue />}</td>
@@ -544,7 +557,7 @@ export function InviteGroupsSection({
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
                     <h2 className="font-display text-3xl">Invite Groups & RSVP</h2>
-                    <p className="text-sm text-taupe">
+                    <p className="text-small text-taupe">
                         Create, import, invite, export, edit RSVPs, and mark day-of check-ins.
                     </p>
                 </div>
@@ -601,7 +614,7 @@ export function InviteGroupsSection({
                 ].map(({ value, label, icon: Icon }) => (
                     <button
                         key={value}
-                        className={`inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 text-sm font-medium transition sm:px-4 ${
+                        className={`inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 text-control font-medium transition sm:px-4 ${
                             view === value
                                 ? "border-rose/40 bg-rose/10 text-ink"
                                 : "border-taupe/20 bg-white text-taupe hover:bg-cream hover:text-ink"
@@ -669,12 +682,12 @@ export function InviteGroupsSection({
                 </FilterSelect>
             </div>
 
-            <p className="mt-3 text-sm text-taupe">
+            <p className="mt-3 text-small text-taupe">
                 Showing {visibleRowCount} {view === "master" ? "invite groups" : "attendees"}.
             </p>
 
             {refreshing ? (
-                <p className="mt-4 inline-flex items-center gap-2 text-sm text-taupe">
+                <p className="mt-4 inline-flex items-center gap-2 text-small text-taupe">
                     <LoaderCircle
                         size={16}
                         className="animate-spin"
@@ -684,7 +697,7 @@ export function InviteGroupsSection({
             ) : null}
 
             <div className="mt-5 overflow-x-auto overflow-y-visible">
-                <table className="w-full min-w-180 text-left text-sm">
+                <table className="w-full min-w-180 text-left text-caption">
                     <thead className="border-b border-taupe/15 text-taupe">
                         {view === "master" ? (
                             <tr>
@@ -764,7 +777,7 @@ export function InviteGroupsSection({
                           }}
                       >
                           <button
-                              className="flex w-full cursor-pointer items-center gap-2 rounded px-3 py-2 text-left text-sm text-ink transition hover:bg-cream"
+                              className="flex w-full cursor-pointer items-center gap-2 rounded px-3 py-2 text-left text-small text-ink transition hover:bg-cream"
                               type="button"
                               onClick={() => {
                                   setToolbarMenuOpen(false);
@@ -775,7 +788,7 @@ export function InviteGroupsSection({
                               Add by CSV
                           </button>
                           <button
-                              className="flex w-full cursor-pointer items-center gap-2 rounded px-3 py-2 text-left text-sm text-ink transition hover:bg-cream"
+                              className="flex w-full cursor-pointer items-center gap-2 rounded px-3 py-2 text-left text-small text-ink transition hover:bg-cream"
                               type="button"
                               onClick={() => {
                                   setToolbarMenuOpen(false);
@@ -802,7 +815,7 @@ export function InviteGroupsSection({
                           }}
                       >
                           <button
-                              className="flex w-full cursor-pointer items-center gap-2 rounded px-3 py-2 text-left text-sm text-ink transition hover:bg-cream"
+                              className="flex w-full cursor-pointer items-center gap-2 rounded px-3 py-2 text-left text-small text-ink transition hover:bg-cream"
                               type="button"
                               onClick={() => {
                                   onInviteMessage(rowMenuRow);
@@ -813,7 +826,7 @@ export function InviteGroupsSection({
                               Invite message
                           </button>
                           <button
-                              className="flex w-full cursor-pointer rounded px-3 py-2 text-left text-sm text-ink transition hover:bg-cream"
+                              className="flex w-full cursor-pointer rounded px-3 py-2 text-left text-small text-ink transition hover:bg-cream"
                               type="button"
                               onClick={() => {
                                   onEditRsvp(rowMenuRow);
@@ -824,7 +837,7 @@ export function InviteGroupsSection({
                               Edit
                           </button>
                           <button
-                              className="flex w-full cursor-pointer rounded px-3 py-2 text-left text-sm text-rose transition hover:bg-rose/10"
+                              className="flex w-full cursor-pointer rounded px-3 py-2 text-left text-small text-rose transition hover:bg-rose/10"
                               type="button"
                               onClick={() => {
                                   onDeleteInvite(rowMenuRow);

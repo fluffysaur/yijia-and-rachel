@@ -58,7 +58,7 @@ export function AdminPasswordSettings() {
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
                     <h2 className="font-display text-3xl">Guest Access Passwords</h2>
-                    <p className="text-sm text-taupe">
+                    <p className="text-small text-taupe">
                         Manage the lunch-only and full-detail passwords guests use to enter the site.
                     </p>
                 </div>
@@ -74,7 +74,7 @@ export function AdminPasswordSettings() {
 
             <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <label className="block">
-                    <span className="text-sm font-medium">Lunch-only password</span>
+                    <span className="text-label font-medium">Lunch-only password</span>
                     <input
                         className="mt-2 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
                         value={lunchPassword}
@@ -84,7 +84,7 @@ export function AdminPasswordSettings() {
                     />
                 </label>
                 <label className="block">
-                    <span className="text-sm font-medium">Full-details password</span>
+                    <span className="text-label font-medium">Full-details password</span>
                     <input
                         className="mt-2 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
                         value={fullPassword}
@@ -104,7 +104,7 @@ export function AdminPasswordSettings() {
                     <Save size={16} />
                     {saving ? "Saving..." : "Save passwords"}
                 </Button>
-                {message ? <p className="text-sm text-taupe">{message}</p> : null}
+                {message ? <p className="text-small text-taupe">{message}</p> : null}
             </div>
         </section>
     );

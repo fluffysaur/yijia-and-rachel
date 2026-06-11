@@ -14,7 +14,7 @@ export function HomeEventsSection() {
         >
             <div className="section-shell">
                 <div className="reveal mb-10 max-w-2xl">
-                    <p className="text-sm uppercase text-rose">The day</p>
+                    <p className="text-label uppercase text-rose">The day</p>
                     <h2 className="mt-2 font-display text-5xl">Wedding Details</h2>
                     <p className="mt-4 text-taupe">Time, location, dress code, and directions for our special day.</p>
                 </div>
