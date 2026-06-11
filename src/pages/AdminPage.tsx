@@ -114,6 +114,8 @@ export function AdminPage() {
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [inviteMessageModalOpen, setInviteMessageModalOpen] = useState(false);
+    const [creatingInvite, setCreatingInvite] = useState(false);
+    const [savingRsvpEdit, setSavingRsvpEdit] = useState(false);
     const [checkIns, setCheckIns] = useState<Record<string, string[]>>({});
 
     const filteredRows = useMemo(() => {
@@ -144,6 +146,8 @@ export function AdminPage() {
     };
 
     const createInvite = async () => {
+        if (creatingInvite) return;
+
         if (!newInvite.groupName.trim()) {
             setMessage("Invite group name is required.");
             return;
@@ -168,24 +172,32 @@ export function AdminPage() {
             .filter(Boolean)
             .join("\n\n");
 
-        await createAdminInviteGroup({
-            groupName: newInvite.groupName,
-            invitePassword: newInvite.invitePassword,
-            guestNames,
-            dinnerGuestNames,
-            ceremonyAllowedCount: guestNames.length,
-            dinnerAllowedCount: dinnerGuestNames.length,
-            notes,
-        });
+        setCreatingInvite(true);
+        setMessage(null);
+        try {
+            await createAdminInviteGroup({
+                groupName: newInvite.groupName,
+                invitePassword: newInvite.invitePassword,
+                guestNames,
+                dinnerGuestNames,
+                ceremonyAllowedCount: guestNames.length,
+                dinnerAllowedCount: dinnerGuestNames.length,
+                notes,
+            });
 
-        setNewInvite({
-            groupName: "",
-            invitePassword: createInvitePassword(),
-            guests: [createNewInviteGuestRow()],
-            notes: "",
-        });
-        setCreateModalOpen(false);
-        await loadAdminData();
+            setNewInvite({
+                groupName: "",
+                invitePassword: createInvitePassword(),
+                guests: [createNewInviteGuestRow()],
+                notes: "",
+            });
+            setCreateModalOpen(false);
+            await loadAdminData();
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : "Unable to create invite.");
+        } finally {
+            setCreatingInvite(false);
+        }
     };
 
     const importCsv = async (file: File) => {
@@ -222,6 +234,7 @@ export function AdminPage() {
     };
 
     const saveRsvpEdit = async () => {
+        if (savingRsvpEdit) return;
         if (!editingRow) return;
 
         if (!editingRow.groupName.trim()) {
@@ -246,50 +259,57 @@ export function AdminPage() {
             return;
         }
 
-        await updateAdminInviteGroup({
-            id: editingRow.id,
-            groupName: editingRow.groupName.trim(),
-            invitePassword: String(editingRow.invitePassword ?? "").trim(),
-            guestNames: guestRows.filter((guest) => guest.church).map((guest) => guest.fullName),
-            dinnerGuestNames: guestRows.filter((guest) => guest.dinner).map((guest) => guest.fullName),
-            notes: composeInviteNotes(editingRow.notes ?? "", guestRows),
-        });
-
-        if (editingRow.rsvpStatus === "pending") {
-            if (editingRow.rsvp) {
-                await deleteAdminRsvp(editingRow.rsvp.id);
-            }
-        } else if (editingRow.rsvp) {
-            const ceremonyAttendees = editingRow.rsvp.ceremonyAttendees
-                .map((attendee) => ({
-                    ...attendee,
-                    attendeeLabel: attendee.attendeeLabel.trim(),
-                    dietaryPreference: attendee.dietaryPreference.trim(),
-                }))
-                .filter((attendee) => attendee.attendeeLabel);
-            const dinnerAttendees = editingRow.rsvp.dinnerAttendees
-                .map((attendee) => ({
-                    ...attendee,
-                    attendeeLabel: attendee.attendeeLabel.trim(),
-                    dietaryPreference: attendee.dietaryPreference.trim(),
-                }))
-                .filter((attendee) => attendee.attendeeLabel);
-
-            await updateAdminRsvp({
-                ...editingRow.rsvp,
-                responderName: editingRow.rsvp.responderName.trim() || editingRow.groupName.trim(),
-                ceremonyAttendingCount: ceremonyAttendees.length,
-                dinnerAttendingCount: dinnerAttendees.length,
-                generalNotes: editingRow.rsvp.generalNotes.trim(),
-                ceremonyAttendees,
-                dinnerAttendees,
-            });
-        }
-
+        setSavingRsvpEdit(true);
         setMessage(null);
-        setEditModalOpen(false);
-        setEditingRow(null);
-        await loadAdminData();
+        try {
+            await updateAdminInviteGroup({
+                id: editingRow.id,
+                groupName: editingRow.groupName.trim(),
+                invitePassword: String(editingRow.invitePassword ?? "").trim(),
+                guestNames: guestRows.filter((guest) => guest.church).map((guest) => guest.fullName),
+                dinnerGuestNames: guestRows.filter((guest) => guest.dinner).map((guest) => guest.fullName),
+                notes: composeInviteNotes(editingRow.notes ?? "", guestRows),
+            });
+
+            if (editingRow.rsvpStatus === "pending") {
+                if (editingRow.rsvp) {
+                    await deleteAdminRsvp(editingRow.rsvp.id);
+                }
+            } else if (editingRow.rsvp) {
+                const ceremonyAttendees = editingRow.rsvp.ceremonyAttendees
+                    .map((attendee) => ({
+                        ...attendee,
+                        attendeeLabel: attendee.attendeeLabel.trim(),
+                        dietaryPreference: attendee.dietaryPreference.trim(),
+                    }))
+                    .filter((attendee) => attendee.attendeeLabel);
+                const dinnerAttendees = editingRow.rsvp.dinnerAttendees
+                    .map((attendee) => ({
+                        ...attendee,
+                        attendeeLabel: attendee.attendeeLabel.trim(),
+                        dietaryPreference: attendee.dietaryPreference.trim(),
+                    }))
+                    .filter((attendee) => attendee.attendeeLabel);
+
+                await updateAdminRsvp({
+                    ...editingRow.rsvp,
+                    responderName: editingRow.rsvp.responderName.trim() || editingRow.groupName.trim(),
+                    ceremonyAttendingCount: ceremonyAttendees.length,
+                    dinnerAttendingCount: dinnerAttendees.length,
+                    generalNotes: editingRow.rsvp.generalNotes.trim(),
+                    ceremonyAttendees,
+                    dinnerAttendees,
+                });
+            }
+
+            setEditModalOpen(false);
+            setEditingRow(null);
+            await loadAdminData();
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : "Unable to save RSVP.");
+        } finally {
+            setSavingRsvpEdit(false);
+        }
     };
 
     const getCheckedInNames = (row: AdminInviteRow, eventType: "ceremony" | "dinner") => {
@@ -371,7 +391,11 @@ export function AdminPage() {
                             open={createModalOpen}
                             newInvite={newInvite}
                             setNewInvite={setNewInvite}
-                            onClose={() => setCreateModalOpen(false)}
+                            submitting={creatingInvite}
+                            onClose={() => {
+                                if (creatingInvite) return;
+                                setCreateModalOpen(false);
+                            }}
                             onCreateInvite={() => void createInvite()}
                             onImportCsv={(file) => void importCsv(file)}
                         />
@@ -380,8 +404,10 @@ export function AdminPage() {
                             open={editModalOpen}
                             editingRow={editingRow}
                             setEditingRow={setEditingRow}
+                            saving={savingRsvpEdit}
                             onSave={() => void saveRsvpEdit()}
                             onClose={() => {
+                                if (savingRsvpEdit) return;
                                 setEditModalOpen(false);
                                 setEditingRow(null);
                             }}

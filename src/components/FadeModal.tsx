@@ -6,22 +6,24 @@ export function FadeModal({
   open,
   title,
   children,
-  onClose
+  onClose,
+  closeDisabled = false
 }: {
   open: boolean;
   title: string;
   children: ReactNode;
   onClose: () => void;
+  closeDisabled?: boolean;
 }) {
   useEffect(() => {
     if (!open) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape" && !closeDisabled) onClose();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose, open]);
+  }, [closeDisabled, onClose, open]);
 
   return (
     <div
@@ -43,10 +45,11 @@ export function FadeModal({
         <div className="mb-5 flex items-start justify-between gap-4">
           <h2 className="font-display text-4xl text-ink">{title}</h2>
           <button
-            className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-taupe/15 text-ink transition hover:border-rose/40 hover:bg-cream"
+            className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-taupe/15 text-ink transition hover:border-rose/40 hover:bg-cream disabled:cursor-not-allowed disabled:opacity-40"
             type="button"
             aria-label={`Close ${title}`}
             onClick={onClose}
+            disabled={closeDisabled}
           >
             <X size={20} />
           </button>

@@ -35,12 +35,14 @@ export function EditRsvpModal({
     open,
     editingRow,
     setEditingRow,
+    saving,
     onSave,
     onClose,
 }: {
     open: boolean;
     editingRow: AdminRsvpEditState | null;
     setEditingRow: Dispatch<SetStateAction<AdminRsvpEditState | null>>;
+    saving: boolean;
     onSave: () => void;
     onClose: () => void;
 }) {
@@ -103,9 +105,14 @@ export function EditRsvpModal({
             open={open && Boolean(editingRow)}
             title="Edit RSVP"
             onClose={onClose}
+            closeDisabled={saving}
         >
             {editingRow ? (
                 <>
+                    <fieldset
+                        className="contents"
+                        disabled={saving}
+                    >
                     <div className="grid gap-3 md:grid-cols-[1fr_14rem_13rem]">
                         <label className="block">
                             <span className="text-sm font-medium text-ink">Group name</span>
@@ -491,11 +498,19 @@ export function EditRsvpModal({
                         </div>
                     ) : null}
 
+                    </fieldset>
+
                     <div className="mt-5 flex gap-2">
-                        <Button onClick={onSave}>Save RSVP</Button>
+                        <Button
+                            onClick={onSave}
+                            disabled={saving}
+                        >
+                            {saving ? "Saving..." : "Save RSVP"}
+                        </Button>
                         <Button
                             variant="secondary"
                             onClick={onClose}
+                            disabled={saving}
                         >
                             Cancel
                         </Button>
