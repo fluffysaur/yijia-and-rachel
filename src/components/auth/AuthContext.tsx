@@ -6,6 +6,8 @@ import {
   type AccessRole,
   type AccessSession,
 } from "../../lib/access";
+import { createDemoSessionForPassword } from "../../lib/rsvpRepository";
+import { isDemoMode } from "../../lib/supabase";
 
 type AuthContextValue = {
   session: AccessSession | null;
@@ -16,6 +18,28 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+async function requestSession(password: string): Promise<AccessSession> {
+  const response = await fetch("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password }),
+  });
+  const payload = (await response.json().catch(() => null)) as
+    | { role: AccessRole; expiresAt: number; token: string; inviteGroupId?: string | null; error?: string }
+    | null;
+
+  if (!response.ok || !payload?.token) {
+    throw new Error(payload?.error || "Invalid password.");
+  }
+
+  return {
+    role: payload.role,
+    expiresAt: payload.expiresAt,
+    token: payload.token,
+    inviteGroupId: payload.inviteGroupId ?? null,
+  };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AccessSession | null>(() => readAccessSession());
@@ -32,25 +56,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [session]);
 
   const signIn = useCallback(async (password: string) => {
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
-    const payload = (await response.json().catch(() => null)) as
-      | { role: AccessRole; expiresAt: number; token: string; inviteGroupId?: string | null; error?: string }
-      | null;
+    let nextSession: AccessSession;
 
-    if (!response.ok || !payload?.token) {
-      throw new Error(payload?.error || "Invalid password.");
+    if (isDemoMode()) {
+      const demoSession = createDemoSessionForPassword(password);
+      nextSession = demoSession ?? await requestSession(password);
+    } else {
+      nextSession = await requestSession(password);
     }
 
-    const nextSession = {
-      role: payload.role,
-      expiresAt: payload.expiresAt,
-      token: payload.token,
-      inviteGroupId: payload.inviteGroupId ?? null,
-    };
     saveAccessSession(nextSession);
     setSession(nextSession);
     return nextSession;

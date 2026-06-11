@@ -8,10 +8,111 @@ import type {
   RsvpResponse
 } from "../types/rsvp";
 import { normalizeName } from "./name";
-import { readAccessSession } from "./access";
+import { readAccessSession, type AccessRole, type AccessSession } from "./access";
 import { getSupabaseBrowserClient } from "./supabase";
 
 const localStorageKey = (inviteGroupId: string) => `wedding-rsvp:${inviteGroupId}`;
+const demoInviteGroupsStorageKey = "wedding-demo-invite-groups";
+const demoResponsesStorageKey = "wedding-demo-rsvp-responses";
+const demoGuestPasswordsStorageKey = "wedding-demo-guest-passwords";
+
+function demoInvitePassword(invite: InviteGroup) {
+  return invite.invitePassword?.trim() || `demo-${invite.id.replace(/^demo-/, "")}`;
+}
+
+function withDemoInviteDefaults(invite: InviteGroup): InviteGroup {
+  return {
+    ...invite,
+    invitePassword: demoInvitePassword(invite)
+  };
+}
+
+function withDemoInviteStatus(invite: InviteGroup): InviteGroup {
+  return {
+    ...withDemoInviteDefaults(invite),
+    hasSubmitted: getDemoResponse(invite.id) !== null
+  };
+}
+
+function readJson<T>(key: string, fallback: T): T {
+  const stored = localStorage.getItem(key);
+  if (!stored) return fallback;
+
+  try {
+    return JSON.parse(stored) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function readDemoInviteGroups() {
+  return readJson<InviteGroup[]>(
+    demoInviteGroupsStorageKey,
+    demoInviteGroups.map(withDemoInviteDefaults)
+  ).map(withDemoInviteDefaults);
+}
+
+function writeDemoInviteGroups(invites: InviteGroup[]) {
+  localStorage.setItem(demoInviteGroupsStorageKey, JSON.stringify(invites.map(withDemoInviteDefaults)));
+}
+
+function readDemoResponses() {
+  const responses = readJson<RsvpResponse[]>(demoResponsesStorageKey, demoResponses);
+  const migratedResponses = readDemoInviteGroups().reduce<RsvpResponse[]>((items, invite) => {
+    const stored = localStorage.getItem(localStorageKey(invite.id));
+    if (!stored || items.some((response) => response.inviteGroupId === invite.id)) return items;
+
+    try {
+      return [...items, JSON.parse(stored) as RsvpResponse];
+    } catch {
+      return items;
+    }
+  }, responses);
+
+  if (migratedResponses.length !== responses.length) {
+    writeDemoResponses(migratedResponses);
+  }
+
+  return migratedResponses;
+}
+
+function writeDemoResponses(responses: RsvpResponse[]) {
+  localStorage.setItem(demoResponsesStorageKey, JSON.stringify(responses));
+}
+
+function readDemoGuestPasswords() {
+  return readJson(demoGuestPasswordsStorageKey, {
+    lunchPassword: "samplechurchpass",
+    fullPassword: "sampledinnerpass"
+  });
+}
+
+export function createDemoSessionForPassword(password: string): AccessSession | null {
+  const normalizedPassword = password.trim();
+  const { lunchPassword, fullPassword } = readDemoGuestPasswords();
+  const adminPassword = import.meta.env.VITE_DEMO_ADMIN_PASSWORD || "adminpass";
+  const expiresAt = Date.now() + 2 * 60 * 60 * 1000;
+
+  if (normalizedPassword === adminPassword) {
+    return { role: "admin" as const, expiresAt, token: `demo-admin-${expiresAt}`, inviteGroupId: null };
+  }
+
+  if (normalizedPassword === fullPassword) {
+    return { role: "full" as const, expiresAt, token: `demo-full-${expiresAt}`, inviteGroupId: null };
+  }
+
+  if (normalizedPassword === lunchPassword) {
+    return { role: "lunch" as const, expiresAt, token: `demo-lunch-${expiresAt}`, inviteGroupId: null };
+  }
+
+  const invite = readDemoInviteGroups().find((row) => row.invitePassword === normalizedPassword);
+  if (invite) {
+    const role: AccessRole = invite.dinnerAllowedCount > 0 || invite.dinnerGuestNames.length > 0 ? "full" : "lunch";
+    return { role, expiresAt, token: `demo-${role}-${invite.id}-${expiresAt}`, inviteGroupId: invite.id };
+  }
+
+  return null;
+}
 
 const mapInviteGroup = (row: Record<string, unknown>): InviteGroup => ({
   id: String(row.id),
@@ -51,12 +152,52 @@ function draftToResponse(draft: RsvpDraft): RsvpResponse {
 }
 
 function getDemoResponse(inviteGroupId: string) {
-  const stored = localStorage.getItem(localStorageKey(inviteGroupId));
-  if (stored) {
-    return JSON.parse(stored) as RsvpResponse;
-  }
+  return readDemoResponses().find((response) => response.inviteGroupId === inviteGroupId) ?? null;
+}
 
-  return demoResponses.find((response) => response.inviteGroupId === inviteGroupId) ?? null;
+function upsertDemoResponse(response: RsvpResponse) {
+  const responses = readDemoResponses();
+  writeDemoResponses([
+    ...responses.filter((item) => item.id !== response.id && item.inviteGroupId !== response.inviteGroupId),
+    response
+  ]);
+  localStorage.setItem(localStorageKey(response.inviteGroupId), JSON.stringify(response));
+}
+
+function buildAdminSummary(rows: (InviteGroup & { rsvp: RsvpResponse | null })[]): AdminSummary {
+  return rows.reduce<AdminSummary>(
+    (summary, row) => {
+      summary.totalInviteGroups += 1;
+      summary.ceremonyInvited += row.guestNames.length || row.ceremonyAllowedCount;
+      summary.dinnerInvited += row.dinnerGuestNames.length || row.dinnerAllowedCount;
+
+      if (row.rsvp) {
+        summary.ceremonyAttending += row.rsvp.ceremonyAttendingCount;
+        summary.dinnerAttending += row.rsvp.dinnerAttendingCount;
+        row.rsvp.dinnerAttendees.forEach((attendee) => {
+          summary.mealCounts[attendee.mealOption] += 1;
+        });
+      } else {
+        summary.pendingResponses += 1;
+      }
+
+      return summary;
+    },
+    {
+      totalInviteGroups: 0,
+      ceremonyInvited: 0,
+      ceremonyAttending: 0,
+      dinnerInvited: 0,
+      dinnerAttending: 0,
+      pendingResponses: 0,
+      mealCounts: {
+        "Option 1": 0,
+        "Option 2": 0,
+        Halal: 0,
+        Vegetarian: 0
+      }
+    }
+  );
 }
 
 async function adminApiJson<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -91,11 +232,11 @@ export async function searchInviteGroups(query: string): Promise<InviteGroup[]> 
 
   const supabase = getSupabaseBrowserClient();
   if (!supabase) {
-    return demoInviteGroups
+    return readDemoInviteGroups()
       .filter((invite) =>
-        normalizeName([invite.groupName, ...invite.guestNames, ...invite.dinnerGuestNames].join(" ")).includes(normalized)
+        normalizeName([invite.groupName, invite.invitePassword ?? "", ...invite.guestNames, ...invite.dinnerGuestNames].join(" ")).includes(normalized)
       )
-      .map((invite) => ({ ...invite, hasSubmitted: getDemoResponse(invite.id) !== null }));
+      .map(withDemoInviteStatus);
   }
 
   const { data, error } = await supabase.rpc("search_invite_groups", { search_text: normalized });
@@ -109,13 +250,13 @@ export async function searchInviteGroups(query: string): Promise<InviteGroup[]> 
 export async function getInviteWithRsvp(inviteGroupId: string): Promise<InviteWithRsvp> {
   const supabase = getSupabaseBrowserClient();
   if (!supabase) {
-    const inviteGroup = demoInviteGroups.find((invite) => invite.id === inviteGroupId);
+    const inviteGroup = readDemoInviteGroups().find((invite) => invite.id === inviteGroupId);
     if (!inviteGroup) {
       throw new Error("Invite group not found.");
     }
 
     return {
-      inviteGroup,
+      inviteGroup: withDemoInviteStatus(inviteGroup),
       rsvp: getDemoResponse(inviteGroupId)
     };
   }
@@ -167,7 +308,7 @@ export async function submitGuestRsvp(draft: RsvpDraft): Promise<RsvpResponse> {
   const supabase = getSupabaseBrowserClient();
   if (!supabase) {
     const response = draftToResponse(draft);
-    localStorage.setItem(localStorageKey(draft.inviteGroupId), JSON.stringify(response));
+    upsertDemoResponse(response);
     return response;
   }
 
@@ -196,11 +337,25 @@ export async function submitGuestRsvp(draft: RsvpDraft): Promise<RsvpResponse> {
 }
 
 export async function getAdminSummary(): Promise<AdminSummary> {
+  if (!getSupabaseBrowserClient()) {
+    return buildAdminSummary(await listAdminInvites());
+  }
+
   const payload = await adminApiJson<{ summary: AdminSummary }>("/api/admin/summary");
   return payload.summary;
 }
 
 export async function listAdminInvites() {
+  if (!getSupabaseBrowserClient()) {
+    const responses = readDemoResponses();
+    return readDemoInviteGroups()
+      .map((invite) => ({
+        ...withDemoInviteStatus(invite),
+        rsvp: responses.find((response) => response.inviteGroupId === invite.id) ?? null
+      }))
+      .sort((first, second) => first.groupName.localeCompare(second.groupName));
+  }
+
   const payload = await adminApiJson<{ rows: (InviteGroup & { rsvp: RsvpResponse | null })[] }>("/api/admin/invites");
   return payload.rows;
 }
@@ -223,13 +378,19 @@ export async function createAdminInviteGroup(input: {
   const inviteGroup: InviteGroup = {
     id: crypto.randomUUID(),
     groupName: input.groupName,
-    invitePassword: input.invitePassword?.trim(),
+    invitePassword: input.invitePassword?.trim() || undefined,
     guestNames,
     dinnerGuestNames,
     ceremonyAllowedCount: input.ceremonyAllowedCount,
     dinnerAllowedCount: input.dinnerAllowedCount,
     notes: input.notes
   };
+
+  if (!getSupabaseBrowserClient()) {
+    const invite = withDemoInviteDefaults(inviteGroup);
+    writeDemoInviteGroups([...readDemoInviteGroups(), invite]);
+    return invite;
+  }
 
   const payload = await adminApiJson<{ invite: InviteGroup }>("/api/admin/invites", {
     method: "POST",
@@ -239,6 +400,13 @@ export async function createAdminInviteGroup(input: {
 }
 
 export async function deleteAdminInviteGroup(inviteGroupId: string) {
+  if (!getSupabaseBrowserClient()) {
+    writeDemoInviteGroups(readDemoInviteGroups().filter((invite) => invite.id !== inviteGroupId));
+    writeDemoResponses(readDemoResponses().filter((response) => response.inviteGroupId !== inviteGroupId));
+    localStorage.removeItem(localStorageKey(inviteGroupId));
+    return;
+  }
+
   await adminApiJson<{ ok: boolean }>(`/api/admin/invites/${inviteGroupId}`, { method: "DELETE" });
 }
 
@@ -250,6 +418,27 @@ export async function updateAdminInviteGroup(input: {
   dinnerGuestNames: string[];
   notes: string;
 }) {
+  if (!getSupabaseBrowserClient()) {
+    const invites = readDemoInviteGroups();
+    const existing = invites.find((invite) => invite.id === input.id);
+    if (!existing) {
+      throw new Error("Invite group not found.");
+    }
+
+    const updated = withDemoInviteDefaults({
+      ...existing,
+      groupName: input.groupName,
+      invitePassword: input.invitePassword,
+      guestNames: input.guestNames,
+      dinnerGuestNames: input.dinnerGuestNames,
+      ceremonyAllowedCount: input.guestNames.length,
+      dinnerAllowedCount: input.dinnerGuestNames.length,
+      notes: input.notes
+    });
+    writeDemoInviteGroups(invites.map((invite) => (invite.id === input.id ? updated : invite)));
+    return updated;
+  }
+
   const payload = await adminApiJson<{ invite: InviteGroup }>(`/api/admin/invites/${input.id}`, {
     method: "PUT",
     body: JSON.stringify(input),
@@ -258,6 +447,16 @@ export async function updateAdminInviteGroup(input: {
 }
 
 export async function updateAdminRsvp(response: RsvpResponse) {
+  if (!getSupabaseBrowserClient()) {
+    upsertDemoResponse({
+      ...response,
+      updatedAt: new Date().toISOString(),
+      submittedAt: response.submittedAt || new Date().toISOString(),
+      lockedForGuestEdit: true
+    });
+    return;
+  }
+
   await adminApiJson<{ ok: boolean }>(`/api/admin/rsvp/${response.id}`, {
     method: "PUT",
     body: JSON.stringify({ response }),
@@ -265,10 +464,24 @@ export async function updateAdminRsvp(response: RsvpResponse) {
 }
 
 export async function deleteAdminRsvp(responseId: string) {
+  if (!getSupabaseBrowserClient()) {
+    const response = readDemoResponses().find((item) => item.id === responseId);
+    writeDemoResponses(readDemoResponses().filter((item) => item.id !== responseId));
+    if (response) {
+      localStorage.removeItem(localStorageKey(response.inviteGroupId));
+    }
+    return;
+  }
+
   await adminApiJson<{ ok: boolean }>(`/api/admin/rsvp/${responseId}`, { method: "DELETE" });
 }
 
 export async function setAdminCheckIn(inviteGroupId: string, eventType: "ceremony" | "dinner", checkedInNames: string[]) {
+  if (!getSupabaseBrowserClient()) {
+    localStorage.setItem(`wedding-check-in:${inviteGroupId}:${eventType}`, JSON.stringify(checkedInNames));
+    return;
+  }
+
   await adminApiJson<{ ok: boolean }>("/api/admin/check-ins", {
     method: "PUT",
     body: JSON.stringify({ inviteGroupId, eventType, checkedInNames }),
@@ -276,10 +489,23 @@ export async function setAdminCheckIn(inviteGroupId: string, eventType: "ceremon
 }
 
 export async function getGuestPasswords() {
+  if (!getSupabaseBrowserClient()) {
+    return readDemoGuestPasswords();
+  }
+
   return adminApiJson<{ lunchPassword: string; fullPassword: string }>("/api/admin/settings/passwords");
 }
 
 export async function updateGuestPasswords(input: { lunchPassword: string; fullPassword: string }) {
+  if (!getSupabaseBrowserClient()) {
+    const passwords = {
+      lunchPassword: input.lunchPassword.trim(),
+      fullPassword: input.fullPassword.trim()
+    };
+    localStorage.setItem(demoGuestPasswordsStorageKey, JSON.stringify(passwords));
+    return passwords;
+  }
+
   return adminApiJson<{ lunchPassword: string; fullPassword: string }>("/api/admin/settings/passwords", {
     method: "PUT",
     body: JSON.stringify(input),

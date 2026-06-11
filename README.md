@@ -23,6 +23,13 @@ Copy `.env.example` to `.env.local` and fill in Supabase values when ready.
 
 `npm run dev` now defaults to demo mode (sample invite groups from `src/data/demo.ts` + localStorage-backed RSVP data), so local UI testing works out of the box.
 
+Demo mode passwords:
+
+- Admin dashboard: `adminpass` (or set `VITE_DEMO_ADMIN_PASSWORD`)
+- Full-detail guest access: `sampledinnerpass`
+- Lunch-only guest access: `samplechurchpass`
+- Direct invite access: use the invite password shown in the dashboard, for example `demo-family-tan`
+
 If you want to use Supabase while running Vite locally, set `VITE_ENABLE_SUPABASE_IN_DEV=true` in `.env.local`.
 
 ## Editable Content
