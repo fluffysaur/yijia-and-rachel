@@ -7,6 +7,7 @@ export type AccessSession = {
   role: AccessRole;
   expiresAt: number;
   token: string;
+  inviteGroupId?: string | null;
 };
 
 export const accessSessionStorageKey = "wedding-access-session";
@@ -33,6 +34,7 @@ export function readAccessSession(storage: Storage = sessionStorage): AccessSess
       role: parsed.role,
       expiresAt: parsed.expiresAt,
       token: parsed.token,
+      inviteGroupId: typeof parsed.inviteGroupId === "string" ? parsed.inviteGroupId : null,
     };
     return isSessionActive(session) ? session : null;
   } catch {

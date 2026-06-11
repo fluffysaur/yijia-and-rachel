@@ -3,6 +3,7 @@ import type { AdminInviteRow } from "./types";
 export function exportCsv(rows: AdminInviteRow[]) {
     const headers = [
         "group_name",
+        "invite_password",
         "ceremony_allowed",
         "dinner_allowed",
         "rsvp_submitted",
@@ -14,6 +15,7 @@ export function exportCsv(rows: AdminInviteRow[]) {
     const body = rows.map((row) =>
         [
             row.groupName,
+            row.invitePassword ?? "",
             row.ceremonyAllowedCount,
             row.dinnerAllowedCount,
             row.rsvp ? "yes" : "no",

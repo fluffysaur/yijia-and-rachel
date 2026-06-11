@@ -2,7 +2,9 @@ import type { Dispatch, SetStateAction } from "react";
 import { Button } from "../../Button";
 import { FadeModal } from "../../FadeModal";
 import { createNewInviteGuestRow } from "../createNewInviteGuestRow";
+import { createInvitePassword } from "../../../lib/invitePassword";
 import type { NewInviteFormState } from "../types";
+import { Shuffle } from "lucide-react";
 
 export function AddInviteModal({
     open,
@@ -25,7 +27,7 @@ export function AddInviteModal({
             title="Add Invite"
             onClose={onClose}
         >
-            <div className="grid gap-3 md:grid-cols-1">
+            <div className="grid gap-3 md:grid-cols-[1fr_14rem]">
                 <label className="block">
                     <span className="text-sm font-medium text-ink">Group name</span>
                     <input
@@ -34,6 +36,28 @@ export function AddInviteModal({
                         onChange={(event) => setNewInvite((value) => ({ ...value, groupName: event.target.value }))}
                         placeholder="Tan Family"
                     />
+                </label>
+                <label className="block">
+                    <span className="text-sm font-medium text-ink">Invite password</span>
+                    <div className="mt-2 flex gap-2">
+                        <input
+                            className="w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
+                            value={newInvite.invitePassword}
+                            onChange={(event) =>
+                                setNewInvite((value) => ({ ...value, invitePassword: event.target.value }))
+                            }
+                            placeholder="Auto-generated"
+                        />
+                        <button
+                            className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-md border border-taupe/25 px-3 text-sm font-semibold text-ink transition hover:bg-cream"
+                            type="button"
+                            onClick={() =>
+                                setNewInvite((value) => ({ ...value, invitePassword: createInvitePassword() }))
+                            }
+                        >
+                            <Shuffle size={16} />
+                        </button>
+                    </div>
                 </label>
             </div>
             <div className="mt-3 overflow-x-auto">

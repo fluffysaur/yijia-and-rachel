@@ -16,6 +16,7 @@ const localStorageKey = (inviteGroupId: string) => `wedding-rsvp:${inviteGroupId
 const mapInviteGroup = (row: Record<string, unknown>): InviteGroup => ({
   id: String(row.id),
   groupName: String(row.group_name ?? row.groupName),
+  invitePassword: row.invite_password || row.invitePassword ? String(row.invite_password ?? row.invitePassword) : null,
   guestNames: Array.isArray(row.guest_names)
     ? row.guest_names.map(String)
     : Array.isArray(row.guestNames)
@@ -206,6 +207,7 @@ export async function listAdminInvites() {
 
 export async function createAdminInviteGroup(input: {
   groupName: string;
+  invitePassword?: string;
   guestNames?: string[];
   dinnerGuestNames?: string[];
   ceremonyAllowedCount: number;
@@ -221,6 +223,7 @@ export async function createAdminInviteGroup(input: {
   const inviteGroup: InviteGroup = {
     id: crypto.randomUUID(),
     groupName: input.groupName,
+    invitePassword: input.invitePassword?.trim(),
     guestNames,
     dinnerGuestNames,
     ceremonyAllowedCount: input.ceremonyAllowedCount,
@@ -242,6 +245,7 @@ export async function deleteAdminInviteGroup(inviteGroupId: string) {
 export async function updateAdminInviteGroup(input: {
   id: string;
   groupName: string;
+  invitePassword: string;
   guestNames: string[];
   dinnerGuestNames: string[];
   notes: string;

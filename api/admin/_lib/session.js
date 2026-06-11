@@ -24,12 +24,13 @@ function sign(payload) {
   return createHmac("sha256", secret()).update(payload).digest("base64url");
 }
 
-export function createSessionToken(role) {
+export function createSessionToken(role, inviteGroupId = null) {
   const expiresAt = Date.now() + sessionDurationMs;
-  const payload = base64UrlEncode(JSON.stringify({ role, expiresAt }));
+  const payload = base64UrlEncode(JSON.stringify({ role, expiresAt, inviteGroupId }));
   return {
     role,
     expiresAt,
+    inviteGroupId,
     token: `${payload}.${sign(payload)}`,
   };
 }
@@ -52,7 +53,11 @@ export function verifySessionToken(token) {
     if (!["lunch", "full", "admin"].includes(session.role) || Number(session.expiresAt) <= Date.now()) {
       return null;
     }
-    return { role: session.role, expiresAt: Number(session.expiresAt) };
+    return {
+      role: session.role,
+      expiresAt: Number(session.expiresAt),
+      inviteGroupId: typeof session.inviteGroupId === "string" ? session.inviteGroupId : null,
+    };
   } catch {
     return null;
   }

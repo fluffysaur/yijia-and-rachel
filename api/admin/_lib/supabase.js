@@ -23,6 +23,8 @@ export function mapInviteGroup(row) {
   return {
     id: String(row.id),
     groupName: String(row.group_name ?? row.groupName),
+    invitePassword:
+      row.invite_password || row.invitePassword ? String(row.invite_password ?? row.invitePassword) : null,
     guestNames: Array.isArray(row.guest_names) ? row.guest_names.map(String) : [],
     dinnerGuestNames: Array.isArray(row.dinner_guest_names) ? row.dinner_guest_names.map(String) : [],
     ceremonyAllowedCount: Number(row.ceremony_allowed_count ?? row.ceremonyAllowedCount),
@@ -30,6 +32,33 @@ export function mapInviteGroup(row) {
     notes: row.notes ? String(row.notes) : null,
     hasSubmitted: Boolean(row.has_submitted ?? row.hasSubmitted),
   };
+}
+
+const passwordWords = ["rose", "gold", "sage", "ivory", "dove", "pearl", "bloom", "vow", "joy", "lace", "ring", "toast"];
+
+export function createInvitePassword() {
+  const first = passwordWords[Math.floor(Math.random() * passwordWords.length)];
+  const second = passwordWords[Math.floor(Math.random() * passwordWords.length)];
+  const number = Math.floor(1000 + Math.random() * 9000);
+  return `${first}-${second}-${number}`;
+}
+
+export async function createUniqueInvitePassword(supabase, requestedPassword = "") {
+  const trimmed = String(requestedPassword || "").trim();
+  if (trimmed) return trimmed;
+
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const candidate = createInvitePassword();
+    const { data, error } = await supabase
+      .from("invite_groups")
+      .select("id")
+      .eq("invite_password", candidate)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return candidate;
+  }
+
+  return `${createInvitePassword()}-${Date.now().toString(36)}`;
 }
 
 export function mapResponse(row, ceremonyAttendees = [], dinnerAttendees = []) {

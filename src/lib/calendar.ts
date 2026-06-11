@@ -1,6 +1,18 @@
 import type { EventDetails } from "../types/wedding";
 
-const compactDateTime = (date: string, time: string) => `${date.replaceAll("-", "")}T${time.replace(":", "")}00`;
+const compactTime = (time: string) => {
+  const match = time.trim().match(/^(\d{1,2}):(\d{2})(?:\s*(AM|PM))?$/i);
+  if (!match) return time.replace(/[^0-9]/g, "").padEnd(4, "0").slice(0, 4);
+
+  const [, hourValue, minuteValue, meridiem] = match;
+  let hour = Number(hourValue);
+  if (meridiem?.toUpperCase() === "PM" && hour < 12) hour += 12;
+  if (meridiem?.toUpperCase() === "AM" && hour === 12) hour = 0;
+
+  return `${String(hour).padStart(2, "0")}${minuteValue}`;
+};
+
+const compactDateTime = (date: string, time: string) => `${date.replaceAll("-", "")}T${compactTime(time)}00`;
 
 const encodeGoogleDateTime = (event: EventDetails) =>
   `${compactDateTime(event.date, event.startTime)}/${compactDateTime(event.date, event.endTime)}`;

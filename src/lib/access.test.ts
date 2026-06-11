@@ -4,6 +4,7 @@ import {
   filterInviteForRole,
   filterRsvpForRole,
   isSessionActive,
+  readAccessSession,
   type AccessSession,
 } from "./access";
 import type { InviteGroup, RsvpResponse } from "../types/rsvp";
@@ -15,6 +16,34 @@ describe("access helpers", () => {
 
     expect(isSessionActive(session, 1999)).toBe(true);
     expect(isSessionActive(session, 2000)).toBe(false);
+  });
+
+  it("reads invite-bound sessions from storage", () => {
+    const storage = new Map<string, string>();
+    const fakeStorage = {
+      get length() {
+        return storage.size;
+      },
+      clear: () => storage.clear(),
+      getItem: (key: string) => storage.get(key) ?? null,
+      key: (index: number) => Array.from(storage.keys())[index] ?? null,
+      setItem: (key: string, value: string) => {
+        storage.set(key, value);
+      },
+      removeItem: (key: string) => {
+        storage.delete(key);
+      },
+    } satisfies Storage;
+
+    fakeStorage.setItem(
+      "wedding-access-session",
+      JSON.stringify({ role: "lunch", expiresAt: Date.now() + 2000, token: "token", inviteGroupId: "invite-1" }),
+    );
+
+    expect(readAccessSession(fakeStorage)).toMatchObject({
+      role: "lunch",
+      inviteGroupId: "invite-1",
+    });
   });
 
   it("hides dinner events for lunch access", () => {

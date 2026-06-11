@@ -12,6 +12,7 @@ export type NewInviteGuestRow = {
 
 export type NewInviteFormState = {
     groupName: string;
+    invitePassword: string;
     guests: NewInviteGuestRow[];
     notes: string;
 };

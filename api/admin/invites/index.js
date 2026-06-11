@@ -1,5 +1,11 @@
 import { jsonMethod, requireAdmin } from "../_lib/session.js";
-import { getServiceClient, listAdminInviteRows, mapInviteGroup, normalizeName } from "../_lib/supabase.js";
+import {
+  createUniqueInvitePassword,
+  getServiceClient,
+  listAdminInviteRows,
+  mapInviteGroup,
+  normalizeName,
+} from "../_lib/supabase.js";
 
 export default async function handler(req, res) {
   if (!jsonMethod(req, res, ["GET", "POST"])) return;
@@ -32,10 +38,12 @@ export default async function handler(req, res) {
       ? providedDinnerGuestNames
       : finalGuestNames.slice(0, dinnerAllowedCount);
     const supabase = getServiceClient();
+    const invitePassword = await createUniqueInvitePassword(supabase, input.invitePassword || input.invite_password);
     const { data, error } = await supabase
       .from("invite_groups")
       .insert({
         group_name: groupName,
+        invite_password: invitePassword,
         normalized_name: normalizeName([groupName, ...finalGuestNames, ...dinnerGuestNames].join(" ")),
         guest_names: finalGuestNames,
         dinner_guest_names: dinnerGuestNames,
@@ -46,7 +54,13 @@ export default async function handler(req, res) {
       .select("*")
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === "23505") {
+        res.status(409).json({ error: "Invite password must be unique." });
+        return;
+      }
+      throw error;
+    }
     res.status(200).json({ invite: mapInviteGroup(data) });
   } catch (error) {
     console.error("Unable to save invite.", error);

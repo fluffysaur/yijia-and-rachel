@@ -1,5 +1,3 @@
-import { Mail, Phone } from "lucide-react";
-import { LinkButton } from "../../Button";
 import { siteContent } from "../../../content/wedding";
 
 export function HomeContactSection() {

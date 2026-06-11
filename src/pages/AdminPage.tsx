@@ -22,6 +22,7 @@ import {
     updateAdminInviteGroup,
     updateAdminRsvp,
 } from "../lib/rsvpRepository";
+import { createInvitePassword } from "../lib/invitePassword";
 import type { AdminSummary } from "../types/rsvp";
 import type { AdminRsvpEditState, NewInviteGuestRow } from "../components/admin";
 
@@ -96,6 +97,7 @@ export function AdminPage() {
     const [message, setMessage] = useState<string | null>(null);
     const [newInvite, setNewInvite] = useState({
         groupName: "",
+        invitePassword: createInvitePassword(),
         guests: [createNewInviteGuestRow()],
         notes: "",
     });
@@ -109,7 +111,9 @@ export function AdminPage() {
         if (!search) return rows;
 
         return rows.filter((row) => {
-            const searchable = [row.groupName, ...row.guestNames, ...row.dinnerGuestNames].join(" ").toLowerCase();
+            const searchable = [row.groupName, row.invitePassword ?? "", ...row.guestNames, ...row.dinnerGuestNames]
+                .join(" ")
+                .toLowerCase();
             return searchable.includes(search);
         });
     }, [filter, rows]);
@@ -156,6 +160,7 @@ export function AdminPage() {
 
         await createAdminInviteGroup({
             groupName: newInvite.groupName,
+            invitePassword: newInvite.invitePassword,
             guestNames,
             dinnerGuestNames,
             ceremonyAllowedCount: guestNames.length,
@@ -165,6 +170,7 @@ export function AdminPage() {
 
         setNewInvite({
             groupName: "",
+            invitePassword: createInvitePassword(),
             guests: [createNewInviteGuestRow()],
             notes: "",
         });
@@ -183,6 +189,7 @@ export function AdminPage() {
             const row = Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""]));
             await createAdminInviteGroup({
                 groupName: row.group_name || row.groupName || row.name || "",
+                invitePassword: row.invite_password || row.invitePassword || "",
                 guestNames: String(row.guest_names || row.guestNames || "")
                     .split(/;|\|/)
                     .map((name) => name.trim())
@@ -211,6 +218,10 @@ export function AdminPage() {
             setMessage("Invite group name is required.");
             return;
         }
+        if (!String(editingRow.invitePassword ?? "").trim()) {
+            setMessage("Invite password is required.");
+            return;
+        }
 
         const guestRows = editingRow.guests
             .map((guest) => ({
@@ -228,6 +239,7 @@ export function AdminPage() {
         await updateAdminInviteGroup({
             id: editingRow.id,
             groupName: editingRow.groupName.trim(),
+            invitePassword: String(editingRow.invitePassword ?? "").trim(),
             guestNames: guestRows.filter((guest) => guest.church).map((guest) => guest.fullName),
             dinnerGuestNames: guestRows.filter((guest) => guest.dinner).map((guest) => guest.fullName),
             notes: composeInviteNotes(editingRow.notes ?? "", guestRows),

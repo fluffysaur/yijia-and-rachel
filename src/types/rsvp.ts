@@ -5,6 +5,7 @@ export type DinnerMealOption = (typeof dinnerMealOptions)[number];
 export type InviteGroup = {
   id: string;
   groupName: string;
+  invitePassword?: string | null;
   guestNames: string[];
   dinnerGuestNames: string[];
   ceremonyAllowedCount: number;

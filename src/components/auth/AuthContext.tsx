@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ password }),
     });
     const payload = (await response.json().catch(() => null)) as
-      | { role: AccessRole; expiresAt: number; token: string; error?: string }
+      | { role: AccessRole; expiresAt: number; token: string; inviteGroupId?: string | null; error?: string }
       | null;
 
     if (!response.ok || !payload?.token) {
@@ -49,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       role: payload.role,
       expiresAt: payload.expiresAt,
       token: payload.token,
+      inviteGroupId: payload.inviteGroupId ?? null,
     };
     saveAccessSession(nextSession);
     setSession(nextSession);

@@ -192,10 +192,11 @@ export function InviteGroupsSection({
                 placeholder="Filter invite groups"
             />
             <div className="mt-5 overflow-x-auto overflow-y-visible">
-                <table className="w-full min-w-190 text-left text-sm">
+                <table className="w-full min-w-210 text-left text-sm">
                     <thead className="border-b border-taupe/15 text-taupe">
                         <tr>
                             <th className="py-3 pr-4">Group</th>
+                            <th className="py-3 pr-4">Password</th>
                             <th className="py-3 pr-4">Church ({filteredChurchInvitedCount})</th>
                             <th className="py-3 pr-4">Dinner ({filteredDinnerInvitedCount})</th>
                             <th className="py-3 pr-4">RSVP</th>
@@ -207,6 +208,7 @@ export function InviteGroupsSection({
                         {rows.map((row) => (
                             <tr key={row.id}>
                                 <td className="py-3 pr-4 font-medium">{row.groupName}</td>
+                                <td className="py-3 pr-4 font-mono text-xs text-taupe">{row.invitePassword}</td>
                                 <td className="py-3 pr-4">
                                     <span className="block">
                                         {row.guestNames.join(", ") || row.ceremonyAllowedCount}

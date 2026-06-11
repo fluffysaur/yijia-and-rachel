@@ -106,7 +106,7 @@ export function EditRsvpModal({
         >
             {editingRow ? (
                 <>
-                    <div className="grid gap-3 md:grid-cols-[1fr_13rem]">
+                    <div className="grid gap-3 md:grid-cols-[1fr_14rem_13rem]">
                         <label className="block">
                             <span className="text-sm font-medium text-ink">Group name</span>
                             <input
@@ -115,6 +115,18 @@ export function EditRsvpModal({
                                 onChange={(event) =>
                                     setEditingRow((value) =>
                                         value ? { ...value, groupName: event.target.value } : value,
+                                    )
+                                }
+                            />
+                        </label>
+                        <label className="block">
+                            <span className="text-sm font-medium text-ink">Invite password</span>
+                            <input
+                                className={`mt-2 ${inputClass}`}
+                                value={editingRow.invitePassword ?? ""}
+                                onChange={(event) =>
+                                    setEditingRow((value) =>
+                                        value ? { ...value, invitePassword: event.target.value } : value,
                                     )
                                 }
                             />
