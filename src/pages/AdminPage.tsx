@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Layout } from "../components/Layout";
 import {
     AddInviteModal,
@@ -9,6 +9,7 @@ import {
     AdminRsvpDeadlineSettings,
     AdminSummaryCards,
     createNewInviteGuestRow,
+    DeleteInviteModal,
     EditRsvpModal,
     exportCsv,
     InviteGroupsSection,
@@ -31,6 +32,20 @@ import {
 import { createInvitePassword } from "../lib/invitePassword";
 import type { AdminSummary, InviteMessageTemplates } from "../types/rsvp";
 import type { AdminRsvpEditState, NewInviteGuestRow } from "../components/admin";
+
+const LOCAL_ADMIN_LOAD_DELAY_MS = 1200;
+
+function wait(ms: number) {
+    return new Promise<void>((resolve) => {
+        setTimeout(resolve, ms);
+    });
+}
+
+async function maybeDelayAdminLoad() {
+    if (!import.meta.env.DEV) return;
+
+    await wait(LOCAL_ADMIN_LOAD_DELAY_MS);
+}
 
 function readStoredCheckIns(inviteGroupId: string, eventType: "ceremony" | "dinner") {
     const stored = localStorage.getItem(`wedding-check-in:${inviteGroupId}:${eventType}`);
@@ -101,6 +116,8 @@ export function AdminPage() {
     const [rows, setRows] = useState<AdminInviteRow[]>([]);
     const [filter, setFilter] = useState("");
     const [message, setMessage] = useState<string | null>(null);
+    const [adminDataLoading, setAdminDataLoading] = useState(true);
+    const [adminDataRefreshing, setAdminDataRefreshing] = useState(false);
     const [newInvite, setNewInvite] = useState({
         groupName: "",
         invitePassword: createInvitePassword(),
@@ -114,8 +131,10 @@ export function AdminPage() {
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [inviteMessageModalOpen, setInviteMessageModalOpen] = useState(false);
+    const [deleteInviteRow, setDeleteInviteRow] = useState<AdminInviteRow | null>(null);
     const [creatingInvite, setCreatingInvite] = useState(false);
     const [savingRsvpEdit, setSavingRsvpEdit] = useState(false);
+    const [deletingInvite, setDeletingInvite] = useState(false);
     const [checkIns, setCheckIns] = useState<Record<string, string[]>>({});
 
     const filteredRows = useMemo(() => {
@@ -140,10 +159,30 @@ export function AdminPage() {
         [filteredRows],
     );
 
-    const loadAdminData = async () => {
-        setSummary(await getAdminSummary());
-        setRows(await listAdminInvites());
-    };
+    const fetchAdminData = useCallback(async () => {
+        const [nextSummary, nextRows] = await Promise.all([
+            getAdminSummary(),
+            listAdminInvites(),
+            maybeDelayAdminLoad(),
+        ]);
+
+        return { nextSummary, nextRows };
+    }, []);
+
+    const loadAdminData = useCallback(async () => {
+        setAdminDataRefreshing(true);
+        setMessage(null);
+
+        try {
+            const { nextSummary, nextRows } = await fetchAdminData();
+            setSummary(nextSummary);
+            setRows(nextRows);
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : "Unable to load admin dashboard.");
+        } finally {
+            setAdminDataRefreshing(false);
+        }
+    }, [fetchAdminData]);
 
     const createInvite = async () => {
         if (creatingInvite) return;
@@ -357,18 +396,47 @@ export function AdminPage() {
         );
     };
 
+    const confirmDeleteInvite = async () => {
+        if (!deleteInviteRow || deletingInvite) return;
+
+        setDeletingInvite(true);
+        setMessage(null);
+        try {
+            await deleteAdminInviteGroup(deleteInviteRow.id);
+            await loadAdminData();
+            setDeleteInviteRow(null);
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : "Unable to delete invite group.");
+        } finally {
+            setDeletingInvite(false);
+        }
+    };
+
     useEffect(() => {
-        void getAdminSummary()
-            .then(setSummary)
+        let active = true;
+
+        void fetchAdminData()
+            .then(({ nextSummary, nextRows }) => {
+                if (!active) return;
+
+                setSummary(nextSummary);
+                setRows(nextRows);
+            })
             .catch((error) => {
-                setMessage(error instanceof Error ? error.message : "Unable to load admin summary.");
+                if (!active) return;
+
+                setMessage(error instanceof Error ? error.message : "Unable to load admin dashboard.");
+            })
+            .finally(() => {
+                if (!active) return;
+
+                setAdminDataLoading(false);
             });
-        void listAdminInvites()
-            .then(setRows)
-            .catch((error) => {
-                setMessage(error instanceof Error ? error.message : "Unable to load invite groups.");
-            });
-    }, []);
+
+        return () => {
+            active = false;
+        };
+    }, [fetchAdminData]);
 
     return (
         <Layout>
@@ -376,16 +444,10 @@ export function AdminPage() {
                 <div className="section-shell">
                     <AdminHeader />
 
-                    <div className="space-y-8">
+                    <div>
                         {message ? (
                             <p className="rounded-md bg-rose/10 px-3 py-2 text-sm text-rose">{message}</p>
                         ) : null}
-
-                        {summary ? <AdminSummaryCards summary={summary} /> : null}
-                        {summary ? <AdminMealCounts summary={summary} /> : null}
-                        <AdminRsvpDeadlineSettings />
-                        <AdminPasswordSettings />
-                        <AdminInviteMessageSettings />
 
                         <AddInviteModal
                             open={createModalOpen}
@@ -426,31 +488,100 @@ export function AdminPage() {
                             }}
                         />
 
-                        <InviteGroupsSection
-                            rows={filteredRows}
-                            filter={filter}
-                            filteredChurchInvitedCount={filteredChurchInvitedCount}
-                            filteredDinnerInvitedCount={filteredDinnerInvitedCount}
-                            onFilterChange={setFilter}
-                            onAddInvite={() => setCreateModalOpen(true)}
-                            onImportCsv={(file) => void importCsv(file)}
-                            onRefresh={() => void loadAdminData()}
-                            onExport={() => exportCsv(filteredRows)}
-                            onToggleCheckIn={(row, eventType, name) => void toggleCheckIn(row, eventType, name)}
-                            checkInAttendees={checkInAttendees}
-                            getCheckedInNames={getCheckedInNames}
-                            onInviteMessage={(row) => void openInviteMessage(row)}
-                            onEditRsvp={(row) => {
-                                setEditingRow(createEditState(row));
-                                setEditModalOpen(true);
+                        <DeleteInviteModal
+                            row={deleteInviteRow}
+                            deleting={deletingInvite}
+                            onCancel={() => {
+                                if (deletingInvite) return;
+                                setDeleteInviteRow(null);
                             }}
-                            onDeleteInvite={(row) => {
-                                void deleteAdminInviteGroup(row.id).then(loadAdminData);
-                            }}
+                            onDelete={() => void confirmDeleteInvite()}
                         />
+
+                        <div className="mt-8 space-y-8">
+                            {summary && !adminDataRefreshing ? (
+                                <AdminSummaryCards summary={summary} />
+                            ) : (
+                                <AdminSummaryCardsSkeleton />
+                            )}
+                            {summary && !adminDataRefreshing ? (
+                                <AdminMealCounts summary={summary} />
+                            ) : (
+                                <AdminMealCountsSkeleton />
+                            )}
+                            <AdminRsvpDeadlineSettings />
+                            <AdminPasswordSettings />
+                            <AdminInviteMessageSettings />
+
+                            <InviteGroupsSection
+                                rows={filteredRows}
+                                filter={filter}
+                                filteredChurchInvitedCount={filteredChurchInvitedCount}
+                                filteredDinnerInvitedCount={filteredDinnerInvitedCount}
+                                onFilterChange={setFilter}
+                                onAddInvite={() => setCreateModalOpen(true)}
+                                onImportCsv={(file) => void importCsv(file)}
+                                onRefresh={() => void loadAdminData()}
+                                loading={adminDataLoading || adminDataRefreshing}
+                                refreshing={adminDataRefreshing}
+                                onExport={() => exportCsv(filteredRows)}
+                                onToggleCheckIn={(row, eventType, name) => void toggleCheckIn(row, eventType, name)}
+                                checkInAttendees={checkInAttendees}
+                                getCheckedInNames={getCheckedInNames}
+                                onInviteMessage={(row) => void openInviteMessage(row)}
+                                onEditRsvp={(row) => {
+                                    setEditingRow(createEditState(row));
+                                    setEditModalOpen(true);
+                                }}
+                                onDeleteInvite={setDeleteInviteRow}
+                            />
+                        </div>
                     </div>
                 </div>
             </main>
         </Layout>
+    );
+}
+
+function AdminSummaryCardsSkeleton() {
+    return (
+        <section
+            id="summary"
+            className="grid gap-4 scroll-mt-24 md:grid-cols-3 lg:grid-cols-6"
+            aria-label="Loading summary"
+        >
+            {Array.from({ length: 6 }).map((_, index) => (
+                <article
+                    key={index}
+                    className="rounded-lg bg-ivory p-4 shadow-sm"
+                >
+                    <div className="h-4 w-24 animate-pulse rounded bg-taupe/15" />
+                    <div className="mt-4 h-9 w-14 animate-pulse rounded bg-taupe/15" />
+                </article>
+            ))}
+        </section>
+    );
+}
+
+function AdminMealCountsSkeleton() {
+    return (
+        <section
+            id="meals"
+            className="rounded-lg bg-ivory p-5 shadow-sm scroll-mt-24"
+            aria-label="Loading meal counts"
+        >
+            <div className="h-8 w-56 animate-pulse rounded bg-taupe/15" />
+            <div className="mt-4 grid gap-3 md:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, index) => (
+                    <div
+                        key={index}
+                        className="rounded-md bg-cream p-3"
+                    >
+                        <div className="h-4 w-20 animate-pulse rounded bg-taupe/15" />
+                        <div className="mt-3 h-8 w-10 animate-pulse rounded bg-taupe/15" />
+                    </div>
+                ))}
+            </div>
+        </section>
     );
 }

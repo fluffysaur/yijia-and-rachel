@@ -6,6 +6,7 @@ export { AdminPasswordSettings } from "./sections/AdminPasswordSettings";
 export { AdminRsvpDeadlineSettings } from "./sections/AdminRsvpDeadlineSettings";
 export { AdminSignInCard } from "./sections/AdminSignInCard";
 export { AdminSummaryCards } from "./sections/AdminSummaryCards";
+export { DeleteInviteModal } from "./sections/DeleteInviteModal";
 export { EditRsvpModal } from "./sections/EditRsvpModal";
 export { InviteMessageModal } from "./sections/InviteMessageModal";
 export { InviteGroupsSection } from "./sections/InviteGroupsSection";

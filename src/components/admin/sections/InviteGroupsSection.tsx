@@ -1,4 +1,4 @@
-import { Download, MoreHorizontal, Plus, RefreshCw, Upload } from "lucide-react";
+import { Download, LoaderCircle, MoreHorizontal, Plus, RefreshCw, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "../../Button";
@@ -14,6 +14,8 @@ export function InviteGroupsSection({
     onAddInvite,
     onImportCsv,
     onRefresh,
+    loading,
+    refreshing,
     onExport,
     onToggleCheckIn,
     checkInAttendees,
@@ -30,6 +32,8 @@ export function InviteGroupsSection({
     onAddInvite: () => void;
     onImportCsv: (file: File) => void;
     onRefresh: () => void;
+    loading: boolean;
+    refreshing: boolean;
     onExport: () => void;
     onToggleCheckIn: (row: AdminInviteRow, eventType: "ceremony" | "dinner", name: string) => void;
     checkInAttendees: (row: AdminInviteRow, eventType: "ceremony" | "dinner") => string[];
@@ -152,6 +156,7 @@ export function InviteGroupsSection({
         <section
             id="invites"
             className="scroll-mt-24 rounded-lg bg-ivory p-5 shadow-sm"
+            aria-busy={loading || refreshing}
         >
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
@@ -169,10 +174,14 @@ export function InviteGroupsSection({
                         variant="secondary"
                         className="min-w-11 px-3"
                         onClick={onRefresh}
+                        disabled={refreshing}
                         aria-label="Refresh invites"
-                        title="Refresh"
+                        title={refreshing ? "Refreshing" : "Refresh"}
                     >
-                        <RefreshCw size={16} />
+                        <RefreshCw
+                            size={16}
+                            className={refreshing ? "animate-spin" : undefined}
+                        />
                     </Button>
                     <button
                         ref={toolbarMenuTriggerRef}
@@ -206,6 +215,15 @@ export function InviteGroupsSection({
                 onChange={(event) => onFilterChange(event.target.value)}
                 placeholder="Filter invite groups"
             />
+            {refreshing ? (
+                <p className="mt-4 inline-flex items-center gap-2 text-sm text-taupe">
+                    <LoaderCircle
+                        size={16}
+                        className="animate-spin"
+                    />
+                    Refreshing dashboard...
+                </p>
+            ) : null}
             <div className="mt-5 overflow-x-auto overflow-y-visible">
                 <table className="w-full min-w-210 text-left text-sm">
                     <thead className="border-b border-taupe/15 text-taupe">
@@ -221,82 +239,113 @@ export function InviteGroupsSection({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-taupe/10">
-                        {rows.map((row) => (
-                            <tr key={row.id}>
-                                <td className="py-3 pr-4 font-medium">{row.groupName}</td>
-                                <td className="py-3 pr-4 font-mono text-xs text-taupe">{row.invitePassword}</td>
-                                <td className="py-3 pr-4">
-                                    <span className="block">
-                                        {row.guestNames.join(", ") || row.ceremonyAllowedCount}
-                                    </span>
-                                    <span className="mt-1 block text-xs text-taupe">
-                                        {row.guestNames.length || row.ceremonyAllowedCount} invited
-                                    </span>
-                                </td>
-                                <td className="py-3 pr-4">
-                                    <span className="block">
-                                        {row.dinnerGuestNames.join(", ") || row.dinnerAllowedCount}
-                                    </span>
-                                    <span className="mt-1 block text-xs text-taupe">
-                                        {row.dinnerGuestNames.length || row.dinnerAllowedCount} invited
-                                    </span>
-                                </td>
-                                <td className="py-3 pr-4">
-                                    {row.invitedAt ? (
-                                        <span>
-                                            Invited
-                                            <span className="mt-1 block text-xs text-taupe">
-                                                {formatInvitedAt(row.invitedAt)}
-                                            </span>
-                                        </span>
-                                    ) : (
-                                        <button
-                                            className="cursor-pointer text-left text-taupe underline decoration-taupe/40 underline-offset-4 transition hover:text-ink"
-                                            type="button"
-                                            onClick={() => onInviteMessage(row)}
-                                        >
-                                            Not invited
-                                        </button>
-                                    )}
-                                </td>
-                                <td className="py-3 pr-4">{row.rsvp ? "Submitted" : "Pending"}</td>
-                                <td className="py-3 pr-4">
-                                    <div className="flex flex-nowrap items-start gap-2">
-                                        {(["ceremony", "dinner"] as const).map((eventType) => {
-                                            const attendeeNames = checkInAttendees(row, eventType);
-                                            const checkedNames = getCheckedInNames(row, eventType);
-
-                                            return (
-                                                <CheckInDropdown
-                                                    key={eventType}
-                                                    label={eventType === "ceremony" ? "Church" : "Dinner"}
-                                                    attendeeNames={attendeeNames}
-                                                    checkedNames={checkedNames}
-                                                    onToggle={(name) => onToggleCheckIn(row, eventType, name)}
-                                                />
-                                            );
-                                        })}
-                                        {!row.rsvp ? <span className="text-sm text-taupe">Awaiting RSVP</span> : null}
-                                    </div>
-                                </td>
-                                <td className="py-3">
-                                    <div className="flex justify-end">
-                                        <button
-                                            ref={(node) => {
-                                                rowActionTriggerRefs.current[row.id] = node;
-                                            }}
-                                            className="inline-flex size-9 cursor-pointer items-center justify-center rounded-md border border-taupe/20 text-ink transition hover:bg-cream"
-                                            aria-label={`Actions for ${row.groupName}`}
-                                            title="Actions"
-                                            type="button"
-                                            onClick={() => toggleRowMenu(row.id)}
-                                        >
-                                            <MoreHorizontal size={16} />
-                                        </button>
-                                    </div>
+                        {loading
+                            ? Array.from({ length: 5 }).map((_, index) => (
+                                  <tr key={index}>
+                                      {Array.from({ length: 8 }).map((__, cellIndex) => (
+                                          <td
+                                              key={cellIndex}
+                                              className="py-3 pr-4"
+                                          >
+                                              <div className="h-4 w-full max-w-32 animate-pulse rounded bg-taupe/15" />
+                                              {cellIndex === 2 || cellIndex === 3 ? (
+                                                  <div className="mt-2 h-3 w-16 animate-pulse rounded bg-taupe/15" />
+                                              ) : null}
+                                          </td>
+                                      ))}
+                                  </tr>
+                              ))
+                            : null}
+                        {!loading && rows.length === 0 ? (
+                            <tr>
+                                <td
+                                    className="py-8 text-center text-taupe"
+                                    colSpan={8}
+                                >
+                                    No invite groups found.
                                 </td>
                             </tr>
-                        ))}
+                        ) : null}
+                        {!loading
+                            ? rows.map((row) => (
+                                  <tr key={row.id}>
+                                      <td className="py-3 pr-4 font-medium">{row.groupName}</td>
+                                      <td className="py-3 pr-4 font-mono text-xs text-taupe">{row.invitePassword}</td>
+                                      <td className="py-3 pr-4">
+                                          <span className="block">
+                                              {row.guestNames.join(", ") || row.ceremonyAllowedCount}
+                                          </span>
+                                          <span className="mt-1 block text-xs text-taupe">
+                                              {row.guestNames.length || row.ceremonyAllowedCount} invited
+                                          </span>
+                                      </td>
+                                      <td className="py-3 pr-4">
+                                          <span className="block">
+                                              {row.dinnerGuestNames.join(", ") || row.dinnerAllowedCount}
+                                          </span>
+                                          <span className="mt-1 block text-xs text-taupe">
+                                              {row.dinnerGuestNames.length || row.dinnerAllowedCount} invited
+                                          </span>
+                                      </td>
+                                      <td className="py-3 pr-4">
+                                          {row.invitedAt ? (
+                                              <span>
+                                                  Invited
+                                                  <span className="mt-1 block text-xs text-taupe">
+                                                      {formatInvitedAt(row.invitedAt)}
+                                                  </span>
+                                              </span>
+                                          ) : (
+                                              <button
+                                                  className="cursor-pointer text-left text-taupe underline decoration-taupe/40 underline-offset-4 transition hover:text-ink"
+                                                  type="button"
+                                                  onClick={() => onInviteMessage(row)}
+                                              >
+                                                  Not invited
+                                              </button>
+                                          )}
+                                      </td>
+                                      <td className="py-3 pr-4">{row.rsvp ? "Submitted" : "Pending"}</td>
+                                      <td className="py-3 pr-4">
+                                          <div className="flex flex-nowrap items-start gap-2">
+                                              {(["ceremony", "dinner"] as const).map((eventType) => {
+                                                  const attendeeNames = checkInAttendees(row, eventType);
+                                                  const checkedNames = getCheckedInNames(row, eventType);
+
+                                                  return (
+                                                      <CheckInDropdown
+                                                          key={eventType}
+                                                          label={eventType === "ceremony" ? "Church" : "Dinner"}
+                                                          attendeeNames={attendeeNames}
+                                                          checkedNames={checkedNames}
+                                                          onToggle={(name) => onToggleCheckIn(row, eventType, name)}
+                                                      />
+                                                  );
+                                              })}
+                                              {!row.rsvp ? (
+                                                  <span className="text-sm text-taupe">Awaiting RSVP</span>
+                                              ) : null}
+                                          </div>
+                                      </td>
+                                      <td className="py-3">
+                                          <div className="flex justify-end">
+                                              <button
+                                                  ref={(node) => {
+                                                      rowActionTriggerRefs.current[row.id] = node;
+                                                  }}
+                                                  className="inline-flex size-9 cursor-pointer items-center justify-center rounded-md border border-taupe/20 text-ink transition hover:bg-cream"
+                                                  aria-label={`Actions for ${row.groupName}`}
+                                                  title="Actions"
+                                                  type="button"
+                                                  onClick={() => toggleRowMenu(row.id)}
+                                              >
+                                                  <MoreHorizontal size={16} />
+                                              </button>
+                                          </div>
+                                      </td>
+                                  </tr>
+                              ))
+                            : null}
                     </tbody>
                 </table>
             </div>
@@ -375,12 +424,7 @@ export function InviteGroupsSection({
                               type="button"
                               onClick={() => {
                                   setRowMenuOpenId(null);
-                                  const confirmed = window.confirm(
-                                      `Delete invite group "${activeRow.groupName}"? This cannot be undone.`,
-                                  );
-                                  if (confirmed) {
-                                      onDeleteInvite(activeRow);
-                                  }
+                                  onDeleteInvite(activeRow);
                               }}
                           >
                               Delete
