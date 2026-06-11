@@ -1,5 +1,5 @@
 import type { EventDetails, GalleryImage } from "../types/wedding";
-import heroImage from "../assets/hero-image.webp";
+import heroImage from "../assets/hero-image.jpg";
 import storyImage from "../assets/story-image.jpg";
 
 const weddingDate = "2027-06-19";
