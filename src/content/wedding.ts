@@ -1,4 +1,6 @@
 import type { EventDetails, GalleryImage } from "../types/wedding";
+import heroImage from "../assets/hero-image.webp";
+import storyImage from "../assets/story-image.jpg";
 
 const weddingDate = "2027-06-19";
 
@@ -19,15 +21,20 @@ export const siteContent = {
     hero: {
         headline: "Yi Jia & Rachel",
         body: "A gentle celebration of faith, family, and the people who have walked with us.",
-        image: "https://images.unsplash.com/photo-1513278974582-3e1b4a4fa21e?auto=format&fit=crop&w=2000&q=88",
+        image: heroImage,
         imageAlt: "Soft white wedding bouquet with warm natural light",
     },
     story: {
         title: "Our Story",
+        image: storyImage,
+        imageAlt: "Wedding couple placeholder",
         paragraphs: [
             "From a green-tinted drawing of a nurse sparked a love that blossomed to what it is today.",
             "After the very first night they met, Yi Jia had already decided that Rachel was one worth pursuing, as he wrote in his journal.",
-            "<Work in progress>",
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+            "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
         ],
     },
     events: [
