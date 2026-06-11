@@ -16,7 +16,12 @@ import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "../../Button";
 import type { AdminInviteRow } from "../types";
-import { dinnerMealOptions, type CeremonyAttendee, type DinnerAttendee, type DinnerMealOption } from "../../../types/rsvp";
+import {
+    dinnerMealOptions,
+    type CeremonyAttendee,
+    type DinnerAttendee,
+    type DinnerMealOption,
+} from "../../../types/rsvp";
 
 type TableView = "master" | "church" | "dinner";
 type RsvpFilter = "all" | "rsvped" | "pending";
@@ -473,9 +478,7 @@ export function InviteGroupsSection({
                                 >
                                     Not invited
                                 </button>
-                                <span className="block text-xs text-taupe">
-                                    {row.rsvp ? "RSVPed" : "RSVP pending"}
-                                </span>
+                                <span className="block text-xs text-taupe">{row.rsvp ? "RSVPed" : "RSVP pending"}</span>
                             </div>
                         )}
                     </td>
@@ -590,7 +593,7 @@ export function InviteGroupsSection({
                 </div>
             </div>
 
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="mt-5 grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
                 {[
                     { value: "master", label: "Master", icon: List },
                     { value: "church", label: "Church", icon: Church },
@@ -598,7 +601,7 @@ export function InviteGroupsSection({
                 ].map(({ value, label, icon: Icon }) => (
                     <button
                         key={value}
-                        className={`inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-md border px-4 text-sm font-medium transition ${
+                        className={`inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 text-sm font-medium transition sm:px-4 ${
                             view === value
                                 ? "border-rose/40 bg-rose/10 text-ink"
                                 : "border-taupe/20 bg-white text-taupe hover:bg-cream hover:text-ink"
@@ -612,15 +615,16 @@ export function InviteGroupsSection({
                 ))}
             </div>
 
-            <div className="mt-3 grid gap-3 md:grid-cols-[minmax(220px,1fr)_150px_160px_160px_150px]">
-                <div className="flex flex-wrap gap-2">
-                    <input
-                        className="w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
-                        value={filter}
-                        onChange={(event) => onFilterChange(event.target.value)}
-                        placeholder="Filter by name, meal, dietary, remarks"
-                    />
-                </div>
+            <div className="mt-3">
+                <input
+                    className="w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
+                    value={filter}
+                    onChange={(event) => onFilterChange(event.target.value)}
+                    placeholder="Filter by name, meal, dietary, remarks"
+                />
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
                 <FilterSelect
                     value={rsvpFilter}
                     onChange={(value) => setRsvpFilter(value as RsvpFilter)}
