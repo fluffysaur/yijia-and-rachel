@@ -1,5 +1,5 @@
 import { Check, Clipboard, RotateCcw, X } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "../../Button";
 import { buildInviteMessage } from "../../../lib/inviteMessage";
 import type { AdminInviteRow } from "../types";
@@ -40,6 +40,7 @@ export function InviteMessageModal({
 }) {
     const messageTextRef = useRef<HTMLTextAreaElement | null>(null);
     const [copyMessage, setCopyMessage] = useState<string | null>(null);
+    const [copied, setCopied] = useState(false);
     const [saving, setSaving] = useState(false);
 
     const generatedMessage = useMemo(() => {
@@ -53,19 +54,32 @@ export function InviteMessageModal({
         });
     }, [row, rsvpDeadline, templates]);
 
+    useEffect(() => {
+        if (!copied) return;
+
+        const timeoutId = window.setTimeout(() => {
+            setCopied(false);
+        }, 3000);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [copied]);
+
     if (!open || !row) return null;
 
     const invitedAt = formatInvitedAt(row.invitedAt);
     const closeModal = () => {
         setCopyMessage(null);
+        setCopied(false);
         onClose();
     };
 
     const copyToClipboard = async () => {
         try {
             await navigator.clipboard.writeText(messageTextRef.current?.value ?? generatedMessage);
-            setCopyMessage("Copied.");
+            setCopyMessage(null);
+            setCopied(true);
         } catch {
+            setCopied(false);
             setCopyMessage("Unable to copy automatically. Select and copy the message manually.");
         }
     };
@@ -73,6 +87,7 @@ export function InviteMessageModal({
     const runStatusUpdate = async (action: () => Promise<void>) => {
         setSaving(true);
         setCopyMessage(null);
+        setCopied(false);
         try {
             await action();
         } finally {
@@ -108,6 +123,7 @@ export function InviteMessageModal({
                         defaultValue={generatedMessage}
                         onChange={() => {
                             setCopyMessage(null);
+                            setCopied(false);
                         }}
                     />
                 ) : (
@@ -121,9 +137,10 @@ export function InviteMessageModal({
                         type="button"
                         onClick={() => void copyToClipboard()}
                         disabled={!templates}
+                        className="min-w-40"
                     >
-                        <Clipboard size={16} />
-                        Copy message
+                        {copied ? <Check size={16} /> : <Clipboard size={16} />}
+                        {copied ? "Copied!" : "Copy message"}
                     </Button>
                     <Button
                         type="button"
