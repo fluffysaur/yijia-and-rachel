@@ -69,6 +69,8 @@ export type RsvpSettings = {
 export type InviteMessageTemplates = {
   lunchTemplate: string;
   dinnerTemplate: string;
+  saveTheDateTemplate: string;
+  saveTheDateUrl?: string | null;
 };
 
 export type AdminSummary = {

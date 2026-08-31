@@ -48,7 +48,8 @@ describe("invite message generator", () => {
       invite: baseInvite,
       templates: {
         lunchTemplate: "{groupName}|{password}|{siteUrl}|{rsvpDeadline}|{lunchDetails}",
-        dinnerTemplate: "{eventDetails}"
+        dinnerTemplate: "{eventDetails}",
+        saveTheDateTemplate: "{groupName}|{saveTheDateUrl}"
       },
       siteUrl: "https://wedding.test",
       rsvpDeadline: null
@@ -56,5 +57,35 @@ describe("invite message generator", () => {
 
     expect(message).toContain("Tan Family|rose-gold-1234|https://wedding.test|TBC|Church Wedding Ceremony");
     expect(message).not.toContain("{groupName}");
+  });
+
+  it("generates save the date message with default siteUrl when saveTheDateUrl is not set", () => {
+    const message = buildInviteMessage({
+      invite: baseInvite,
+      templates: defaultInviteMessageTemplates,
+      siteUrl: "https://wedding.test",
+      rsvpDeadline: null,
+      messageType: "saveTheDate"
+    });
+
+    expect(message).toContain("Dear Tan Family, please save the date for Yi Jia & Rachel's wedding on 19 June 2027!");
+    expect(message).toContain("https://wedding.test");
+    expect(message).toContain("Formal invitation and RSVP details to follow.");
+  });
+
+  it("generates save the date message with custom saveTheDateUrl when provided", () => {
+    const message = buildInviteMessage({
+      invite: baseInvite,
+      templates: {
+        ...defaultInviteMessageTemplates,
+        saveTheDateUrl: "https://custom-savethedate.link"
+      },
+      siteUrl: "https://wedding.test",
+      rsvpDeadline: null,
+      messageType: "saveTheDate"
+    });
+
+    expect(message).toContain("Dear Tan Family, please save the date");
+    expect(message).toContain("https://custom-savethedate.link");
   });
 });

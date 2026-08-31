@@ -587,12 +587,14 @@ export async function getInviteMessageTemplates(): Promise<InviteMessageTemplate
 }
 
 export async function updateInviteMessageTemplates(input: InviteMessageTemplates): Promise<InviteMessageTemplates> {
-  const templates = {
+  const templates: InviteMessageTemplates = {
     lunchTemplate: input.lunchTemplate.trim(),
-    dinnerTemplate: input.dinnerTemplate.trim()
+    dinnerTemplate: input.dinnerTemplate.trim(),
+    saveTheDateTemplate: input.saveTheDateTemplate?.trim() || defaultInviteMessageTemplates.saveTheDateTemplate,
+    saveTheDateUrl: input.saveTheDateUrl?.trim() || ""
   };
-  if (!templates.lunchTemplate || !templates.dinnerTemplate) {
-    throw new Error("Both invite message templates are required.");
+  if (!templates.lunchTemplate || !templates.dinnerTemplate || !templates.saveTheDateTemplate) {
+    throw new Error("Lunch, dinner, and save the date invite message templates are required.");
   }
 
   if (!getSupabaseBrowserClient()) {

@@ -2,7 +2,7 @@ import { Check, Clipboard, RotateCcw } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "../../Button";
 import { FadeModal } from "../../FadeModal";
-import { buildInviteMessage } from "../../../lib/inviteMessage";
+import { buildInviteMessage, hasDinnerInvite } from "../../../lib/inviteMessage";
 import type { AdminInviteRow } from "../types";
 import type { InviteMessageTemplates } from "../../../types/rsvp";
 
@@ -40,6 +40,7 @@ export function InviteMessageModal({
     onClearInvited: (row: AdminInviteRow) => Promise<void>;
 }) {
     const messageTextRef = useRef<HTMLTextAreaElement | null>(null);
+    const [activeTab, setActiveTab] = useState<"invite" | "saveTheDate">("invite");
     const [copyMessage, setCopyMessage] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -52,8 +53,9 @@ export function InviteMessageModal({
             templates,
             rsvpDeadline,
             siteUrl: window.location.origin,
+            messageType: activeTab,
         });
-    }, [row, rsvpDeadline, templates]);
+    }, [activeTab, row, rsvpDeadline, templates]);
 
     useEffect(() => {
         if (!copied) return;
@@ -110,11 +112,45 @@ export function InviteMessageModal({
                     <p className="text-small text-taupe">
                         {row.groupName} · {invitedAt ? `Invited ${invitedAt}` : "Not invited"}
                     </p>
+
+                    <div className="mt-4 flex rounded-lg border border-taupe/15 bg-cream/70 p-1">
+                        <button
+                            type="button"
+                            className={`cursor-pointer flex-1 rounded-md px-3 py-1.5 text-small font-medium transition ${
+                                activeTab === "invite"
+                                    ? "bg-white text-ink shadow-sm"
+                                    : "text-taupe hover:text-ink"
+                            }`}
+                            onClick={() => {
+                                setActiveTab("invite");
+                                setCopyMessage(null);
+                                setCopied(false);
+                            }}
+                        >
+                            RSVP Invite ({hasDinnerInvite(row) ? "Dinner & Lunch" : "Lunch"})
+                        </button>
+                        <button
+                            type="button"
+                            className={`cursor-pointer flex-1 rounded-md px-3 py-1.5 text-small font-medium transition ${
+                                activeTab === "saveTheDate"
+                                    ? "bg-white text-ink shadow-sm"
+                                    : "text-taupe hover:text-ink"
+                            }`}
+                            onClick={() => {
+                                setActiveTab("saveTheDate");
+                                setCopyMessage(null);
+                                setCopied(false);
+                            }}
+                        >
+                            Save the Date
+                        </button>
+                    </div>
+
                 {templates ? (
                     <textarea
-                        key={generatedMessage}
+                        key={`${activeTab}-${generatedMessage}`}
                         ref={messageTextRef}
-                        className="mt-5 min-h-96 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 text-small leading-6"
+                        className="mt-4 min-h-96 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 text-small leading-6 font-mono"
                         defaultValue={generatedMessage}
                         onChange={() => {
                             setCopyMessage(null);
@@ -122,7 +158,7 @@ export function InviteMessageModal({
                         }}
                     />
                 ) : (
-                    <div className="mt-5 flex min-h-96 items-center justify-center rounded-md border border-taupe/20 bg-white px-3 py-2 text-small text-taupe">
+                    <div className="mt-4 flex min-h-96 items-center justify-center rounded-md border border-taupe/20 bg-white px-3 py-2 text-small text-taupe">
                         Loading invite message...
                     </div>
                 )}

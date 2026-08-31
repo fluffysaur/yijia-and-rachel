@@ -210,6 +210,15 @@ export const defaultInviteMessageTemplates = {
     "",
     "Please reply here if you have any questions.",
   ].join("\n"),
+  saveTheDateTemplate: [
+    "Dear {groupName}, please save the date for Yi Jia & Rachel's wedding on {weddingDate}!",
+    "",
+    "Save the date link:",
+    "{saveTheDateUrl}",
+    "",
+    "Formal invitation and RSVP details to follow.",
+  ].join("\n"),
+  saveTheDateUrl: "",
 };
 
 export async function readInviteMessageTemplates() {
@@ -218,13 +227,15 @@ export async function readInviteMessageTemplates() {
     const { data, error } = await supabase
       .from("site_settings")
       .select("key,value")
-      .in("key", ["invite_template_lunch", "invite_template_dinner"]);
+      .in("key", ["invite_template_lunch", "invite_template_dinner", "invite_template_save_the_date", "save_the_date_url"]);
     if (error) throw error;
 
     const values = Object.fromEntries((data ?? []).map((row) => [row.key, row.value]));
     return {
       lunchTemplate: values.invite_template_lunch || defaultInviteMessageTemplates.lunchTemplate,
       dinnerTemplate: values.invite_template_dinner || defaultInviteMessageTemplates.dinnerTemplate,
+      saveTheDateTemplate: values.invite_template_save_the_date || defaultInviteMessageTemplates.saveTheDateTemplate,
+      saveTheDateUrl: values.save_the_date_url || defaultInviteMessageTemplates.saveTheDateUrl,
     };
   } catch {
     return defaultInviteMessageTemplates;

@@ -26,7 +26,16 @@ export const defaultInviteMessageTemplates: InviteMessageTemplates = {
     "Your wedding site password is: {password}",
     "",
     "Please reply here if you have any questions."
-  ].join("\n")
+  ].join("\n"),
+  saveTheDateTemplate: [
+    "Dear {groupName}, please save the date for Yi Jia & Rachel's wedding on {weddingDate}!",
+    "",
+    "Save the date link:",
+    "{saveTheDateUrl}",
+    "",
+    "Formal invitation and RSVP details to follow."
+  ].join("\n"),
+  saveTheDateUrl: ""
 };
 
 export function hasDinnerInvite(invite: Pick<InviteGroup, "dinnerAllowedCount" | "dinnerGuestNames">) {
@@ -69,15 +78,25 @@ export function buildInviteMessage(input: {
   templates: InviteMessageTemplates;
   siteUrl: string;
   rsvpDeadline: string | null;
+  messageType?: "invite" | "saveTheDate";
 }) {
   const lunchDetails = formatEventDetails(findEvent("ceremony"));
   const dinnerDetails = hasDinnerInvite(input.invite) ? formatEventDetails(findEvent("dinner")) : "";
   const eventDetails = [lunchDetails, dinnerDetails].filter(Boolean).join("\n\n");
-  const template = hasDinnerInvite(input.invite) ? input.templates.dinnerTemplate : input.templates.lunchTemplate;
+  const isSaveTheDate = input.messageType === "saveTheDate";
+  const template = isSaveTheDate
+    ? input.templates.saveTheDateTemplate || defaultInviteMessageTemplates.saveTheDateTemplate
+    : hasDinnerInvite(input.invite)
+      ? input.templates.dinnerTemplate
+      : input.templates.lunchTemplate;
+  const saveTheDateUrl = input.templates.saveTheDateUrl?.trim() || input.siteUrl;
+  const weddingDate = siteContent.couple.dateLabel;
   const replacements: Record<string, string> = {
     groupName: input.invite.groupName,
     password: input.invite.invitePassword?.trim() || "TBC",
     siteUrl: input.siteUrl,
+    saveTheDateUrl,
+    weddingDate,
     rsvpDeadline: formatRsvpDeadline(input.rsvpDeadline),
     lunchDetails,
     dinnerDetails,

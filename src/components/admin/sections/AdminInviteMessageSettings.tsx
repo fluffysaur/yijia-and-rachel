@@ -1,17 +1,28 @@
-import { MessageSquareText, Save } from "lucide-react";
+import { MessageSquareText, RotateCcw, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "../../Button";
+import { FadeModal } from "../../FadeModal";
 import { getInviteMessageTemplates, updateInviteMessageTemplates } from "../../../lib/rsvpRepository";
 import { defaultInviteMessageTemplates } from "../../../lib/inviteMessage";
 import type { InviteMessageTemplates } from "../../../types/rsvp";
 
-const placeholders = "{groupName}, {password}, {siteUrl}, {rsvpDeadline}, {lunchDetails}, {dinnerDetails}, {eventDetails}";
+const placeholders = "{groupName}, {saveTheDateUrl}, {weddingDate}, {password}, {siteUrl}, {rsvpDeadline}, {lunchDetails}, {dinnerDetails}, {eventDetails}";
+
+type TemplateTab = "saveTheDate" | "lunch" | "dinner";
+
+const activeTabLabels: Record<TemplateTab, string> = {
+    saveTheDate: "Save-the-date",
+    lunch: "Lunch-only",
+    dinner: "Lunch and dinner",
+};
 
 export function AdminInviteMessageSettings() {
     const [templates, setTemplates] = useState<InviteMessageTemplates>(defaultInviteMessageTemplates);
+    const [activeTab, setActiveTab] = useState<TemplateTab>("saveTheDate");
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
+    const [resetModalOpen, setResetModalOpen] = useState(false);
 
     const saveTemplates = async () => {
         setSaving(true);
@@ -22,6 +33,40 @@ export function AdminInviteMessageSettings() {
             setMessage("Invite message templates saved.");
         } catch (error) {
             setMessage(error instanceof Error ? error.message : "Unable to save invite message templates.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleReset = async () => {
+        setSaving(true);
+        setMessage(null);
+        try {
+            let updatedTemplates: InviteMessageTemplates;
+            if (activeTab === "saveTheDate") {
+                updatedTemplates = {
+                    ...templates,
+                    saveTheDateTemplate: defaultInviteMessageTemplates.saveTheDateTemplate,
+                    saveTheDateUrl: defaultInviteMessageTemplates.saveTheDateUrl,
+                };
+            } else if (activeTab === "lunch") {
+                updatedTemplates = {
+                    ...templates,
+                    lunchTemplate: defaultInviteMessageTemplates.lunchTemplate,
+                };
+            } else {
+                updatedTemplates = {
+                    ...templates,
+                    dinnerTemplate: defaultInviteMessageTemplates.dinnerTemplate,
+                };
+            }
+
+            const saved = await updateInviteMessageTemplates(updatedTemplates);
+            setTemplates(saved);
+            setMessage(`${activeTabLabels[activeTab]} template reset to default.`);
+            setResetModalOpen(false);
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : "Unable to reset template.");
         } finally {
             setSaving(false);
         }
@@ -54,7 +99,7 @@ export function AdminInviteMessageSettings() {
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
                     <h2 className="font-display text-3xl">Invite Message Templates</h2>
-                    <p className="text-small text-taupe">Edit the templates used when copying RSVP invite messages.</p>
+                    <p className="text-small text-taupe">Edit the templates used when copying RSVP & Save-the-Date invite messages.</p>
                 </div>
                 <MessageSquareText
                     className="hidden text-sage md:block"
@@ -65,25 +110,94 @@ export function AdminInviteMessageSettings() {
 
             <p className="mt-4 text-small text-taupe">Placeholders: {placeholders}</p>
 
-            <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                <label className="block">
-                    <span className="text-label font-medium">Lunch-only invite template</span>
-                    <textarea
-                        className="mt-2 min-h-72 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 font-mono text-small"
-                        value={templates.lunchTemplate}
-                        onChange={(event) => setTemplates((value) => ({ ...value, lunchTemplate: event.target.value }))}
-                        disabled={loading}
-                    />
-                </label>
-                <label className="block">
-                    <span className="text-label font-medium">Dinner invite template</span>
-                    <textarea
-                        className="mt-2 min-h-72 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 font-mono text-small"
-                        value={templates.dinnerTemplate}
-                        onChange={(event) => setTemplates((value) => ({ ...value, dinnerTemplate: event.target.value }))}
-                        disabled={loading}
-                    />
-                </label>
+            <div className="mt-5">
+                <div className="flex flex-wrap gap-1 rounded-lg border border-taupe/15 bg-cream/70 p-1 sm:inline-flex">
+                    <button
+                        type="button"
+                        className={`cursor-pointer rounded-md px-4 py-2 text-small font-medium transition ${
+                            activeTab === "saveTheDate"
+                                ? "bg-white text-ink shadow-sm"
+                                : "text-taupe hover:text-ink"
+                        }`}
+                        onClick={() => setActiveTab("saveTheDate")}
+                    >
+                        Save-the-date
+                    </button>
+                    <button
+                        type="button"
+                        className={`cursor-pointer rounded-md px-4 py-2 text-small font-medium transition ${
+                            activeTab === "lunch"
+                                ? "bg-white text-ink shadow-sm"
+                                : "text-taupe hover:text-ink"
+                        }`}
+                        onClick={() => setActiveTab("lunch")}
+                    >
+                        Lunch-only
+                    </button>
+                    <button
+                        type="button"
+                        className={`cursor-pointer rounded-md px-4 py-2 text-small font-medium transition ${
+                            activeTab === "dinner"
+                                ? "bg-white text-ink shadow-sm"
+                                : "text-taupe hover:text-ink"
+                        }`}
+                        onClick={() => setActiveTab("dinner")}
+                    >
+                        Lunch and dinner
+                    </button>
+                </div>
+            </div>
+
+            <div className="mt-5">
+                {activeTab === "saveTheDate" && (
+                    <div className="space-y-4">
+                        <label className="block max-w-xl">
+                            <span className="text-label font-medium">Save-the-date website link</span>
+                            <p className="text-caption text-taupe">Optional. If left blank, defaults to your main wedding website link.</p>
+                            <input
+                                type="url"
+                                placeholder="https://..."
+                                className="mt-1 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 text-small"
+                                value={templates.saveTheDateUrl || ""}
+                                onChange={(event) => setTemplates((value) => ({ ...value, saveTheDateUrl: event.target.value }))}
+                                disabled={loading}
+                            />
+                        </label>
+                        <label className="block">
+                            <span className="text-label font-medium">Save-the-date template</span>
+                            <textarea
+                                className="mt-2 min-h-80 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 font-mono text-small"
+                                value={templates.saveTheDateTemplate || defaultInviteMessageTemplates.saveTheDateTemplate}
+                                onChange={(event) => setTemplates((value) => ({ ...value, saveTheDateTemplate: event.target.value }))}
+                                disabled={loading}
+                            />
+                        </label>
+                    </div>
+                )}
+
+                {activeTab === "lunch" && (
+                    <label className="block">
+                        <span className="text-label font-medium">Lunch-only invite template</span>
+                        <textarea
+                            className="mt-2 min-h-80 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 font-mono text-small"
+                            value={templates.lunchTemplate}
+                            onChange={(event) => setTemplates((value) => ({ ...value, lunchTemplate: event.target.value }))}
+                            disabled={loading}
+                        />
+                    </label>
+                )}
+
+                {activeTab === "dinner" && (
+                    <label className="block">
+                        <span className="text-label font-medium">Lunch & dinner invite template</span>
+                        <textarea
+                            className="mt-2 min-h-80 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 font-mono text-small"
+                            value={templates.dinnerTemplate}
+                            onChange={(event) => setTemplates((value) => ({ ...value, dinnerTemplate: event.target.value }))}
+                            disabled={loading}
+                        />
+                    </label>
+                )}
             </div>
 
             <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -95,8 +209,49 @@ export function AdminInviteMessageSettings() {
                     <Save size={16} />
                     {saving ? "Saving..." : "Save templates"}
                 </Button>
+                <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setResetModalOpen(true)}
+                    disabled={loading || saving}
+                >
+                    <RotateCcw size={16} />
+                    Reset to default
+                </Button>
                 {message ? <p className="text-small text-taupe">{message}</p> : null}
             </div>
+
+            <FadeModal
+                open={resetModalOpen}
+                title={`Reset ${activeTabLabels[activeTab]} Template`}
+                onClose={() => setResetModalOpen(false)}
+                closeDisabled={saving}
+            >
+                <p className="text-base text-ink">
+                    Are you sure you want to reset the <span className="font-semibold">{activeTabLabels[activeTab]}</span> template to its default value?
+                </p>
+                <p className="mt-2 text-small text-taupe">
+                    Any customized text or link for this template will be replaced with the original default.
+                </p>
+                <div className="mt-6 flex flex-wrap justify-end gap-2">
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setResetModalOpen(false)}
+                        disabled={saving}
+                    >
+                        Cancel
+                    </Button>
+                    <button
+                        className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-rose px-5 py-2 text-control font-medium text-white shadow-sm transition hover:bg-rose/85 disabled:cursor-not-allowed disabled:opacity-50"
+                        type="button"
+                        onClick={() => void handleReset()}
+                        disabled={saving}
+                    >
+                        {saving ? "Resetting..." : `Reset ${activeTabLabels[activeTab]}`}
+                    </button>
+                </div>
+            </FadeModal>
         </section>
     );
 }

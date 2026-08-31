@@ -104,16 +104,21 @@ describe("demo RSVP repository", () => {
     expect(await getInviteMessageTemplates()).toMatchObject({
       lunchTemplate: expect.stringContaining("{groupName}"),
       dinnerTemplate: expect.stringContaining("{eventDetails}"),
+      saveTheDateTemplate: expect.stringContaining("{weddingDate}"),
     });
 
     await updateInviteMessageTemplates({
       lunchTemplate: "Lunch invite for {groupName}",
       dinnerTemplate: "Dinner invite for {groupName}",
+      saveTheDateTemplate: "Save the date for {groupName}: {saveTheDateUrl}",
+      saveTheDateUrl: "https://savethedate.link",
     });
 
     expect(await getInviteMessageTemplates()).toEqual({
       lunchTemplate: "Lunch invite for {groupName}",
       dinnerTemplate: "Dinner invite for {groupName}",
+      saveTheDateTemplate: "Save the date for {groupName}: {saveTheDateUrl}",
+      saveTheDateUrl: "https://savethedate.link",
     });
   });
 
