@@ -8,6 +8,7 @@ import { RsvpModalProvider } from "./components/RsvpModal";
 import { HomePage } from "./pages/HomePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { RsvpPage } from "./pages/RsvpPage";
+import { CheckInPage } from "./pages/CheckInPage";
 import "./styles.css";
 
 createRoot(document.getElementById("root")!).render(
@@ -18,6 +19,7 @@ createRoot(document.getElementById("root")!).render(
           <Routes>
             <Route path="/" element={<EntryGate><HomePage /></EntryGate>} />
             <Route path="/rsvp" element={<EntryGate><RsvpPage /></EntryGate>} />
+            <Route path="/check-in" element={<CheckInPage />} />
             <Route path="/admin" element={<EntryGate requireAdmin><AdminPage /></EntryGate>} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

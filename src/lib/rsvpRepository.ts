@@ -1,7 +1,10 @@
 import { demoInviteGroups, demoResponses } from "../data/demo";
 import type {
   AdminSummary,
+  CheckInEventType,
   DinnerMealOption,
+  GuestCheckInAttendee,
+  GuestCheckInState,
   InviteGroup,
   InviteMessageTemplates,
   InviteWithRsvp,
@@ -13,6 +16,9 @@ import { defaultInviteMessageTemplates } from "./inviteMessage";
 import { normalizeName } from "./name";
 import { readAccessSession, type AccessRole, type AccessSession } from "./access";
 import { getSupabaseBrowserClient } from "./supabase";
+
+const demoActiveEventStorageKey = "wedding-demo-active-check-in-event";
+
 
 const localStorageKey = (inviteGroupId: string) => `wedding-rsvp:${inviteGroupId}`;
 const demoInviteGroupsStorageKey = "wedding-demo-invite-groups";
@@ -627,3 +633,149 @@ export async function updateAdminInviteStatus(inviteGroupId: string, invitedAt: 
   });
   return payload.invite;
 }
+
+export async function getActiveCheckInEvent(): Promise<CheckInEventType> {
+  if (!getSupabaseBrowserClient()) {
+    const stored = localStorage.getItem(demoActiveEventStorageKey);
+    return stored === "dinner" ? "dinner" : "ceremony";
+  }
+
+  try {
+    const response = await fetch("/api/admin/settings/active-event");
+    if (!response.ok) return "ceremony";
+    const data = (await response.json()) as { activeEvent?: CheckInEventType };
+    return data.activeEvent === "dinner" ? "dinner" : "ceremony";
+  } catch {
+    return "ceremony";
+  }
+}
+
+export async function setActiveCheckInEvent(event: CheckInEventType): Promise<CheckInEventType> {
+  if (!getSupabaseBrowserClient()) {
+    localStorage.setItem(demoActiveEventStorageKey, event);
+    return event;
+  }
+
+  const payload = await adminApiJson<{ activeEvent: CheckInEventType }>("/api/admin/settings/active-event", {
+    method: "PUT",
+    body: JSON.stringify({ activeEvent: event }),
+  });
+  return payload.activeEvent;
+}
+
+export async function getGuestCheckInState(input: {
+  inviteGroupId?: string;
+  invitePassword?: string;
+  eventType?: CheckInEventType;
+}): Promise<GuestCheckInState> {
+  if (!getSupabaseBrowserClient()) {
+    const invites = readDemoInviteGroups();
+    let group: InviteGroup | undefined;
+
+    if (input.invitePassword) {
+      const normalized = input.invitePassword.trim().toLowerCase();
+      group = invites.find((item) => (item.invitePassword || "").trim().toLowerCase() === normalized);
+    } else if (input.inviteGroupId) {
+      group = invites.find((item) => item.id === input.inviteGroupId);
+    }
+
+    if (!group) {
+      throw new Error("Invite group not found.");
+    }
+
+    const eventType = input.eventType ?? (await getActiveCheckInEvent());
+    const responses = readDemoResponses();
+    const rsvp = responses.find((item) => item.inviteGroupId === group.id) ?? null;
+    const hasRsvp = rsvp !== null;
+
+    let candidateNames: string[] = [];
+    if (hasRsvp && rsvp) {
+      if (eventType === "ceremony") {
+        candidateNames = rsvp.ceremonyAttendees.map((a) => a.attendeeLabel.trim()).filter(Boolean);
+      } else {
+        candidateNames = rsvp.dinnerAttendees.map((a) => a.attendeeLabel.trim()).filter(Boolean);
+      }
+    }
+
+    if (!candidateNames.length) {
+      if (eventType === "ceremony") {
+        candidateNames = group.guestNames;
+      } else {
+        candidateNames = group.dinnerGuestNames.length ? group.dinnerGuestNames : group.guestNames;
+      }
+    }
+
+    const storedCheckInRaw = localStorage.getItem(`wedding-check-in:${group.id}:${eventType}`);
+    let checkedInNames: string[] = [];
+    if (storedCheckInRaw) {
+      try {
+        const parsed = JSON.parse(storedCheckInRaw);
+        if (Array.isArray(parsed)) {
+          checkedInNames = parsed.map(String);
+        }
+      } catch {
+        checkedInNames = [];
+      }
+    }
+
+    const attendees: GuestCheckInAttendee[] = candidateNames.map((name) => ({
+      name,
+      checkedIn: checkedInNames.includes(name),
+    }));
+
+    return {
+      inviteGroup: group,
+      eventType,
+      attendees,
+      checkedInNames,
+      hasRsvp,
+    };
+  }
+
+  const session = readAccessSession();
+  const params = new URLSearchParams();
+  if (input.inviteGroupId) params.set("inviteGroupId", input.inviteGroupId);
+  if (input.invitePassword) params.set("invitePassword", input.invitePassword);
+  if (input.eventType) params.set("eventType", input.eventType);
+
+  const response = await fetch(`/api/check-in?${params.toString()}`, {
+    headers: session?.token ? { Authorization: `Bearer ${session.token}` } : {},
+  });
+  if (!response.ok) {
+    const errorPayload = (await response.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(errorPayload?.error || "Unable to load check-in details.");
+  }
+  return (await response.json()) as GuestCheckInState;
+}
+
+export async function submitGuestCheckIn(input: {
+  inviteGroupId: string;
+  eventType: CheckInEventType;
+  checkedInNames: string[];
+}): Promise<{ ok: boolean }> {
+  if (!getSupabaseBrowserClient()) {
+    localStorage.setItem(
+      `wedding-check-in:${input.inviteGroupId}:${input.eventType}`,
+      JSON.stringify(input.checkedInNames)
+    );
+    return { ok: true };
+  }
+
+  const session = readAccessSession();
+  const response = await fetch("/api/check-in", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...(session?.token ? { Authorization: `Bearer ${session.token}` } : {}),
+    },
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    const errorPayload = (await response.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(errorPayload?.error || "Unable to submit check-in.");
+  }
+
+  return { ok: true };
+}
+

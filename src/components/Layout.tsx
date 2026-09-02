@@ -1,11 +1,15 @@
 import type { ReactNode } from "react";
+import { useLocation } from "react-router";
 import { siteContent } from "../content/wedding";
 import { Header } from "./Header";
 
-export function Layout({ children }: { children: ReactNode }) {
+export function Layout({ children, showHeader = true }: { children: ReactNode; showHeader?: boolean }) {
+    const location = useLocation();
+    const shouldShowHeader = showHeader && location.pathname !== "/check-in";
+
     return (
         <div className="relative min-h-screen bg-white text-ink">
-            <Header />
+            {shouldShowHeader ? <Header /> : null}
             {children}
             <footer className="relative border-t border-taupe/10 bg-white py-10">
                 <div className="section-shell flex flex-col gap-3 text-small text-taupe md:flex-row md:items-center md:justify-between">

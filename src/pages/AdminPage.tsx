@@ -20,18 +20,22 @@ import {
     createAdminInviteGroup,
     deleteAdminInviteGroup,
     deleteAdminRsvp,
+    getActiveCheckInEvent,
     getAdminSummary,
     getInviteMessageTemplates,
     getRsvpSettings,
     listAdminInvites,
+    setActiveCheckInEvent,
     setAdminCheckIn,
     updateAdminInviteStatus,
     updateAdminInviteGroup,
     updateAdminRsvp,
 } from "../lib/rsvpRepository";
 import { createInvitePassword } from "../lib/invitePassword";
-import type { AdminSummary, InviteMessageTemplates } from "../types/rsvp";
+import type { AdminSummary, CheckInEventType, InviteMessageTemplates } from "../types/rsvp";
 import type { AdminRsvpEditState, NewInviteGuestRow } from "../components/admin";
+import { AdminCheckInQrCard } from "../components/admin/sections/AdminCheckInQrCard";
+
 
 const LOCAL_ADMIN_LOAD_DELAY_MS = 1200;
 const MODAL_CLOSE_ANIMATION_MS = 300;
@@ -137,17 +141,20 @@ export function AdminPage() {
     const [savingRsvpEdit, setSavingRsvpEdit] = useState(false);
     const [deletingInvite, setDeletingInvite] = useState(false);
     const [checkIns, setCheckIns] = useState<Record<string, string[]>>({});
+    const [activeCheckInEvent, setActiveCheckInEventState] = useState<CheckInEventType>("ceremony");
+    const [savingActiveEvent, setSavingActiveEvent] = useState(false);
     const editModalCloseTimeoutRef = useRef<number | null>(null);
     const inviteMessageModalCloseTimeoutRef = useRef<number | null>(null);
 
     const fetchAdminData = useCallback(async () => {
-        const [nextSummary, nextRows] = await Promise.all([
+        const [nextSummary, nextRows, nextActiveEvent] = await Promise.all([
             getAdminSummary(),
             listAdminInvites(),
+            getActiveCheckInEvent(),
             maybeDelayAdminLoad(),
         ]);
 
-        return { nextSummary, nextRows };
+        return { nextSummary, nextRows, nextActiveEvent };
     }, []);
 
     const loadAdminData = useCallback(async () => {
@@ -155,15 +162,28 @@ export function AdminPage() {
         setMessage(null);
 
         try {
-            const { nextSummary, nextRows } = await fetchAdminData();
+            const { nextSummary, nextRows, nextActiveEvent } = await fetchAdminData();
             setSummary(nextSummary);
             setRows(nextRows);
+            setActiveCheckInEventState(nextActiveEvent);
         } catch (error) {
             setMessage(error instanceof Error ? error.message : "Unable to load admin dashboard.");
         } finally {
             setAdminDataRefreshing(false);
         }
     }, [fetchAdminData]);
+
+    const handleActiveEventChange = async (event: CheckInEventType) => {
+        setSavingActiveEvent(true);
+        try {
+            await setActiveCheckInEvent(event);
+            setActiveCheckInEventState(event);
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : "Unable to update active event.");
+        } finally {
+            setSavingActiveEvent(false);
+        }
+    };
 
     const createInvite = async () => {
         if (creatingInvite) return;
@@ -428,11 +448,12 @@ export function AdminPage() {
         let active = true;
 
         void fetchAdminData()
-            .then(({ nextSummary, nextRows }) => {
+            .then(({ nextSummary, nextRows, nextActiveEvent }) => {
                 if (!active) return;
 
                 setSummary(nextSummary);
                 setRows(nextRows);
+                setActiveCheckInEventState(nextActiveEvent);
             })
             .catch((error) => {
                 if (!active) return;
@@ -536,6 +557,11 @@ export function AdminPage() {
                             <AdminRsvpDeadlineSettings />
                             <AdminPasswordSettings />
                             <AdminInviteMessageSettings />
+                            <AdminCheckInQrCard
+                                activeEvent={activeCheckInEvent}
+                                onEventChange={handleActiveEventChange}
+                                savingEvent={savingActiveEvent}
+                            />
 
                             <InviteGroupsSection
                                 rows={rows}

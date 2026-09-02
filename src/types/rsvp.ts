@@ -82,3 +82,19 @@ export type AdminSummary = {
   pendingResponses: number;
   mealCounts: Record<DinnerMealOption, number>;
 };
+
+export type CheckInEventType = "ceremony" | "dinner";
+
+export type GuestCheckInAttendee = {
+  name: string;
+  checkedIn: boolean;
+};
+
+export type GuestCheckInState = {
+  inviteGroup: InviteGroup;
+  eventType: CheckInEventType;
+  attendees: GuestCheckInAttendee[];
+  checkedInNames: string[];
+  hasRsvp: boolean;
+};
+
