@@ -1,7 +1,11 @@
 import { jsonMethod, requireAdmin } from "./_lib/session.js";
-import { listAdminInviteRows } from "./_lib/supabase.js";
+import { listAdminInviteRows, normalizeDinnerMealOption } from "./_lib/supabase.js";
 
-const dinnerMealOptions = ["Option 1", "Option 2", "Halal", "Vegetarian"];
+const dinnerMealOptions = [
+  "Standard (Chinese Banquet)",
+  "Halal",
+  "Vegetarian",
+];
 
 export default async function handler(req, res) {
   if (!jsonMethod(req, res, ["GET"])) return;
@@ -13,7 +17,8 @@ export default async function handler(req, res) {
     const mealCounts = Object.fromEntries(dinnerMealOptions.map((option) => [option, 0]));
     responses.forEach((response) => {
       response.dinnerAttendees.forEach((attendee) => {
-        mealCounts[attendee.mealOption] = (mealCounts[attendee.mealOption] || 0) + 1;
+        const meal = normalizeDinnerMealOption(attendee.mealOption);
+        mealCounts[meal] = (mealCounts[meal] || 0) + 1;
       });
     });
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { InviteGroup, RsvpDraft } from "../types/rsvp";
-import { isGuestReadOnly, validateRsvpDraft } from "./rsvpValidation";
+import type { DinnerMealOption, InviteGroup, RsvpDraft } from "../types/rsvp";
+import { isGuestReadOnly, normalizeDinnerMealOption, validateRsvpDraft } from "./rsvpValidation";
 
 const inviteGroup: InviteGroup = {
   id: "invite-1",
@@ -51,5 +51,23 @@ describe("isGuestReadOnly", () => {
   it("locks guest editing after submission", () => {
     expect(isGuestReadOnly(true)).toBe(true);
     expect(isGuestReadOnly(false)).toBe(false);
+  });
+});
+
+describe("normalizeDinnerMealOption", () => {
+  it("maps legacy Option 1 and Option 2 to Standard (Chinese Banquet)", () => {
+    expect(normalizeDinnerMealOption("Option 1")).toBe("Standard (Chinese Banquet)");
+    expect(normalizeDinnerMealOption("Option 2")).toBe("Standard (Chinese Banquet)");
+  });
+
+  it("preserves Halal and Vegetarian options", () => {
+    expect(normalizeDinnerMealOption("Halal")).toBe("Halal");
+    expect(normalizeDinnerMealOption("Vegetarian")).toBe("Vegetarian");
+  });
+
+  it("defaults unknown or null meal options to Standard (Chinese Banquet)", () => {
+    expect(normalizeDinnerMealOption(null)).toBe("Standard (Chinese Banquet)");
+    expect(normalizeDinnerMealOption(undefined)).toBe("Standard (Chinese Banquet)");
+    expect(normalizeDinnerMealOption("unknown")).toBe("Standard (Chinese Banquet)");
   });
 });

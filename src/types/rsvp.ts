@@ -1,4 +1,8 @@
-export const dinnerMealOptions = ["Option 1", "Option 2", "Halal", "Vegetarian"] as const;
+export const dinnerMealOptions = [
+  "Standard (Chinese Banquet)",
+  "Halal",
+  "Vegetarian",
+] as const;
 
 export type DinnerMealOption = (typeof dinnerMealOptions)[number];
 

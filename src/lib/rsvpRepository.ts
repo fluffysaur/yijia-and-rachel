@@ -16,6 +16,7 @@ import { defaultInviteMessageTemplates } from "./inviteMessage";
 import { normalizeName } from "./name";
 import { readAccessSession, type AccessRole, type AccessSession } from "./access";
 import { getSupabaseBrowserClient } from "./supabase";
+import { normalizeDinnerMealOption } from "./rsvpValidation";
 
 const demoActiveEventStorageKey = "wedding-demo-active-check-in-event";
 
@@ -67,6 +68,16 @@ function writeDemoInviteGroups(invites: InviteGroup[]) {
   localStorage.setItem(demoInviteGroupsStorageKey, JSON.stringify(invites.map(withDemoInviteDefaults)));
 }
 
+function normalizeDemoResponse(response: RsvpResponse): RsvpResponse {
+  return {
+    ...response,
+    dinnerAttendees: (response.dinnerAttendees || []).map((attendee) => ({
+      ...attendee,
+      mealOption: normalizeDinnerMealOption(attendee.mealOption)
+    }))
+  };
+}
+
 function readDemoResponses() {
   const responses = readJson<RsvpResponse[]>(demoResponsesStorageKey, demoResponses);
   const migratedResponses = readDemoInviteGroups().reduce<RsvpResponse[]>((items, invite) => {
@@ -80,11 +91,12 @@ function readDemoResponses() {
     }
   }, responses);
 
+  const normalized = migratedResponses.map(normalizeDemoResponse);
   if (migratedResponses.length !== responses.length) {
-    writeDemoResponses(migratedResponses);
+    writeDemoResponses(normalized);
   }
 
-  return migratedResponses;
+  return normalized;
 }
 
 function writeDemoResponses(responses: RsvpResponse[]) {
@@ -176,7 +188,10 @@ function draftToResponse(draft: RsvpDraft): RsvpResponse {
     submittedAt: now,
     updatedAt: now,
     ceremonyAttendees: draft.ceremonyAttendees,
-    dinnerAttendees: draft.dinnerAttendees
+    dinnerAttendees: draft.dinnerAttendees.map((attendee) => ({
+      ...attendee,
+      mealOption: normalizeDinnerMealOption(attendee.mealOption)
+    }))
   };
 }
 
@@ -204,7 +219,8 @@ function buildAdminSummary(rows: (InviteGroup & { rsvp: RsvpResponse | null })[]
         summary.ceremonyAttending += row.rsvp.ceremonyAttendingCount;
         summary.dinnerAttending += row.rsvp.dinnerAttendingCount;
         row.rsvp.dinnerAttendees.forEach((attendee) => {
-          summary.mealCounts[attendee.mealOption] += 1;
+          const meal = normalizeDinnerMealOption(attendee.mealOption);
+          summary.mealCounts[meal] = (summary.mealCounts[meal] || 0) + 1;
         });
       } else {
         summary.pendingResponses += 1;
@@ -220,8 +236,7 @@ function buildAdminSummary(rows: (InviteGroup & { rsvp: RsvpResponse | null })[]
       dinnerAttending: 0,
       pendingResponses: 0,
       mealCounts: {
-        "Option 1": 0,
-        "Option 2": 0,
+        "Standard (Chinese Banquet)": 0,
         Halal: 0,
         Vegetarian: 0
       }
@@ -325,7 +340,7 @@ export async function getInviteWithRsvp(inviteGroupId: string): Promise<InviteWi
           dinnerAttendees: (data.dinner_attendees ?? []).map((attendee: Record<string, unknown>) => ({
             attendeeIndex: Number(attendee.attendee_index),
             attendeeLabel: String(attendee.attendee_label),
-            mealOption: String(attendee.meal_option) as DinnerMealOption,
+            mealOption: normalizeDinnerMealOption(attendee.meal_option),
             dietaryPreference: attendee.dietary_preference ? String(attendee.dietary_preference) : ""
           }))
         }

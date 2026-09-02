@@ -67,8 +67,8 @@ describe("Check-in repository functions", () => {
         { attendeeIndex: 0, attendeeLabel: "Charlie Tan", dietaryPreference: "" },
       ],
       dinnerAttendees: [
-        { attendeeIndex: 0, attendeeLabel: "Charlie Tan", mealOption: "Option 1", dietaryPreference: "" },
-        { attendeeIndex: 1, attendeeLabel: "Diana Tan", mealOption: "Option 2", dietaryPreference: "" },
+        { attendeeIndex: 0, attendeeLabel: "Charlie Tan", mealOption: "Standard (Chinese Banquet)", dietaryPreference: "" },
+        { attendeeIndex: 1, attendeeLabel: "Diana Tan", mealOption: "Halal", dietaryPreference: "" },
       ],
     });
 

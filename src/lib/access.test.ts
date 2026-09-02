@@ -76,7 +76,7 @@ describe("access helpers", () => {
       submittedAt: "2026-01-01T00:00:00.000Z",
       updatedAt: "2026-01-01T00:00:00.000Z",
       ceremonyAttendees: [{ attendeeIndex: 1, attendeeLabel: "A", dietaryPreference: "" }],
-      dinnerAttendees: [{ attendeeIndex: 1, attendeeLabel: "A", mealOption: "Option 1", dietaryPreference: "" }],
+      dinnerAttendees: [{ attendeeIndex: 1, attendeeLabel: "A", mealOption: "Standard (Chinese Banquet)", dietaryPreference: "" }],
     };
 
     expect(filterInviteForRole(invite, "lunch")).toMatchObject({

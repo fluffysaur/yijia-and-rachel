@@ -1,5 +1,12 @@
-import type { InviteGroup, RsvpDraft, RsvpValidationResult } from "../types/rsvp";
+import type { DinnerMealOption, InviteGroup, RsvpDraft, RsvpValidationResult } from "../types/rsvp";
 import { dinnerMealOptions } from "../types/rsvp";
+
+export function normalizeDinnerMealOption(meal: unknown): DinnerMealOption {
+  if (meal === "Halal" || meal === "Vegetarian") {
+    return meal;
+  }
+  return "Standard (Chinese Banquet)";
+}
 
 const countMatchesRows = (count: number, rowLength: number) => count === rowLength;
 

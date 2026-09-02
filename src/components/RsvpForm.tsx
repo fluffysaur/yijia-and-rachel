@@ -3,7 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { Button } from "./Button";
 import type { CeremonyAttendee, DinnerAttendee, InviteGroup, RsvpDraft, RsvpResponse } from "../types/rsvp";
 import { dinnerMealOptions } from "../types/rsvp";
-import { validateRsvpDraft } from "../lib/rsvpValidation";
+import { normalizeDinnerMealOption, validateRsvpDraft } from "../lib/rsvpValidation";
 
 const namedCeremonyAttendee = (name: string, index: number, dietaryPreference = ""): CeremonyAttendee => ({
   attendeeIndex: index + 1,
@@ -14,7 +14,7 @@ const namedCeremonyAttendee = (name: string, index: number, dietaryPreference = 
 const namedDinnerAttendee = (
   name: string,
   index: number,
-  mealOption: DinnerAttendee["mealOption"] = "Option 1",
+  mealOption: DinnerAttendee["mealOption"] = "Standard (Chinese Banquet)",
   dietaryPreference = ""
 ): DinnerAttendee => ({
   attendeeIndex: index + 1,
@@ -53,7 +53,10 @@ export function RsvpForm({
       dinnerAttendingCount: initialRsvp?.dinnerAttendingCount ?? 0,
       generalNotes: initialRsvp?.generalNotes ?? "",
       ceremonyAttendees: initialRsvp?.ceremonyAttendees ?? [],
-      dinnerAttendees: initialRsvp?.dinnerAttendees ?? []
+      dinnerAttendees: (initialRsvp?.dinnerAttendees ?? []).map((attendee) => ({
+        ...attendee,
+        mealOption: normalizeDinnerMealOption(attendee.mealOption)
+      }))
     }),
     [initialRsvp, inviteGroup.id]
   );
@@ -158,7 +161,9 @@ export function RsvpForm({
       {inviteGroup.dinnerAllowedCount > 0 ? (
         <section className="border border-rose/20 bg-blush/20 p-5">
           <h3 className="font-display text-2xl">Dinner banquet</h3>
-          <p className="mt-1 text-small text-taupe">Dinner invitations are separate from the church ceremony.</p>
+          <p className="mt-1 text-small text-taupe">
+            Dinner invitations are separate from the church ceremony. Dinner is served family-style Chinese banquet; individual Halal and Vegetarian sets are prepared upon request.
+          </p>
           <div className="mt-4 grid gap-4">
             {dinnerNames.map((name) => {
               const attendeeIndex = draft.dinnerAttendees.findIndex((attendee) => attendee.attendeeLabel === name);

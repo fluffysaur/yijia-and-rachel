@@ -31,8 +31,8 @@ const mockRows: AdminInviteRow[] = [
         { attendeeIndex: 1, attendeeLabel: "Bob Tan", dietaryPreference: "" },
       ],
       dinnerAttendees: [
-        { attendeeIndex: 0, attendeeLabel: "Alice Tan", mealOption: "Option 1", dietaryPreference: "No seafood" },
-        { attendeeIndex: 1, attendeeLabel: "Bob Tan", mealOption: "Option 2", dietaryPreference: "" },
+        { attendeeIndex: 0, attendeeLabel: "Alice Tan", mealOption: "Standard (Chinese Banquet)", dietaryPreference: "No seafood" },
+        { attendeeIndex: 1, attendeeLabel: "Bob Tan", mealOption: "Vegetarian", dietaryPreference: "" },
       ],
     },
   },

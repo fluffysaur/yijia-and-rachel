@@ -130,10 +130,10 @@ export const demoResponses: RsvpResponse[] = [
       { attendeeIndex: 3, attendeeLabel: "Noah Ong", dietaryPreference: "Vegetarian preferred" }
     ],
     dinnerAttendees: [
-      { attendeeIndex: 1, attendeeLabel: "Andrew Ong", mealOption: "Option 1", dietaryPreference: "No beef" },
-      { attendeeIndex: 2, attendeeLabel: "Melissa Ong", mealOption: "Option 2", dietaryPreference: "" },
+      { attendeeIndex: 1, attendeeLabel: "Andrew Ong", mealOption: "Standard (Chinese Banquet)", dietaryPreference: "No beef" },
+      { attendeeIndex: 2, attendeeLabel: "Melissa Ong", mealOption: "Standard (Chinese Banquet)", dietaryPreference: "" },
       { attendeeIndex: 3, attendeeLabel: "Noah Ong", mealOption: "Vegetarian", dietaryPreference: "" },
-      { attendeeIndex: 4, attendeeLabel: "Chloe Ong", mealOption: "Option 1", dietaryPreference: "No shellfish" }
+      { attendeeIndex: 4, attendeeLabel: "Chloe Ong", mealOption: "Standard (Chinese Banquet)", dietaryPreference: "No shellfish" }
     ]
   },
   {
@@ -151,8 +151,8 @@ export const demoResponses: RsvpResponse[] = [
       { attendeeIndex: 2, attendeeLabel: "Lily Chen", dietaryPreference: "" }
     ],
     dinnerAttendees: [
-      { attendeeIndex: 1, attendeeLabel: "Robert Chen", mealOption: "Option 1", dietaryPreference: "Less spicy" },
-      { attendeeIndex: 2, attendeeLabel: "Lily Chen", mealOption: "Option 2", dietaryPreference: "" }
+      { attendeeIndex: 1, attendeeLabel: "Robert Chen", mealOption: "Standard (Chinese Banquet)", dietaryPreference: "Less spicy" },
+      { attendeeIndex: 2, attendeeLabel: "Lily Chen", mealOption: "Standard (Chinese Banquet)", dietaryPreference: "" }
     ]
   },
   {

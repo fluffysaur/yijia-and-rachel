@@ -7,7 +7,7 @@ export function AdminMealCounts({ summary }: { summary: AdminSummary }) {
             className="relative rounded-xs border border-taupe/15 bg-white/95 p-6 shadow-xs scroll-mt-24 before:pointer-events-none before:absolute before:inset-2 before:border before:border-taupe/10"
         >
             <h2 className="font-display text-3xl text-ink">Dinner Meal Counts</h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
                 {Object.entries(summary.mealCounts).map(([meal, count]) => (
                     <div
                         key={meal}

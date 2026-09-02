@@ -632,8 +632,8 @@ function AdminMealCountsSkeleton() {
             aria-label="Loading meal counts"
         >
             <div className="h-8 w-56 animate-pulse rounded-xs bg-taupe/15" />
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-                {Array.from({ length: 4 }).map((_, index) => (
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, index) => (
                     <div
                         key={index}
                         className="rounded-xs border border-taupe/15 bg-cream/30 p-3"

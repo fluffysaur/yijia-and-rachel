@@ -62,6 +62,13 @@ export async function createUniqueInvitePassword(supabase, requestedPassword = "
   return `${createInvitePassword()}-${Date.now().toString(36)}`;
 }
 
+export function normalizeDinnerMealOption(meal) {
+  if (meal === "Halal" || meal === "Vegetarian") {
+    return meal;
+  }
+  return "Standard (Chinese Banquet)";
+}
+
 export function mapResponse(row, ceremonyAttendees = [], dinnerAttendees = []) {
   return {
     id: String(row.id),
@@ -84,7 +91,7 @@ export function mapResponse(row, ceremonyAttendees = [], dinnerAttendees = []) {
     dinnerAttendees: dinnerAttendees.map((attendee) => ({
       attendeeIndex: Number(attendee.attendee_index ?? attendee.attendeeIndex),
       attendeeLabel: String(attendee.attendee_label ?? attendee.attendeeLabel),
-      mealOption: String(attendee.meal_option ?? attendee.mealOption),
+      mealOption: normalizeDinnerMealOption(attendee.meal_option ?? attendee.mealOption),
       dietaryPreference:
         attendee.dietary_preference || attendee.dietaryPreference
           ? String(attendee.dietary_preference ?? attendee.dietaryPreference)
