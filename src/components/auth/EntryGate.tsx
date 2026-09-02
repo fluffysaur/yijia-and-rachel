@@ -1,4 +1,3 @@
-import { LockKeyhole } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router";
 import { Button } from "../Button";
@@ -64,27 +63,23 @@ export function EntryGate({ children, requireAdmin = false }: { children: ReactN
                 alt={siteContent.hero.imageAlt}
                 className="auth-bg-fade absolute inset-0 h-full w-full object-cover"
             />
-            <div className="auth-overlay-fade absolute inset-0 bg-ink/35" />
-            <div className="auth-overlay-fade auth-delay-1 absolute inset-0 bg-linear-to-t from-ink/80 via-ink/20 to-white/15" />
+            <div className="auth-overlay-fade absolute inset-0 bg-ink/15" />
+            <div className="auth-overlay-fade auth-delay-1 absolute inset-0 bg-linear-to-t from-ink/30 via-transparent to-white/10" />
             <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
-                <section className="auth-card-enter w-full max-w-md rounded-lg border border-white/35 bg-white/88 p-6 shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-md">
+                <section className="auth-card-enter w-full max-w-md rounded-2xl border border-white/60 bg-white/65 p-8 shadow-[0_24px_70px_rgba(0,0,0,0.16)] backdrop-blur-sm">
                     <div className="mb-6">
-                        <LockKeyhole
-                            className="auth-rise-in mb-4 text-rose"
-                            size={32}
-                        />
-                        <p className="auth-rise-in auth-delay-1 text-label uppercase tracking-[0.24em] text-rose">
+                        <p className="auth-rise-in text-label font-medium uppercase tracking-[0.24em] text-rose">
                             {siteContent.couple.dateLabel}
                         </p>
-                        <h1 className="auth-rise-in auth-delay-2 mt-3 font-display text-5xl leading-none text-ink">
+                        <h1 className="auth-rise-in auth-delay-1 mt-3 font-display text-5xl leading-none text-ink">
                             {siteContent.couple.names}
                         </h1>
-                        <p className="auth-rise-in auth-delay-3 mt-4 text-small leading-6 text-taupe">
+                        <p className="auth-rise-in auth-delay-2 mt-4 text-small leading-6 text-ink/80">
                             Enter your invite password to view wedding details and RSVP.
                         </p>
                     </div>
                     <form
-                        className="auth-rise-in auth-delay-4 grid gap-3"
+                        className="auth-rise-in auth-delay-3 grid gap-3"
                         onSubmit={(event) => {
                             event.preventDefault();
                             void submit();
@@ -93,7 +88,7 @@ export function EntryGate({ children, requireAdmin = false }: { children: ReactN
                         <label>
                             <span className="sr-only">Password</span>
                             <input
-                                className="w-full rounded-md border border-taupe/20 bg-white px-3 py-3"
+                                className="w-full rounded-md border border-white/60 bg-white/50 px-4 py-3 text-ink placeholder:text-taupe/70 shadow-xs outline-none backdrop-blur-xs transition-all duration-200 focus:border-white focus:bg-white focus:shadow-md"
                                 value={password}
                                 onChange={(event) => setPassword(event.target.value)}
                                 placeholder="Password"
@@ -109,7 +104,7 @@ export function EntryGate({ children, requireAdmin = false }: { children: ReactN
                         </Button>
                     </form>
                     {message ? (
-                        <p className="auth-message-enter mt-4 rounded-md bg-rose/10 p-3 text-small text-rose">{message}</p>
+                        <p className="auth-message-enter mt-4 rounded-md border border-rose/20 bg-white/70 p-3 text-small text-rose backdrop-blur-xs">{message}</p>
                     ) : null}
                 </section>
             </div>

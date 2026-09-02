@@ -10,17 +10,19 @@ export function HomeHeroSection({ onOpenRsvp }: { onOpenRsvp: () => void }) {
                 alt={siteContent.hero.imageAlt}
                 className="hero-background-fade float-slow absolute inset-0 h-full w-full object-cover"
             />
-            <div className="absolute inset-0 bg-linear-to-r from-white/95 via-white/72 to-white/18" />
-            <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-white to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-r from-white/85 via-white/40 to-transparent" />
+            {/* Top scrim to ensure navbar text contrast */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-linear-to-b from-white/80 via-white/30 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-white to-transparent" />
             <div className="section-shell relative flex min-h-[82vh] items-center pb-16 pt-32 md:pt-36">
                 <div className="max-w-2xl">
                     <h1 className="reveal reveal-delay-1 mt-5 font-display text-7xl leading-none text-ink md:text-9xl">
                         {siteContent.hero.headline}
                     </h1>
-                    <p className="reveal reveal-delay-2 mt-5 text-label font-medium uppercase tracking-[0.22em] text-gold">
+                    <p className="reveal reveal-delay-2 mt-5 text-label font-semibold uppercase tracking-[0.22em] text-[#8a6829]">
                         {siteContent.couple.dateLabel} · {siteContent.couple.locationLabel}
                     </p>
-                    <p className="reveal reveal-delay-2 mt-6 max-w-xl text-lg leading-8 text-taupe">
+                    <p className="reveal reveal-delay-2 mt-6 max-w-xl text-lg leading-8 text-ink/90">
                         {siteContent.hero.body}
                     </p>
                     <div className="reveal reveal-delay-3 mt-8 flex flex-wrap gap-3">

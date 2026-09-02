@@ -64,7 +64,7 @@ export function Header() {
     const navLinkClass = (sectionId: string) =>
         clsx(
             "underline-offset-8 decoration-rose/70 transition hover:text-ink hover:underline",
-            activeSection === sectionId ? "font-semibold text-ink underline" : "font-medium text-taupe",
+            activeSection === sectionId ? "font-semibold text-ink underline" : "font-medium text-ink/80 hover:text-ink",
         );
     const handleSectionClick = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
         if (location.pathname !== "/" && !isAdmin) {
@@ -93,7 +93,10 @@ export function Header() {
 
     return (
         <header
-            className="fixed inset-x-0 top-0 z-40 border-b"
+            className={clsx(
+                "fixed inset-x-0 top-0 z-40 border-b transition-colors",
+                backgroundProgress > 0 && "backdrop-blur-md",
+            )}
             style={{
                 backgroundColor: `rgba(255, 255, 255, ${backgroundProgress})`,
                 borderColor: `rgba(118, 107, 98, ${backgroundProgress * 0.12})`,
