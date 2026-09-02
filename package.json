@@ -23,6 +23,7 @@
     },
     "devDependencies": {
         "@eslint/js": "latest",
+        "@playwright/test": "^1.62.1",
         "@tailwindcss/vite": "latest",
         "@testing-library/jest-dom": "latest",
         "@testing-library/react": "latest",
