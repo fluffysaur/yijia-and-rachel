@@ -109,16 +109,16 @@ export function InviteMessageModal({
         >
             {row ? (
                 <>
-                    <p className="text-small text-taupe">
-                        {row.groupName} · {invitedAt ? `Invited ${invitedAt}` : "Not invited"}
+                    <p className="text-sm text-ink/75">
+                        <strong className="font-semibold text-ink">{row.groupName}</strong> · {invitedAt ? `Invited ${invitedAt}` : "Not invited"}
                     </p>
 
-                    <div className="mt-4 flex rounded-lg border border-taupe/15 bg-cream/70 p-1">
+                    <div className="mt-4 flex rounded-xs border border-taupe/15 bg-cream/50 p-1">
                         <button
                             type="button"
-                            className={`cursor-pointer flex-1 rounded-md px-3 py-1.5 text-small font-medium transition ${
+                            className={`cursor-pointer flex-1 rounded-xs px-3 py-2 text-sm font-medium transition ${
                                 activeTab === "invite"
-                                    ? "bg-white text-ink shadow-sm"
+                                    ? "bg-white text-ink shadow-xs border border-taupe/20"
                                     : "text-taupe hover:text-ink"
                             }`}
                             onClick={() => {
@@ -131,9 +131,9 @@ export function InviteMessageModal({
                         </button>
                         <button
                             type="button"
-                            className={`cursor-pointer flex-1 rounded-md px-3 py-1.5 text-small font-medium transition ${
+                            className={`cursor-pointer flex-1 rounded-xs px-3 py-2 text-sm font-medium transition ${
                                 activeTab === "saveTheDate"
-                                    ? "bg-white text-ink shadow-sm"
+                                    ? "bg-white text-ink shadow-xs border border-taupe/20"
                                     : "text-taupe hover:text-ink"
                             }`}
                             onClick={() => {
@@ -150,7 +150,7 @@ export function InviteMessageModal({
                     <textarea
                         key={`${activeTab}-${generatedMessage}`}
                         ref={messageTextRef}
-                        className="mt-4 min-h-96 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 text-small leading-6 font-mono"
+                        className="mt-4 min-h-96 w-full rounded-xs border border-taupe/20 bg-white px-3 py-2 text-sm leading-6 font-mono text-ink focus:border-ink focus:outline-none"
                         defaultValue={generatedMessage}
                         onChange={() => {
                             setCopyMessage(null);
@@ -158,7 +158,7 @@ export function InviteMessageModal({
                         }}
                     />
                 ) : (
-                    <div className="mt-4 flex min-h-96 items-center justify-center rounded-md border border-taupe/20 bg-white px-3 py-2 text-small text-taupe">
+                    <div className="mt-4 flex min-h-96 items-center justify-center rounded-xs border border-taupe/20 bg-white px-3 py-2 text-sm text-taupe">
                         Loading invite message...
                     </div>
                 )}
@@ -184,7 +184,7 @@ export function InviteMessageModal({
                         {row.invitedAt ? <RotateCcw size={16} /> : <Check size={16} />}
                         {row.invitedAt ? "Clear invited" : "Mark invited"}
                     </Button>
-                    {copyMessage ? <p className="text-small text-taupe">{copyMessage}</p> : null}
+                    {copyMessage ? <p className="text-sm font-medium text-ink/80">{copyMessage}</p> : null}
                 </div>
                 </>
             ) : null}

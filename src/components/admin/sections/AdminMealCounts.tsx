@@ -4,17 +4,17 @@ export function AdminMealCounts({ summary }: { summary: AdminSummary }) {
     return (
         <section
             id="meals"
-            className="rounded-lg bg-ivory p-5 shadow-sm scroll-mt-24"
+            className="relative rounded-xs border border-taupe/15 bg-white/95 p-6 shadow-xs scroll-mt-24 before:pointer-events-none before:absolute before:inset-2 before:border before:border-taupe/10"
         >
-            <h2 className="font-display text-3xl">Dinner Meal Counts</h2>
-            <div className="mt-4 grid gap-3 md:grid-cols-4">
+            <h2 className="font-display text-3xl text-ink">Dinner Meal Counts</h2>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
                 {Object.entries(summary.mealCounts).map(([meal, count]) => (
                     <div
                         key={meal}
-                        className="rounded-md bg-cream p-3"
+                        className="rounded-xs border border-taupe/15 bg-cream/30 p-3"
                     >
-                        <p className="text-small text-taupe">{meal}</p>
-                        <p className="font-display text-3xl">{count}</p>
+                        <p className="text-sm font-medium text-ink">{meal}</p>
+                        <p className="mt-1 font-display text-3xl text-ink">{count}</p>
                     </div>
                 ))}
             </div>

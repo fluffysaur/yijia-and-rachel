@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { GalleryModal } from "../components/GalleryModal";
+import { BotanicalDivider } from "../components/decorations/BotanicalDivider";
 import {
     HomeContactSection,
     HomeEventsSection,
@@ -16,7 +17,7 @@ import { siteContent } from "../content/wedding";
 
 export function HomePage() {
     const { openRsvp } = useRsvpModal();
-    const galleryImages = [...siteContent.gallery, ...siteContent.highlights];
+    const galleryImages = siteContent.gallery;
     const [activeGalleryIndex, setActiveGalleryIndex] = useState<number | null>(null);
     const [openFaqItems, setOpenFaqItems] = useState<Set<string>>(new Set());
 
@@ -72,9 +73,13 @@ export function HomePage() {
         <Layout>
             <main className="bg-white">
                 <HomeHeroSection onOpenRsvp={openRsvp} />
+                <BotanicalDivider />
                 <HomeStorySection />
+                <BotanicalDivider />
                 <HomeEventsSection />
+                <BotanicalDivider />
                 <HomeGallerySection onOpenImage={setActiveGalleryIndex} />
+                <BotanicalDivider />
                 <HomeQaSection />
                 <HomeFaqSection
                     openFaqItems={openFaqItems}

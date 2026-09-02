@@ -68,27 +68,27 @@ export function AdminRsvpDeadlineSettings() {
     return (
         <section
             id="rsvp-settings"
-            className="scroll-mt-24 rounded-lg bg-ivory p-5 shadow-sm"
+            className="scroll-mt-24 rounded-xs border border-taupe/15 bg-white/95 p-6 shadow-xs"
         >
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
-                    <h2 className="font-display text-3xl">RSVP Deadline</h2>
-                    <p className="text-small text-taupe">
+                    <h2 className="font-display text-3xl text-ink">RSVP Deadline</h2>
+                    <p className="mt-1 text-base text-ink/80 leading-relaxed">
                         Guests can submit and edit RSVPs until this date and time.
                     </p>
                 </div>
                 <CalendarClock
                     className="hidden text-sage md:block"
-                    size={32}
+                    size={28}
                     aria-hidden="true"
                 />
             </div>
 
             <div className="mt-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
                 <label className="block">
-                    <span className="text-label font-medium">Deadline</span>
+                    <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Deadline</span>
                     <input
-                        className="mt-2 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
+                        className="mt-2 w-full rounded-xs border border-taupe/20 bg-white px-3 py-2 text-ink focus:border-ink focus:outline-none"
                         value={deadlineValue}
                         onChange={(event) => setDeadlineValue(event.target.value)}
                         type="datetime-local"
@@ -115,7 +115,7 @@ export function AdminRsvpDeadlineSettings() {
                     <Save size={16} />
                     {saving ? "Saving..." : "Save deadline"}
                 </Button>
-                {message ? <p className="text-small text-taupe">{message}</p> : null}
+                {message ? <p className="text-base text-ink/80">{message}</p> : null}
             </div>
         </section>
     );

@@ -224,19 +224,19 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
                     </p>
                 ) : null}
                 {!isDirectInviteSession && isDemoMode() ? (
-                    <p className="mt-3 rounded-md bg-gold/10 px-3 py-2 text-small text-taupe">
+                    <p className="mt-3 rounded-xs bg-gold/10 px-3 py-2 text-small text-taupe">
                         Demo mode is active. Try searching for “Tan”, “Lee”, or “Ong”.
                     </p>
                 ) : null}
             </div>
 
             {!isDirectInviteSession ? (
-            <div className="rounded-lg border border-taupe/15 bg-white p-5 shadow-sm">
+            <div className="border border-taupe/20 bg-white p-6 shadow-xs">
                 <div className="relative">
                     <label>
                         <span className="sr-only">Invite name</span>
                         <input
-                            className="w-full rounded-md border border-taupe/20 bg-white px-3 py-3 pr-11"
+                            className="w-full rounded-xs border border-taupe/20 bg-white px-3 py-3 pr-11"
                             value={query}
                             onChange={(event) => {
                                 const nextQuery = event.target.value;
@@ -262,7 +262,7 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
                         {results.map((invite) => (
                             <button
                                 key={invite.id}
-                                className="cursor-pointer rounded-md border border-taupe/15 bg-white p-4 text-left transition hover:border-rose/40 hover:bg-cream/35"
+                                className="cursor-pointer rounded-xs border border-taupe/15 bg-white p-4 text-left transition hover:border-ink hover:bg-cream/35"
                                 onClick={() => void selectInvite(invite.id)}
                             >
                                 <span className="block font-medium">{invite.groupName}</span>
@@ -276,15 +276,15 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
                 ) : null}
 
                 {query.trim().length >= 2 && !loading && !results.length ? (
-                    <p className="mt-4 rounded-md bg-cream/60 p-3 text-small text-taupe">No matching invite found yet.</p>
+                    <p className="mt-4 rounded-xs bg-cream/60 p-3 text-small text-taupe">No matching invite found yet.</p>
                 ) : null}
 
-                {message ? <p className="mt-4 rounded-md bg-rose/10 p-3 text-small text-rose">{message}</p> : null}
+                {message ? <p className="mt-4 rounded-xs bg-rose/10 p-3 text-small text-rose">{message}</p> : null}
             </div>
             ) : message ? (
-                <p className="rounded-md bg-rose/10 p-3 text-small text-rose">{message}</p>
+                <p className="rounded-xs bg-rose/10 p-3 text-small text-rose">{message}</p>
             ) : loading ? (
-                <div className="flex items-center gap-2 rounded-lg border border-taupe/15 bg-white p-5 text-small text-taupe shadow-sm">
+                <div className="flex items-center gap-2 border border-taupe/15 bg-white p-5 text-small text-taupe shadow-xs">
                     <LoaderCircle
                         className="animate-spin"
                         size={20}
@@ -326,7 +326,7 @@ export function RsvpContent({ compact = false }: { compact?: boolean }) {
                             submitting={submitting}
                         />
                     ) : (
-                        <section className="rounded-lg border border-rose/30 bg-rose/10 p-5 text-small text-rose">
+                        <section className="border border-rose/30 bg-rose/10 p-5 text-small text-rose">
                             The RSVP deadline has passed. Please contact us for changes.
                         </section>
                     )

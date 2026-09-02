@@ -7,9 +7,9 @@ export function HomeContactSection() {
             className="bg-white py-20"
         >
             <div className="section-shell reveal max-w-3xl text-center">
-                <p className="text-label uppercase text-rose">Need help?</p>
-                <h2 className="mt-2 font-display text-5xl">{siteContent.contact.title}</h2>
-                <p className="mt-4 text-taupe">{siteContent.contact.body}</p>
+                <p className="text-label uppercase tracking-[0.24em] text-rose font-medium">Need help?</p>
+                <h2 className="mt-2 font-display text-5xl md:text-6xl text-ink">{siteContent.contact.title}</h2>
+                <p className="mt-4 text-ink/80 leading-relaxed text-base">{siteContent.contact.body}</p>
             </div>
         </section>
     );

@@ -50,7 +50,7 @@ export function RsvpModalProvider({ children }: { children: ReactNode }) {
           aria-label="RSVP"
         >
           <button
-            className="absolute right-4 top-4 z-10 inline-flex size-11 cursor-pointer items-center justify-center rounded-full border border-taupe/15 bg-white text-ink shadow-sm transition hover:border-rose/40 hover:bg-cream"
+            className="absolute right-4 top-4 z-10 inline-flex size-11 cursor-pointer items-center justify-center rounded-xs border border-taupe/25 bg-white text-ink shadow-xs transition hover:border-ink hover:bg-cream/60"
             aria-label="Close RSVP"
             onClick={closeRsvp}
           >

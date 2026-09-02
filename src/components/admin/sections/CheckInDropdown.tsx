@@ -68,12 +68,12 @@ export function CheckInDropdown({
         <>
             <button
                 ref={triggerRef}
-                className="flex min-w-32 cursor-pointer items-center justify-between gap-2 rounded-md border border-taupe/20 bg-white px-3 py-2 transition hover:bg-cream"
+                className="flex min-w-32 cursor-pointer items-center justify-between gap-2 rounded-xs border border-taupe/20 bg-white px-3 py-2 transition hover:border-ink hover:bg-cream"
                 type="button"
                 aria-expanded={open}
                 onClick={toggleOpen}
             >
-                <span className="text-label font-medium">
+                <span className="text-xs font-medium uppercase tracking-[0.16em] text-ink">
                     {label} {checkedNames.length}/{attendeeNames.length}
                 </span>
                 <ChevronDown
@@ -85,7 +85,7 @@ export function CheckInDropdown({
                 ? createPortal(
                       <div
                           ref={menuRef}
-                          className="fixed z-100 rounded-md border border-taupe/15 bg-white p-2 shadow-lg"
+                          className="fixed z-100 rounded-xs border border-taupe/15 bg-white p-1 shadow-md"
                           style={{
                               left: position.left,
                               top: position.top,
@@ -98,7 +98,7 @@ export function CheckInDropdown({
                               return (
                                   <button
                                       key={name}
-                                      className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-small transition hover:bg-cream"
+                                      className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-xs px-3 py-2 text-left text-sm transition hover:bg-cream"
                                       onClick={() => onToggle(name)}
                                       type="button"
                                   >

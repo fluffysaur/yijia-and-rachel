@@ -59,15 +59,15 @@ export function EntryGate({ children, requireAdmin = false }: { children: ReactN
     return (
         <main className="relative min-h-screen overflow-hidden bg-white text-ink">
             <img
-                src={siteContent.hero.image}
-                alt={siteContent.hero.imageAlt}
+                src={siteContent.gate.image}
+                alt={siteContent.gate.imageAlt}
                 className="auth-bg-fade absolute inset-0 h-full w-full object-cover"
             />
             <div className="auth-overlay-fade absolute inset-0 bg-ink/15" />
             <div className="auth-overlay-fade auth-delay-1 absolute inset-0 bg-linear-to-t from-ink/30 via-transparent to-white/10" />
             <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
-                <section className="auth-card-enter w-full max-w-md rounded-2xl border border-white/60 bg-white/65 p-8 shadow-[0_24px_70px_rgba(0,0,0,0.16)] backdrop-blur-sm">
-                    <div className="mb-6">
+                <section className="auth-card-enter relative w-full max-w-md border border-white/80 bg-white/80 p-8 md:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.12)] backdrop-blur-md before:pointer-events-none before:absolute before:inset-2 before:border before:border-taupe/15">
+                    <div className="mb-6 text-center">
                         <p className="auth-rise-in text-label font-medium uppercase tracking-[0.24em] text-rose">
                             {siteContent.couple.dateLabel}
                         </p>
@@ -79,7 +79,7 @@ export function EntryGate({ children, requireAdmin = false }: { children: ReactN
                         </p>
                     </div>
                     <form
-                        className="auth-rise-in auth-delay-3 grid gap-3"
+                        className="auth-rise-in auth-delay-3 grid gap-4"
                         onSubmit={(event) => {
                             event.preventDefault();
                             void submit();
@@ -88,7 +88,7 @@ export function EntryGate({ children, requireAdmin = false }: { children: ReactN
                         <label>
                             <span className="sr-only">Password</span>
                             <input
-                                className="w-full rounded-md border border-white/60 bg-white/50 px-4 py-3 text-ink placeholder:text-taupe/70 shadow-xs outline-none backdrop-blur-xs transition-all duration-200 focus:border-white focus:bg-white focus:shadow-md"
+                                className="w-full border border-taupe/20 bg-white/80 px-4 py-3 text-ink placeholder:text-taupe/70 shadow-xs outline-none backdrop-blur-xs transition-all duration-200 focus:border-ink focus:bg-white focus:shadow-sm"
                                 value={password}
                                 onChange={(event) => setPassword(event.target.value)}
                                 placeholder="Password"
@@ -104,7 +104,7 @@ export function EntryGate({ children, requireAdmin = false }: { children: ReactN
                         </Button>
                     </form>
                     {message ? (
-                        <p className="auth-message-enter mt-4 rounded-md border border-rose/20 bg-white/70 p-3 text-small text-rose backdrop-blur-xs">{message}</p>
+                        <p className="auth-message-enter mt-4 border border-rose/30 bg-white/80 p-3 text-small text-rose backdrop-blur-xs">{message}</p>
                     ) : null}
                 </section>
             </div>

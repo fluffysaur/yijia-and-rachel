@@ -92,7 +92,7 @@ export function RsvpForm({
 
   return (
     <form
-      className="space-y-6 rounded-lg border border-taupe/15 bg-ivory p-5 shadow-sm"
+      className="space-y-6 border border-taupe/20 bg-ivory p-6 shadow-xs"
       onSubmit={(event) => {
         event.preventDefault();
         if (validation.valid) {
@@ -101,21 +101,21 @@ export function RsvpForm({
       }}
     >
       <div>
-        <p className="text-label uppercase text-rose">{initialRsvp ? "Edit RSVP for" : "RSVP for"}</p>
-        <h2 className="font-display text-3xl">{inviteGroup.groupName}</h2>
+        <p className="text-label uppercase tracking-[0.2em] text-rose font-medium">{initialRsvp ? "Edit RSVP for" : "RSVP for"}</p>
+        <h2 className="mt-1 font-display text-3xl">{inviteGroup.groupName}</h2>
       </div>
 
       <label className="block">
         <span className="text-label font-medium">Responder name</span>
         <input
-          className="mt-2 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
+          className="mt-2 w-full rounded-xs border border-taupe/20 bg-white px-3 py-2"
           value={draft.responderName}
           onChange={(event) => setDraft((current) => ({ ...current, responderName: event.target.value }))}
           placeholder="Your name"
         />
       </label>
 
-      <section className="rounded-lg bg-cream/60 p-4">
+      <section className="border border-taupe/15 bg-cream/60 p-4">
         <h3 className="font-display text-2xl">Church ceremony & lunch buffet</h3>
         <p className="mt-1 text-small text-taupe">All invited attendees are invited to this portion.</p>
         <div className="mt-4 grid gap-3">
@@ -124,7 +124,7 @@ export function RsvpForm({
             const attendee = draft.ceremonyAttendees[attendeeIndex];
 
             return (
-              <div key={name} className="rounded-md bg-white p-3">
+              <div key={name} className="border border-taupe/15 bg-white p-3">
                 <label className="flex cursor-pointer items-center gap-3">
                   <input
                     className="size-4 accent-rose"
@@ -136,7 +136,7 @@ export function RsvpForm({
                 </label>
                 {attendee ? (
                   <input
-                    className="mt-3 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
+                    className="mt-3 w-full rounded-xs border border-taupe/20 bg-white px-3 py-2"
                     value={attendee.dietaryPreference}
                     onChange={(event) =>
                       setDraft((current) => ({
@@ -156,7 +156,7 @@ export function RsvpForm({
       </section>
 
       {inviteGroup.dinnerAllowedCount > 0 ? (
-        <section className="rounded-lg bg-blush/20 p-4">
+        <section className="border border-rose/20 bg-blush/20 p-5">
           <h3 className="font-display text-2xl">Dinner banquet</h3>
           <p className="mt-1 text-small text-taupe">Dinner invitations are separate from the church ceremony.</p>
           <div className="mt-4 grid gap-4">
@@ -165,7 +165,7 @@ export function RsvpForm({
               const attendee = draft.dinnerAttendees[attendeeIndex];
 
               return (
-                <div key={name} className="rounded-md bg-white p-3">
+                <div key={name} className="border border-taupe/15 bg-white p-3">
                   <label className="flex cursor-pointer items-center gap-3">
                     <input
                       className="size-4 accent-rose"
@@ -181,7 +181,7 @@ export function RsvpForm({
                         <span className="text-label font-medium">Meal</span>
                         <span className="relative mt-2 block">
                           <select
-                            className="w-full appearance-none rounded-md border border-taupe/20 bg-white py-2 pl-3 pr-10"
+                            className="w-full appearance-none rounded-xs border border-taupe/20 bg-white py-2 pl-3 pr-10"
                             value={attendee.mealOption}
                             onChange={(event) =>
                               setDraft((current) => ({
@@ -210,7 +210,7 @@ export function RsvpForm({
                       <label className="block">
                         <span className="text-label font-medium">Other dietary preference</span>
                         <input
-                          className="mt-2 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
+                          className="mt-2 w-full rounded-xs border border-taupe/20 bg-white px-3 py-2"
                           value={attendee.dietaryPreference}
                           onChange={(event) =>
                             setDraft((current) => ({
@@ -231,7 +231,7 @@ export function RsvpForm({
           </div>
         </section>
       ) : (
-        <section className="rounded-lg bg-cream/60 p-4 text-small text-taupe">
+        <section className="border border-taupe/15 bg-cream/60 p-4 text-small text-taupe">
           This invite is for the church ceremony and lunch buffet only.
         </section>
       )}
@@ -239,7 +239,7 @@ export function RsvpForm({
       <label className="block">
         <span className="text-label font-medium">Remarks</span>
         <textarea
-          className="mt-2 min-h-24 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
+          className="mt-2 min-h-24 w-full rounded-xs border border-taupe/20 bg-white px-3 py-2"
           value={draft.generalNotes}
           onChange={(event) => setDraft((current) => ({ ...current, generalNotes: event.target.value }))}
           placeholder="Anything else we should know?"
@@ -247,7 +247,7 @@ export function RsvpForm({
       </label>
 
       {validation.errors.length ? (
-        <div className="rounded-md border border-rose/30 bg-rose/10 p-3 text-small text-rose">
+        <div className="rounded-xs border border-rose/30 bg-rose/10 p-3 text-small text-rose">
           {validation.errors.map((error) => (
             <p key={error}>{error}</p>
           ))}

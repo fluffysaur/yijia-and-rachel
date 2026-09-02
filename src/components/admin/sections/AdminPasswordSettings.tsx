@@ -53,12 +53,12 @@ export function AdminPasswordSettings() {
     return (
         <section
             id="settings"
-            className="scroll-mt-24 rounded-lg bg-ivory p-5 shadow-sm"
+            className="scroll-mt-24 rounded-xs border border-taupe/15 bg-white/95 p-6 shadow-xs"
         >
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
-                    <h2 className="font-display text-3xl">Guest Access Passwords</h2>
-                    <p className="text-small text-taupe">
+                    <h2 className="font-display text-3xl text-ink">Guest Access Passwords</h2>
+                    <p className="mt-1 text-base text-ink/80 leading-relaxed">
                         Manage the lunch-only and full-detail passwords guests use to enter the site.
                     </p>
                 </div>
@@ -74,9 +74,9 @@ export function AdminPasswordSettings() {
 
             <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <label className="block">
-                    <span className="text-label font-medium">Lunch-only password</span>
+                    <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Lunch-only password</span>
                     <input
-                        className="mt-2 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
+                        className="mt-2 w-full rounded-xs border border-taupe/20 bg-white px-3 py-2 text-ink focus:border-ink focus:outline-none"
                         value={lunchPassword}
                         onChange={(event) => setLunchPassword(event.target.value)}
                         type={revealed ? "text" : "password"}
@@ -84,9 +84,9 @@ export function AdminPasswordSettings() {
                     />
                 </label>
                 <label className="block">
-                    <span className="text-label font-medium">Full-details password</span>
+                    <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Full-details password</span>
                     <input
-                        className="mt-2 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
+                        className="mt-2 w-full rounded-xs border border-taupe/20 bg-white px-3 py-2 text-ink focus:border-ink focus:outline-none"
                         value={fullPassword}
                         onChange={(event) => setFullPassword(event.target.value)}
                         type={revealed ? "text" : "password"}
@@ -104,7 +104,7 @@ export function AdminPasswordSettings() {
                     <Save size={16} />
                     {saving ? "Saving..." : "Save passwords"}
                 </Button>
-                {message ? <p className="text-small text-taupe">{message}</p> : null}
+                {message ? <p className="text-base text-ink/80">{message}</p> : null}
             </div>
         </section>
     );

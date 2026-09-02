@@ -7,7 +7,7 @@ import { dinnerMealOptions } from "../../../types/rsvp";
 import { createNewInviteGuestRow } from "../createNewInviteGuestRow";
 import type { AdminRsvpEditState, NewInviteGuestRow } from "../types";
 
-const inputClass = "w-full rounded-md border border-taupe/20 bg-white px-3 py-2";
+const inputClass = "w-full rounded-xs border border-taupe/20 bg-white px-3 py-2 text-ink focus:border-ink focus:outline-none";
 
 function createEmptyRsvp(inviteGroupId: string, responderName: string): RsvpResponse {
     const now = new Date().toISOString();
@@ -142,7 +142,7 @@ export function EditRsvpModal({
                             <span className="text-label font-medium text-ink">RSVP status</span>
                             <span className="relative mt-2 block">
                                 <select
-                                    className="w-full appearance-none rounded-md border border-taupe/20 bg-white py-2 pl-3 pr-10"
+                                    className="w-full appearance-none rounded-xs border border-taupe/20 bg-white py-2 pl-3 pr-10 text-ink focus:border-ink focus:outline-none"
                                     value={editingRow.rsvpStatus}
                                     onChange={(event) =>
                                         setEditingRow((value) => {
@@ -173,7 +173,7 @@ export function EditRsvpModal({
                     </div>
 
                     <div className="mt-5 overflow-x-auto">
-                        <table className="w-full min-w-160 text-left text-small">
+                        <table className="w-full min-w-160 text-left text-sm">
                             <thead className="border-b border-taupe/15 text-taupe">
                                 <tr>
                                     <th className="py-2 pr-3">Full name</th>
@@ -222,7 +222,7 @@ export function EditRsvpModal({
                                         </td>
                                         <td className="py-2 text-right align-top">
                                             <button
-                                                className="inline-flex min-h-10 min-w-10 cursor-pointer items-center justify-center rounded-md border border-taupe/25 text-ink transition hover:bg-cream disabled:cursor-not-allowed disabled:opacity-40"
+                                                className="inline-flex min-h-10 min-w-10 cursor-pointer items-center justify-center rounded-xs border border-taupe/25 text-ink transition hover:border-ink hover:bg-cream disabled:cursor-not-allowed disabled:opacity-40"
                                                 type="button"
                                                 onClick={() =>
                                                     setEditingRow((value) =>
@@ -245,7 +245,7 @@ export function EditRsvpModal({
                             </tbody>
                         </table>
                         <button
-                            className="mt-3 inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-taupe/30 bg-white px-4 py-2 text-control font-medium text-ink transition hover:bg-cream"
+                            className="mt-3 inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xs border border-taupe/30 bg-white px-4 py-2 text-control font-medium uppercase tracking-[0.14em] text-ink transition hover:border-ink hover:bg-cream"
                             type="button"
                             onClick={() =>
                                 setEditingRow((value) =>
@@ -264,9 +264,9 @@ export function EditRsvpModal({
                     </div>
 
                     <label className="mt-4 block">
-                        <span className="text-label font-medium text-ink">Internal notes</span>
+                        <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Internal notes</span>
                         <textarea
-                            className="mt-2 min-h-20 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
+                            className="mt-2 min-h-20 w-full rounded-xs border border-taupe/20 bg-white px-3 py-2 text-ink focus:border-ink focus:outline-none"
                             value={editingRow.notes ?? ""}
                             onChange={(event) =>
                                 setEditingRow((value) => (value ? { ...value, notes: event.target.value } : value))
@@ -278,7 +278,7 @@ export function EditRsvpModal({
                     {editingRow.rsvpStatus === "submitted" && editingRow.rsvp ? (
                         <div className="mt-6 space-y-5 border-t border-taupe/15 pt-5">
                             <label className="block">
-                                <span className="text-label font-medium text-ink">Responder name</span>
+                                <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Responder name</span>
                                 <input
                                     className={`mt-2 ${inputClass}`}
                                     value={editingRow.rsvp.responderName}
@@ -288,9 +288,9 @@ export function EditRsvpModal({
 
                             <div>
                                 <div className="flex items-center justify-between gap-3">
-                                    <h3 className="font-medium">Lunch dietary preferences</h3>
+                                    <h3 className="font-display text-xl text-ink">Lunch dietary preferences</h3>
                                     <button
-                                        className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-md border border-taupe/30 bg-white px-3 py-2 text-control font-medium text-ink transition hover:bg-cream"
+                                        className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-xs border border-taupe/30 bg-white px-3 py-2 text-control font-medium uppercase tracking-[0.14em] text-ink transition hover:border-ink hover:bg-cream"
                                         type="button"
                                         onClick={() =>
                                             setEditingRow((value) => {
@@ -322,10 +322,10 @@ export function EditRsvpModal({
                                     {editingRow.rsvp.ceremonyAttendees.map((attendee, index) => (
                                         <div
                                             key={`${attendee.attendeeIndex}-${index}`}
-                                            className="grid gap-3 rounded-md bg-cream p-3 md:grid-cols-[1fr_1fr_auto]"
+                                            className="grid gap-3 rounded-xs border border-taupe/15 bg-cream/30 p-4 md:grid-cols-[1fr_1fr_auto]"
                                         >
                                             <label className="block">
-                                                <span className="text-label font-medium text-ink">Name</span>
+                                                <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Name</span>
                                                 <input
                                                     className={`mt-2 ${inputClass}`}
                                                     value={attendee.attendeeLabel}
@@ -337,7 +337,7 @@ export function EditRsvpModal({
                                                 />
                                             </label>
                                             <label className="block">
-                                                <span className="text-label font-medium text-ink">Dietary preference</span>
+                                                <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Dietary preference</span>
                                                 <input
                                                     className={`mt-2 ${inputClass}`}
                                                     value={attendee.dietaryPreference}
@@ -351,7 +351,7 @@ export function EditRsvpModal({
                                             </label>
                                             <div className="flex items-end justify-end">
                                                 <button
-                                                    className="inline-flex min-h-10 min-w-10 cursor-pointer items-center justify-center rounded-md border border-taupe/25 bg-white text-ink transition hover:bg-cream"
+                                                    className="inline-flex min-h-10 min-w-10 cursor-pointer items-center justify-center rounded-xs border border-taupe/25 bg-white text-ink transition hover:border-ink hover:bg-cream"
                                                     type="button"
                                                     onClick={() =>
                                                         setEditingRow((value) =>
@@ -381,9 +381,9 @@ export function EditRsvpModal({
 
                             <div>
                                 <div className="flex items-center justify-between gap-3">
-                                    <h3 className="font-medium">Dinner meals</h3>
+                                    <h3 className="font-display text-xl text-ink">Dinner meals</h3>
                                     <button
-                                        className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-md border border-taupe/30 bg-white px-3 py-2 text-control font-medium text-ink transition hover:bg-cream"
+                                        className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-xs border border-taupe/30 bg-white px-3 py-2 text-control font-medium uppercase tracking-[0.14em] text-ink transition hover:border-ink hover:bg-cream"
                                         type="button"
                                         onClick={() =>
                                             setEditingRow((value) => {
@@ -414,10 +414,10 @@ export function EditRsvpModal({
                                     {editingRow.rsvp.dinnerAttendees.map((attendee, index) => (
                                         <div
                                             key={`${attendee.attendeeIndex}-${index}`}
-                                            className="grid gap-3 rounded-md bg-cream p-3 md:grid-cols-[1fr_12rem_1fr_auto]"
+                                            className="grid gap-3 rounded-xs border border-taupe/15 bg-cream/30 p-4 md:grid-cols-[1fr_12rem_1fr_auto]"
                                         >
                                             <label className="block">
-                                                <span className="text-label font-medium text-ink">Name</span>
+                                                <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Name</span>
                                                 <input
                                                     className={`mt-2 ${inputClass}`}
                                                     value={attendee.attendeeLabel}
@@ -429,10 +429,10 @@ export function EditRsvpModal({
                                                 />
                                             </label>
                                             <label className="block">
-                                                <span className="text-label font-medium text-ink">Meal option</span>
+                                                <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Meal option</span>
                                                 <span className="relative mt-2 block">
                                                     <select
-                                                        className="w-full appearance-none rounded-md border border-taupe/20 bg-white py-2 pl-3 pr-10"
+                                                        className="w-full appearance-none rounded-xs border border-taupe/20 bg-white py-2 pl-3 pr-10 text-ink focus:border-ink focus:outline-none"
                                                         value={attendee.mealOption}
                                                         onChange={(event) =>
                                                             updateDinnerAttendee(index, {
@@ -458,7 +458,7 @@ export function EditRsvpModal({
                                                 </span>
                                             </label>
                                             <label className="block">
-                                                <span className="text-label font-medium text-ink">Dietary preference</span>
+                                                <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Dietary preference</span>
                                                 <input
                                                     className={`mt-2 ${inputClass}`}
                                                     value={attendee.dietaryPreference}
@@ -472,7 +472,7 @@ export function EditRsvpModal({
                                             </label>
                                             <div className="flex items-end justify-end">
                                                 <button
-                                                    className="inline-flex min-h-10 min-w-10 cursor-pointer items-center justify-center rounded-md border border-taupe/25 bg-white text-ink transition hover:bg-cream"
+                                                    className="inline-flex min-h-10 min-w-10 cursor-pointer items-center justify-center rounded-xs border border-taupe/25 bg-white text-ink transition hover:border-ink hover:bg-cream"
                                                     type="button"
                                                     onClick={() =>
                                                         setEditingRow((value) =>
@@ -501,9 +501,9 @@ export function EditRsvpModal({
                             </div>
 
                             <label className="block">
-                                <span className="text-label font-medium text-ink">Remarks</span>
+                                <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Remarks</span>
                                 <textarea
-                                    className="mt-2 min-h-20 w-full rounded-md border border-taupe/20 bg-white px-3 py-2"
+                                    className="mt-2 min-h-20 w-full rounded-xs border border-taupe/20 bg-white px-3 py-2 text-ink focus:border-ink focus:outline-none"
                                     value={editingRow.rsvp.generalNotes}
                                     onChange={(event) => updateRsvp({ generalNotes: event.target.value })}
                                     placeholder="Optional"

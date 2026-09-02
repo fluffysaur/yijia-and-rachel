@@ -470,7 +470,7 @@ export function AdminPage() {
 
                     <div>
                         {message ? (
-                            <p className="rounded-md bg-rose/10 px-3 py-2 text-small text-rose">{message}</p>
+                            <p className="rounded-xs border border-rose/20 bg-rose/10 px-4 py-3 text-sm text-rose">{message}</p>
                         ) : null}
 
                         <AddInviteModal
@@ -578,17 +578,17 @@ function AdminSummaryCardsSkeleton() {
             {Array.from({ length: 3 }).map((_, index) => (
                 <article
                     key={index}
-                    className="rounded-lg bg-ivory p-5 shadow-sm"
+                    className="relative rounded-xs border border-taupe/15 bg-white/95 p-6 shadow-xs before:pointer-events-none before:absolute before:inset-2 before:border before:border-taupe/10"
                 >
-                    <div className="h-6 w-24 animate-pulse rounded bg-taupe/15" />
+                    <div className="h-6 w-24 animate-pulse rounded-xs bg-taupe/15" />
                     <div className="mt-4 grid grid-cols-3 gap-3">
                         {Array.from({ length: 3 }).map((__, statIndex) => (
                             <div
                                 key={statIndex}
-                                className="rounded-md bg-cream p-3"
+                                className="rounded-xs border border-taupe/15 bg-cream/30 p-3"
                             >
-                                <div className="h-3 w-14 animate-pulse rounded bg-taupe/15" />
-                                <div className="mt-3 h-8 w-10 animate-pulse rounded bg-taupe/15" />
+                                <div className="h-3 w-14 animate-pulse rounded-xs bg-taupe/15" />
+                                <div className="mt-3 h-8 w-10 animate-pulse rounded-xs bg-taupe/15" />
                             </div>
                         ))}
                     </div>
@@ -602,18 +602,18 @@ function AdminMealCountsSkeleton() {
     return (
         <section
             id="meals"
-            className="rounded-lg bg-ivory p-5 shadow-sm scroll-mt-24"
+            className="relative rounded-xs border border-taupe/15 bg-white/95 p-6 shadow-xs scroll-mt-24 before:pointer-events-none before:absolute before:inset-2 before:border before:border-taupe/10"
             aria-label="Loading meal counts"
         >
-            <div className="h-8 w-56 animate-pulse rounded bg-taupe/15" />
-            <div className="mt-4 grid gap-3 md:grid-cols-4">
+            <div className="h-8 w-56 animate-pulse rounded-xs bg-taupe/15" />
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
                 {Array.from({ length: 4 }).map((_, index) => (
                     <div
                         key={index}
-                        className="rounded-md bg-cream p-3"
+                        className="rounded-xs border border-taupe/15 bg-cream/30 p-3"
                     >
-                        <div className="h-4 w-20 animate-pulse rounded bg-taupe/15" />
-                        <div className="mt-3 h-8 w-10 animate-pulse rounded bg-taupe/15" />
+                        <div className="h-4 w-20 animate-pulse rounded-xs bg-taupe/15" />
+                        <div className="mt-3 h-8 w-10 animate-pulse rounded-xs bg-taupe/15" />
                     </div>
                 ))}
             </div>

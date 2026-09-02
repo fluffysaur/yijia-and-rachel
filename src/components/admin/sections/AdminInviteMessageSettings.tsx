@@ -94,29 +94,29 @@ export function AdminInviteMessageSettings() {
     return (
         <section
             id="invite-message-settings"
-            className="scroll-mt-24 rounded-lg bg-ivory p-5 shadow-sm"
+            className="scroll-mt-24 rounded-xs border border-taupe/15 bg-white/95 p-6 shadow-xs"
         >
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
-                    <h2 className="font-display text-3xl">Invite Message Templates</h2>
-                    <p className="text-small text-taupe">Edit the templates used when copying RSVP & Save-the-Date invite messages.</p>
+                    <h2 className="font-display text-3xl text-ink">Invite Message Templates</h2>
+                    <p className="mt-1 text-base text-ink/80 leading-relaxed">Edit the templates used when copying RSVP & Save-the-Date invite messages.</p>
                 </div>
                 <MessageSquareText
                     className="hidden text-sage md:block"
-                    size={32}
+                    size={28}
                     aria-hidden="true"
                 />
             </div>
 
-            <p className="mt-4 text-small text-taupe">Placeholders: {placeholders}</p>
+            <p className="mt-4 text-xs uppercase tracking-[0.16em] text-taupe font-medium">Placeholders: {placeholders}</p>
 
             <div className="mt-5">
-                <div className="flex flex-wrap gap-1 rounded-lg border border-taupe/15 bg-cream/70 p-1 sm:inline-flex">
+                <div className="flex flex-wrap gap-1 rounded-xs border border-taupe/15 bg-cream/50 p-1 sm:inline-flex">
                     <button
                         type="button"
-                        className={`cursor-pointer rounded-md px-4 py-2 text-small font-medium transition ${
+                        className={`cursor-pointer rounded-xs px-4 py-2 text-sm font-medium transition ${
                             activeTab === "saveTheDate"
-                                ? "bg-white text-ink shadow-sm"
+                                ? "bg-white text-ink shadow-xs border border-taupe/20"
                                 : "text-taupe hover:text-ink"
                         }`}
                         onClick={() => setActiveTab("saveTheDate")}
@@ -125,9 +125,9 @@ export function AdminInviteMessageSettings() {
                     </button>
                     <button
                         type="button"
-                        className={`cursor-pointer rounded-md px-4 py-2 text-small font-medium transition ${
+                        className={`cursor-pointer rounded-xs px-4 py-2 text-sm font-medium transition ${
                             activeTab === "lunch"
-                                ? "bg-white text-ink shadow-sm"
+                                ? "bg-white text-ink shadow-xs border border-taupe/20"
                                 : "text-taupe hover:text-ink"
                         }`}
                         onClick={() => setActiveTab("lunch")}
@@ -136,9 +136,9 @@ export function AdminInviteMessageSettings() {
                     </button>
                     <button
                         type="button"
-                        className={`cursor-pointer rounded-md px-4 py-2 text-small font-medium transition ${
+                        className={`cursor-pointer rounded-xs px-4 py-2 text-sm font-medium transition ${
                             activeTab === "dinner"
-                                ? "bg-white text-ink shadow-sm"
+                                ? "bg-white text-ink shadow-xs border border-taupe/20"
                                 : "text-taupe hover:text-ink"
                         }`}
                         onClick={() => setActiveTab("dinner")}
@@ -152,21 +152,21 @@ export function AdminInviteMessageSettings() {
                 {activeTab === "saveTheDate" && (
                     <div className="space-y-4">
                         <label className="block max-w-xl">
-                            <span className="text-label font-medium">Save-the-date website link</span>
-                            <p className="text-caption text-taupe">Optional. If left blank, defaults to your main wedding website link.</p>
+                            <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Save-the-date website link</span>
+                            <p className="mt-1 text-xs text-ink/70">Optional. If left blank, defaults to your main wedding website link.</p>
                             <input
                                 type="url"
                                 placeholder="https://..."
-                                className="mt-1 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 text-small"
+                                className="mt-1 w-full rounded-xs border border-taupe/20 bg-white px-3 py-2 text-sm text-ink focus:border-ink focus:outline-none"
                                 value={templates.saveTheDateUrl || ""}
                                 onChange={(event) => setTemplates((value) => ({ ...value, saveTheDateUrl: event.target.value }))}
                                 disabled={loading}
                             />
                         </label>
                         <label className="block">
-                            <span className="text-label font-medium">Save-the-date template</span>
+                            <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Save-the-date template</span>
                             <textarea
-                                className="mt-2 min-h-80 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 font-mono text-small"
+                                className="mt-2 min-h-80 w-full rounded-xs border border-taupe/20 bg-white px-3 py-2 font-mono text-sm text-ink focus:border-ink focus:outline-none"
                                 value={templates.saveTheDateTemplate || defaultInviteMessageTemplates.saveTheDateTemplate}
                                 onChange={(event) => setTemplates((value) => ({ ...value, saveTheDateTemplate: event.target.value }))}
                                 disabled={loading}
@@ -177,9 +177,9 @@ export function AdminInviteMessageSettings() {
 
                 {activeTab === "lunch" && (
                     <label className="block">
-                        <span className="text-label font-medium">Lunch-only invite template</span>
+                        <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Lunch-only invite template</span>
                         <textarea
-                            className="mt-2 min-h-80 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 font-mono text-small"
+                            className="mt-2 min-h-80 w-full rounded-xs border border-taupe/20 bg-white px-3 py-2 font-mono text-sm text-ink focus:border-ink focus:outline-none"
                             value={templates.lunchTemplate}
                             onChange={(event) => setTemplates((value) => ({ ...value, lunchTemplate: event.target.value }))}
                             disabled={loading}
@@ -189,9 +189,9 @@ export function AdminInviteMessageSettings() {
 
                 {activeTab === "dinner" && (
                     <label className="block">
-                        <span className="text-label font-medium">Lunch & dinner invite template</span>
+                        <span className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">Lunch & dinner invite template</span>
                         <textarea
-                            className="mt-2 min-h-80 w-full rounded-md border border-taupe/20 bg-white px-3 py-2 font-mono text-small"
+                            className="mt-2 min-h-80 w-full rounded-xs border border-taupe/20 bg-white px-3 py-2 font-mono text-sm text-ink focus:border-ink focus:outline-none"
                             value={templates.dinnerTemplate}
                             onChange={(event) => setTemplates((value) => ({ ...value, dinnerTemplate: event.target.value }))}
                             disabled={loading}
@@ -218,7 +218,7 @@ export function AdminInviteMessageSettings() {
                     <RotateCcw size={16} />
                     Reset to default
                 </Button>
-                {message ? <p className="text-small text-taupe">{message}</p> : null}
+                {message ? <p className="text-base text-ink/80">{message}</p> : null}
             </div>
 
             <FadeModal
@@ -230,7 +230,7 @@ export function AdminInviteMessageSettings() {
                 <p className="text-base text-ink">
                     Are you sure you want to reset the <span className="font-semibold">{activeTabLabels[activeTab]}</span> template to its default value?
                 </p>
-                <p className="mt-2 text-small text-taupe">
+                <p className="mt-2 text-base text-ink/80">
                     Any customized text or link for this template will be replaced with the original default.
                 </p>
                 <div className="mt-6 flex flex-wrap justify-end gap-2">
@@ -243,7 +243,7 @@ export function AdminInviteMessageSettings() {
                         Cancel
                     </Button>
                     <button
-                        className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-rose px-5 py-2 text-control font-medium text-white shadow-sm transition hover:bg-rose/85 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xs bg-rose px-6 py-2 text-control font-medium uppercase tracking-[0.14em] text-white shadow-xs transition hover:bg-rose/85 disabled:cursor-not-allowed disabled:opacity-50"
                         type="button"
                         onClick={() => void handleReset()}
                         disabled={saving}

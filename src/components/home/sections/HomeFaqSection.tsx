@@ -15,20 +15,20 @@ export function HomeFaqSection({
         >
             <div className="section-shell grid gap-10 md:grid-cols-[0.8fr_1.2fr]">
                 <div className="reveal">
-                    <p className="text-label uppercase text-rose">Questions</p>
-                    <h2 className="mt-2 font-display text-5xl">FAQ</h2>
+                    <p className="text-label uppercase tracking-[0.24em] text-rose font-medium">Common Inquiries</p>
+                    <h2 className="mt-2 font-display text-5xl md:text-6xl text-ink">FAQ</h2>
                 </div>
-                <div className="reveal reveal-delay-1 divide-y divide-taupe/15 rounded-lg border border-taupe/15 bg-white">
+                <div className="reveal reveal-delay-1 divide-y divide-taupe/15 border border-taupe/15 bg-white/90 shadow-xs">
                     {siteContent.faq.map((item) => {
                         const isOpen = openFaqItems.has(item.question);
 
                         return (
                             <div
                                 key={item.question}
-                                className="p-5"
+                                className="p-6 transition-colors duration-200 hover:bg-cream/20"
                             >
                                 <button
-                                    className="flex w-full cursor-pointer items-center justify-between gap-4 text-left text-lg font-medium"
+                                    className="flex w-full cursor-pointer items-center justify-between gap-4 text-left font-sans text-lg font-semibold text-ink sm:text-xl transition-colors hover:text-rose"
                                     type="button"
                                     aria-expanded={isOpen}
                                     onClick={() => onToggleFaq(item.question)}
@@ -46,7 +46,7 @@ export function HomeFaqSection({
                                     }`}
                                 >
                                     <div className="overflow-hidden">
-                                        <p className="pt-3 text-taupe">{item.answer}</p>
+                                        <p className="pt-4 text-base text-ink/80 leading-relaxed">{item.answer}</p>
                                     </div>
                                 </div>
                             </div>

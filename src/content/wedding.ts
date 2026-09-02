@@ -1,5 +1,7 @@
 import type { EventDetails, GalleryImage } from "../types/wedding";
 import heroImage from "../assets/hero-image.jpg";
+import homeHeroImage from "../assets/home-hero.jpg";
+import homeHeroMobileImage from "../assets/home-hero-mobile.jpg";
 import storyImage from "../assets/story-image.jpg";
 
 const weddingDate = "2027-06-19";
@@ -18,16 +20,21 @@ export const siteContent = {
         { href: "#qa", label: "Q&A" },
         { href: "#faq", label: "FAQ" },
     ],
+    gate: {
+        image: heroImage,
+        imageAlt: "Yi Jia and Rachel holding hands with engagement ring in front of mountain landscape",
+    },
     hero: {
         headline: "Yi Jia & Rachel",
         body: "A gentle celebration of faith, family, and the people who have walked with us.",
-        image: heroImage,
-        imageAlt: "Soft white wedding bouquet with warm natural light",
+        image: homeHeroImage,
+        mobileImage: homeHeroMobileImage,
+        imageAlt: "Yi Jia and Rachel embracing in front of mountain landscape",
     },
     story: {
         title: "Our Story",
         image: storyImage,
-        imageAlt: "Wedding couple placeholder",
+        imageAlt: "Yi Jia and Rachel smiling together in front of mountain landscape",
         paragraphs: [
             "From a green-tinted drawing of a nurse sparked a love that blossomed to what it is today.",
             "After the very first night they met, Yi Jia had already decided that Rachel was one worth pursuing, as he wrote in his journal.",
@@ -68,32 +75,39 @@ export const siteContent = {
         },
     ] satisfies EventDetails[],
     gallery: [
-        {
-            src: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=85",
-            alt: "Wedding couple walking together",
-        },
-        {
-            src: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=85",
-            alt: "Wedding table flowers",
-        },
-        {
-            src: "https://images.unsplash.com/photo-1529634597503-139d3726fed5?auto=format&fit=crop&w=1200&q=85",
-            alt: "Wedding rings",
-        },
-        {
-            src: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1200&q=85",
-            alt: "Wedding venue detail",
-        },
+        { src: "/gallery/DSC05844.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC05854.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC05863.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC05897.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC05883.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC05974.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC05909.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC05910.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC05946.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC05998.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC05999.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06006.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06017.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06025.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06034.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06037.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06058.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06060.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06079.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06090.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06097.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06101.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06105.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06137.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06144.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06224.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06239.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06296.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC06310.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
     ] satisfies GalleryImage[],
     highlights: [
-        {
-            src: "https://images.unsplash.com/photo-1502635385003-ee1e6a1a742d?auto=format&fit=crop&w=1400&q=85",
-            alt: "Soft wedding bouquet",
-        },
-        {
-            src: "https://images.unsplash.com/photo-1525258946800-98cfd641d0de?auto=format&fit=crop&w=1400&q=85",
-            alt: "Warm wedding dinner setting",
-        },
+        { src: "/gallery/DSC05883.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
+        { src: "/gallery/DSC05974.jpg", alt: "Yi Jia & Rachel pre-wedding photo" },
     ] satisfies GalleryImage[],
     qa: [
         {

@@ -45,17 +45,17 @@ export function AdminSummaryCards({
             {groups.map((group) => (
                 <article
                     key={group.title}
-                    className="rounded-lg bg-ivory p-5 shadow-sm"
+                    className="relative rounded-xs border border-taupe/15 bg-white/95 p-6 shadow-xs before:pointer-events-none before:absolute before:inset-2 before:border before:border-taupe/10"
                 >
-                    <h2 className="font-display text-2xl">{group.title}</h2>
+                    <h2 className="font-display text-2xl text-ink">{group.title}</h2>
                     <div className="mt-4 grid grid-cols-3 gap-3">
                         {group.stats.map(([label, value]) => (
                             <div
                                 key={label}
-                                className="rounded-md bg-cream p-3"
+                                className="rounded-xs border border-taupe/15 bg-cream/30 p-3"
                             >
-                                <p className="text-caption text-taupe">{label}</p>
-                                <p className="mt-2 font-display text-3xl">{value}</p>
+                                <p className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">{label}</p>
+                                <p className="mt-2 font-display text-3xl text-ink">{value}</p>
                             </div>
                         ))}
                     </div>

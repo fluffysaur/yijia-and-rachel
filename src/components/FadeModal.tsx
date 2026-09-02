@@ -38,14 +38,14 @@ export function FadeModal({
     >
       <div
         className={clsx(
-          "mx-auto max-h-[calc(100vh-5rem)] max-w-3xl overflow-y-auto rounded-lg bg-white p-5 shadow-[0_30px_100px_rgba(51,43,39,0.18)] transition-all duration-300 md:p-6",
+          "relative mx-auto max-h-[calc(100vh-5rem)] max-w-3xl overflow-y-auto border border-taupe/20 bg-white p-6 shadow-[0_20px_60px_rgba(51,43,39,0.12)] transition-all duration-300 md:p-8 before:pointer-events-none before:absolute before:inset-2 before:border before:border-taupe/10",
           open ? "translate-y-0 scale-100 opacity-100" : "translate-y-3 scale-[0.98] opacity-0"
         )}
       >
-        <div className="mb-5 flex items-start justify-between gap-4">
+        <div className="mb-6 flex items-start justify-between gap-4">
           <h2 className="font-display text-4xl text-ink">{title}</h2>
           <button
-            className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-taupe/15 text-ink transition hover:border-rose/40 hover:bg-cream disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex size-10 cursor-pointer items-center justify-center rounded-xs border border-taupe/20 text-ink transition hover:border-ink hover:bg-cream/60 disabled:cursor-not-allowed disabled:opacity-40"
             type="button"
             aria-label={`Close ${title}`}
             onClick={onClose}

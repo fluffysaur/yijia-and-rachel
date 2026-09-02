@@ -15,8 +15,8 @@ export function RsvpDetail({
   onEdit?: () => void;
 }) {
   return (
-    <section className="rounded-lg border border-sage/30 bg-sage/10 p-5">
-      <p className="text-label font-medium uppercase text-sage">RSVPed</p>
+    <section className="border border-sage/30 bg-sage/10 p-6">
+      <p className="text-label font-medium uppercase tracking-[0.2em] text-sage">RSVPed</p>
       <h2 className="mt-1 font-display text-3xl">{inviteGroup.groupName}</h2>
       <p className="mt-2 text-small text-taupe">
         Submitted by {rsvp.responderName} on {new Date(rsvp.submittedAt).toLocaleDateString()}.
@@ -51,7 +51,7 @@ export function RsvpDetail({
       </div>
 
       {rsvp.generalNotes ? (
-        <div className="mt-5 rounded-md bg-ivory p-4 text-small text-taupe">
+        <div className="mt-5 border border-taupe/15 bg-ivory p-4 text-small text-taupe">
           <span className="font-medium text-ink">Notes:</span> {rsvp.generalNotes}
         </div>
       ) : null}
