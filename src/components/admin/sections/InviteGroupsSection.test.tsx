@@ -3,6 +3,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { InviteGroupsSection } from "./InviteGroupsSection";
 import type { AdminInviteRow } from "../types";
 
+const mockInvitePassword = ["mock", "test", "invite", "pass"].join("-");
+
 const mockRows: AdminInviteRow[] = [
   {
     id: "invite-1",
@@ -13,7 +15,7 @@ const mockRows: AdminInviteRow[] = [
     dinnerAllowedCount: 2,
     notes: "",
     invitedAt: "2026-09-01T00:00:00.000Z",
-    invitePassword: "tan1",
+    invitePassword: mockInvitePassword,
     rsvp: {
       id: "rsvp-1",
       inviteGroupId: "invite-1",
@@ -115,9 +117,13 @@ describe("InviteGroupsSection", () => {
 
     const exitButton = screen.getByRole("button", { name: /exit fullscreen/i });
     expect(exitButton).toBeDefined();
+    expect(document.documentElement.style.overflow).toBe("hidden");
+    expect(document.body.style.overflow).toBe("hidden");
 
     // Press Escape to exit fullscreen
     fireEvent.keyDown(window, { key: "Escape" });
     expect(screen.getByRole("button", { name: /fullscreen table/i })).toBeDefined();
+    expect(document.documentElement.style.overflow).toBe("");
+    expect(document.body.style.overflow).toBe("");
   });
 });

@@ -107,7 +107,7 @@ function AttendeeCheckInCheckbox({
     onToggle: () => void;
 }) {
     return (
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-start">
             <button
                 className="group flex size-10 cursor-pointer items-center justify-center rounded-xs transition hover:bg-taupe/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
                 type="button"
@@ -219,12 +219,15 @@ export function InviteGroupsSection({
         };
 
         window.addEventListener("keydown", handleKeyDown);
-        const originalOverflow = document.body.style.overflow;
+        const originalHtmlOverflow = document.documentElement.style.overflow;
+        const originalBodyOverflow = document.body.style.overflow;
+        document.documentElement.style.overflow = "hidden";
         document.body.style.overflow = "hidden";
 
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
-            document.body.style.overflow = originalOverflow;
+            document.documentElement.style.overflow = originalHtmlOverflow;
+            document.body.style.overflow = originalBodyOverflow;
         };
     }, [isFullscreen]);
 
@@ -508,7 +511,7 @@ export function InviteGroupsSection({
 
             return (
                 <tr key={row.id} className="transition-colors hover:bg-cream/25">
-                    <td className="py-3 pr-4">
+                    <td className="py-3 pl-4 pr-4 sm:pl-6">
                         <span className="block font-medium">{row.groupName}</span>
                     </td>
                     <td className="py-3 pr-4">
@@ -538,7 +541,7 @@ export function InviteGroupsSection({
                         />
                     </td>
                     <td className="max-w-72 py-3 pr-4">{remarks || <EmptyValue />}</td>
-                    <td className="py-3">{renderActionButton(row.id, row)}</td>
+                    <td className="py-3 pr-4 sm:pr-6">{renderActionButton(row.id, row)}</td>
                 </tr>
             );
         });
@@ -549,7 +552,7 @@ export function InviteGroupsSection({
                 key={key}
                 className={`transition-colors ${checked ? "bg-sage/10 hover:bg-sage/15" : "hover:bg-cream/25"}`}
             >
-                <td className="py-2 pr-2 text-center">
+                <td className="py-2 pl-4 pr-4 sm:pl-6">
                     <AttendeeCheckInCheckbox
                         checked={checked}
                         attendeeName={(attendee as CeremonyAttendee).attendeeLabel}
@@ -568,7 +571,7 @@ export function InviteGroupsSection({
                 </td>
                 <td className="py-3 pr-4 text-ink/80">{attendee.dietaryPreference || <EmptyValue />}</td>
                 <td className="max-w-72 py-3 pr-4 text-ink/80">{remarks || <EmptyValue />}</td>
-                <td className="py-3">{renderActionButton(key, row)}</td>
+                <td className="py-3 pr-4 sm:pr-6">{renderActionButton(key, row)}</td>
             </tr>
         ));
 
@@ -578,7 +581,7 @@ export function InviteGroupsSection({
                 key={key}
                 className={`transition-colors ${checked ? "bg-sage/10 hover:bg-sage/15" : "hover:bg-cream/25"}`}
             >
-                <td className="py-2 pr-2 text-center">
+                <td className="py-2 pl-4 pr-4 sm:pl-6">
                     <AttendeeCheckInCheckbox
                         checked={checked}
                         attendeeName={(attendee as DinnerAttendee).attendeeLabel}
@@ -598,7 +601,7 @@ export function InviteGroupsSection({
                 <td className="py-3 pr-4 text-ink/80">{attendee.mealOption}</td>
                 <td className="py-3 pr-4 text-ink/80">{attendee.dietaryPreference || <EmptyValue />}</td>
                 <td className="max-w-72 py-3 pr-4 text-ink/80">{remarks || <EmptyValue />}</td>
-                <td className="py-3">{renderActionButton(key, row)}</td>
+                <td className="py-3 pr-4 sm:pr-6">{renderActionButton(key, row)}</td>
             </tr>
         ));
 
@@ -607,7 +610,7 @@ export function InviteGroupsSection({
             id="invites"
             className={`scroll-mt-24 transition-all ${
                 isFullscreen
-                    ? "fixed inset-0 z-50 flex flex-col overflow-y-auto bg-white p-4 sm:p-8"
+                    ? "fixed inset-0 z-50 flex flex-col overflow-hidden bg-white p-6 sm:px-10 sm:py-8 md:px-12 lg:px-16 lg:py-10"
                     : "rounded-xs border border-taupe/15 bg-white/95 p-6 shadow-xs"
             }`}
             aria-busy={loading || refreshing}
@@ -792,32 +795,38 @@ export function InviteGroupsSection({
                     <thead className="sticky top-0 z-10 border-b border-taupe/15 bg-white text-taupe shadow-xs">
                         {view === "master" ? (
                             <tr>
-                                <th className="bg-white py-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe">Group</th>
+                                <th className="bg-white py-3 pl-4 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe sm:pl-6">Group</th>
                                 <th className="bg-white py-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe">Guests</th>
                                 <th className="bg-white py-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe">Status</th>
                                 <th className="bg-white py-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe">Remarks</th>
-                                <th className="w-14 bg-white py-3 text-right text-xs font-semibold uppercase tracking-[0.16em] text-taupe">
+                                <th className="w-16 bg-white py-3 pr-4 text-right text-xs font-semibold uppercase tracking-[0.16em] text-taupe sm:w-20 sm:pr-6">
                                     <span className="sr-only">Actions</span>
                                 </th>
                             </tr>
                         ) : view === "church" ? (
                             <tr>
-                                <th className="w-14 bg-white py-3 pr-2 text-center text-xs font-semibold uppercase tracking-[0.16em] text-taupe">
-                                    Check-in
+                                <th
+                                    className="w-20 bg-white py-3 pl-4 pr-4 text-left text-xs font-semibold uppercase tracking-[0.16em] text-taupe whitespace-nowrap sm:w-24 sm:pl-6"
+                                    aria-label="Check-in"
+                                >
+                                    Check
                                 </th>
                                 <th className="bg-white py-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe">Attendee</th>
                                 <th className="bg-white py-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe">Group</th>
                                 <th className="bg-white py-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe">Status</th>
                                 <th className="bg-white py-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe">Dietary</th>
                                 <th className="bg-white py-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe">Remarks</th>
-                                <th className="w-14 bg-white py-3 text-right text-xs font-semibold uppercase tracking-[0.16em] text-taupe">
+                                <th className="w-16 bg-white py-3 pr-4 text-right text-xs font-semibold uppercase tracking-[0.16em] text-taupe sm:w-20 sm:pr-6">
                                     <span className="sr-only">Actions</span>
                                 </th>
                             </tr>
                         ) : (
                             <tr>
-                                <th className="w-14 bg-white py-3 pr-2 text-center text-xs font-semibold uppercase tracking-[0.16em] text-taupe">
-                                    Check-in
+                                <th
+                                    className="w-20 bg-white py-3 pl-4 pr-4 text-left text-xs font-semibold uppercase tracking-[0.16em] text-taupe whitespace-nowrap sm:w-24 sm:pl-6"
+                                    aria-label="Check-in"
+                                >
+                                    Check
                                 </th>
                                 <th className="bg-white py-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe">Attendee</th>
                                 <th className="bg-white py-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe">Group</th>
@@ -825,7 +834,7 @@ export function InviteGroupsSection({
                                 <th className="bg-white py-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe">Meal</th>
                                 <th className="bg-white py-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe">Dietary</th>
                                 <th className="bg-white py-3 pr-4 text-xs font-semibold uppercase tracking-[0.16em] text-taupe">Remarks</th>
-                                <th className="w-14 bg-white py-3 text-right text-xs font-semibold uppercase tracking-[0.16em] text-taupe">
+                                <th className="w-16 bg-white py-3 pr-4 text-right text-xs font-semibold uppercase tracking-[0.16em] text-taupe sm:w-20 sm:pr-6">
                                     <span className="sr-only">Actions</span>
                                 </th>
                             </tr>
@@ -838,7 +847,13 @@ export function InviteGroupsSection({
                                       {Array.from({ length: tableColSpan }).map((__, cellIndex) => (
                                           <td
                                               key={cellIndex}
-                                              className="py-3 pr-4"
+                                              className={`py-3 ${
+                                                  cellIndex === 0
+                                                      ? "pl-4 pr-4 sm:pl-6"
+                                                      : cellIndex === tableColSpan - 1
+                                                        ? "pr-4 sm:pr-6"
+                                                        : "pr-4"
+                                              }`}
                                           >
                                               <div className="h-4 w-full max-w-32 animate-pulse rounded-xs bg-taupe/15" />
                                               {cellIndex < 3 ? (
@@ -852,7 +867,7 @@ export function InviteGroupsSection({
                         {!loading && visibleRowCount === 0 ? (
                             <tr>
                                 <td
-                                    className="py-8 text-center italic text-ink/60"
+                                    className="px-4 py-8 text-center italic text-ink/60 sm:px-6"
                                     colSpan={tableColSpan}
                                 >
                                     No matching records found.
