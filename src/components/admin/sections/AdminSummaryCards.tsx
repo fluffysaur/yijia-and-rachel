@@ -24,7 +24,7 @@ export function AdminSummaryCards({
             stats: [
                 ["Invited", summary.ceremonyInvited],
                 ["RSVPed", summary.ceremonyAttending],
-                ["Checked in", churchCheckedIn],
+                ["Arrived", churchCheckedIn],
             ],
         },
         {
@@ -32,7 +32,7 @@ export function AdminSummaryCards({
             stats: [
                 ["Invited", summary.dinnerInvited],
                 ["RSVPed", summary.dinnerAttending],
-                ["Checked in", dinnerCheckedIn],
+                ["Arrived", dinnerCheckedIn],
             ],
         },
     ];
@@ -54,7 +54,7 @@ export function AdminSummaryCards({
                                 key={label}
                                 className="rounded-xs border border-taupe/15 bg-cream/30 p-3"
                             >
-                                <p className="text-xs font-medium uppercase tracking-[0.16em] text-taupe">{label}</p>
+                                <p className="text-xs font-medium uppercase tracking-[0.16em] text-taupe whitespace-nowrap">{label}</p>
                                 <p className="mt-2 font-display text-3xl text-ink">{value}</p>
                             </div>
                         ))}

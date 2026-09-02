@@ -25,7 +25,8 @@ export function Header() {
                   { href: "#rsvp-settings", label: "Deadline" },
                   { href: "#settings", label: "Passwords" },
                   { href: "#invite-message-settings", label: "Templates" },
-                  { href: "#invites", label: "Invites" },
+                  { href: "#check-in-station", label: "Check-In" },
+                  { href: "#invites", label: "Table" },
               ]
             : siteContent.navigation;
 
