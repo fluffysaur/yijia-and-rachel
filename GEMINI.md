@@ -7,11 +7,13 @@ This project follows specific design system invariants and verification rules.
 1. **4px Design Grid**:
    - All Tailwind spacing, sizing, and typography tokens must align strictly with a 4px grid (multiples of 4px; 0, 1, 2px permitted for fine borders).
    - Never introduce fractional classes like `py-1.5` or font-sizes like `0.875rem` (14px).
+   - Prefer standard numeric scale utilities (e.g. `h-95`, `sm:h-115`, `lg:h-135` where token = px / 4) instead of arbitrary bracket syntax like `h-[380px]` or `sm:h-[460px]`.
    - Test suite: `npx vitest run src/lib/designGrid.test.ts`.
 
 2. **Aesthetic & Stationery Styling**:
    - **Border Geometry**: Avoid bubbly SaaS-style rounded corners (`rounded-lg`, `rounded-xl`, `rounded-2xl`). Favor crisp luxury editorial geometry: micro-radii (`rounded-xs` / 2px or `rounded-none`), fine hairlines (`border-taupe/15` to `border-taupe/20`), and subtle letterpress/matting frame details.
    - **Editorial Over Clichés**: Avoid generic decorative icons (e.g. heart icons in content sections). Favor editorial typography (Roman numerals, hairline dividers, italic serif quotes).
+   - **Button Standardization**: Always prefer the shared `<Button>` component (`src/components/Button.tsx`) for primary and secondary actions. All buttons must conform to luxury stationery typography: tracked uppercase (`text-control font-medium uppercase tracking-[0.14em]`). Avoid authoring ad-hoc `<button>` elements with untracked sentence-case styling.
    - **Control Alignment**: Companion controls, icon buttons, and action buttons in the same container (e.g. navbar logout, hamburger, RSVP) must share identical height tokens (`size-11` / `min-h-11` = 44px on the 4px grid).
 
 3. **Typography & Readability Standards**:
