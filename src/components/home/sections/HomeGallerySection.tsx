@@ -1,5 +1,6 @@
 import { Eye, Images } from "lucide-react";
 import { siteContent } from "../../../content/wedding";
+import { Button } from "../../Button";
 
 export function HomeGallerySection({ onOpenImage }: { onOpenImage: (index: number) => void }) {
     // 4 portraits (indices 0, 1, 2, 3) and 2 landscapes (indices 4, 5)
@@ -29,7 +30,7 @@ export function HomeGallerySection({ onOpenImage }: { onOpenImage: (index: numbe
                         {p0 && (
                             <button
                                 type="button"
-                                className="reveal group relative block h-[380px] sm:h-[460px] lg:h-[540px] w-full cursor-pointer overflow-hidden p-0 text-left sm:col-span-5"
+                                className="reveal group relative block h-95 sm:h-115 lg:h-135 w-full cursor-pointer overflow-hidden p-0 text-left sm:col-span-5"
                                 onClick={() => onOpenImage(0)}
                                 aria-label="Open photo 1"
                             >
@@ -50,7 +51,7 @@ export function HomeGallerySection({ onOpenImage }: { onOpenImage: (index: numbe
                         {l4 && (
                             <button
                                 type="button"
-                                className="reveal group relative block h-[380px] sm:h-[460px] lg:h-[540px] w-full cursor-pointer overflow-hidden p-0 text-left sm:col-span-7"
+                                className="reveal group relative block h-95 sm:h-115 lg:h-135 w-full cursor-pointer overflow-hidden p-0 text-left sm:col-span-7"
                                 onClick={() => onOpenImage(4)}
                                 aria-label="Open photo 5"
                             >
@@ -74,7 +75,7 @@ export function HomeGallerySection({ onOpenImage }: { onOpenImage: (index: numbe
                         {p1 && (
                             <button
                                 type="button"
-                                className="reveal group relative block h-[380px] sm:h-[460px] lg:h-[540px] w-full cursor-pointer overflow-hidden p-0 text-left"
+                                className="reveal group relative block h-95 sm:h-115 lg:h-135 w-full cursor-pointer overflow-hidden p-0 text-left"
                                 onClick={() => onOpenImage(1)}
                                 aria-label="Open photo 2"
                             >
@@ -95,7 +96,7 @@ export function HomeGallerySection({ onOpenImage }: { onOpenImage: (index: numbe
                         {p2 && (
                             <button
                                 type="button"
-                                className="reveal group relative block h-[380px] sm:h-[460px] lg:h-[540px] w-full cursor-pointer overflow-hidden p-0 text-left"
+                                className="reveal group relative block h-95 sm:h-115 lg:h-135 w-full cursor-pointer overflow-hidden p-0 text-left"
                                 onClick={() => onOpenImage(2)}
                                 aria-label="Open photo 3"
                             >
@@ -119,7 +120,7 @@ export function HomeGallerySection({ onOpenImage }: { onOpenImage: (index: numbe
                         {l5 && (
                             <button
                                 type="button"
-                                className="reveal group relative block h-[380px] sm:h-[460px] lg:h-[540px] w-full cursor-pointer overflow-hidden p-0 text-left sm:col-span-7"
+                                className="reveal group relative block h-95 sm:h-115 lg:h-135 w-full cursor-pointer overflow-hidden p-0 text-left sm:col-span-7"
                                 onClick={() => onOpenImage(5)}
                                 aria-label="Open photo 6"
                             >
@@ -140,7 +141,7 @@ export function HomeGallerySection({ onOpenImage }: { onOpenImage: (index: numbe
                         {p3 && (
                             <button
                                 type="button"
-                                className="reveal group relative block h-[380px] sm:h-[460px] lg:h-[540px] w-full cursor-pointer overflow-hidden p-0 text-left sm:col-span-5"
+                                className="reveal group relative block h-95 sm:h-115 lg:h-135 w-full cursor-pointer overflow-hidden p-0 text-left sm:col-span-5"
                                 onClick={() => onOpenImage(3)}
                                 aria-label="Open photo 4"
                             >
@@ -162,14 +163,15 @@ export function HomeGallerySection({ onOpenImage }: { onOpenImage: (index: numbe
 
                 {/* View All Photos Action */}
                 <div className="mt-12 flex justify-center">
-                    <button
+                    <Button
                         type="button"
+                        variant="secondary"
                         onClick={() => onOpenImage(0)}
-                        className="reveal group inline-flex cursor-pointer items-center justify-center gap-3 border border-ink/20 bg-white px-8 py-3 text-control font-medium text-ink shadow-xs transition duration-300 hover:border-ink hover:bg-cream/40 hover:text-ink hover:shadow-sm"
+                        className="reveal group gap-3 px-8"
                     >
                         <Images className="size-4 text-taupe group-hover:text-ink transition-colors duration-300" />
                         <span>View gallery</span>
-                    </button>
+                    </Button>
                 </div>
             </div>
         </section>

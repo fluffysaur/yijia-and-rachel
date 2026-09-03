@@ -7,7 +7,7 @@
 
 ## 2. Gallery & Media Layout
 - Image preview grids must be full-bleed (`object-cover`) with zero letterbox borders, zero padding that reveals background containers, and no empty white letterboxing.
-- Paired grid tiles in the same row must share explicit, matching height breakpoints (e.g., `sm:h-[460px] lg:h-[540px]`).
+- Paired grid tiles in the same row must share explicit, matching height breakpoints (e.g., `sm:h-115 lg:h-135`).
 - Action button copy: use clean, concise labels (e.g., "View gallery" instead of "View all 29 photos").
 
 ## 3. Ambient Effects & Animations

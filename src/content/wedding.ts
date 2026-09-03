@@ -65,13 +65,14 @@ export const siteContent = {
             date: weddingDate,
             startTime: "7:00 PM",
             endTime: "11:00 PM",
-            venueName: "Dinner banquet venue to be confirmed",
-            address: "Add banquet address here",
+            venueName: "PARKROYAL on Beach Road",
+            address: "7500 Beach Road, Singapore 199591",
             attire: "Semi-formal",
             description:
                 "An evening banquet for dinner invitees. Dinner time is tentative and will be updated closer to the date.",
-            mapUrl: "https://maps.google.com/?q=Singapore",
-            mapEmbedUrl: "https://maps.google.com/maps?q=Singapore&output=embed",
+            mapUrl: "https://maps.google.com/?q=PARKROYAL+on+Beach+Road,+7500+Beach+Road,+Singapore+199591",
+            mapEmbedUrl:
+                "https://maps.google.com/maps?q=PARKROYAL+on+Beach+Road,+7500+Beach+Road,+Singapore+199591&output=embed",
         },
     ] satisfies EventDetails[],
     gallery: [
