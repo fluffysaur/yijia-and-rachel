@@ -7,8 +7,8 @@ function localApiPlugin(mode: string): Plugin {
   const env = loadEnv(mode, process.cwd(), "");
   const sessionDurationMs = 2 * 60 * 60 * 1000;
   const guestPasswords = {
-    lunchPassword: env.LUNCH_PASSWORD || "samplechurchpass",
-    fullPassword: env.FULL_PASSWORD || "sampledinnerpass"
+    lunchPassword: env.LUNCH_PASSWORD || "church",
+    fullPassword: env.FULL_PASSWORD || "dinner"
   };
   const summary = {
     totalInviteGroups: 0,
@@ -64,7 +64,8 @@ function localApiPlugin(mode: string): Plugin {
             const expiresAt = Date.now() + sessionDurationMs;
             const tokenFor = (role: "lunch" | "full" | "admin") => `${role}:${expiresAt}:local-dev`;
 
-            if (env.ADMIN_PASSWORD && password === env.ADMIN_PASSWORD) {
+            const adminPassword = env.ADMIN_PASSWORD || "admin";
+            if (password === adminPassword) {
               sendJson(res, 200, { role: "admin", expiresAt, token: tokenFor("admin") });
               return;
             }

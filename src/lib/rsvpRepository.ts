@@ -105,8 +105,8 @@ function writeDemoResponses(responses: RsvpResponse[]) {
 
 function readDemoGuestPasswords() {
   return readJson(demoGuestPasswordsStorageKey, {
-    lunchPassword: "samplechurchpass",
-    fullPassword: "sampledinnerpass"
+    lunchPassword: "church",
+    fullPassword: "dinner"
   });
 }
 
@@ -130,7 +130,7 @@ function assertRsvpWritesOpen(settings = readDemoRsvpSettings()) {
 export function createDemoSessionForPassword(password: string): AccessSession | null {
   const normalizedPassword = password.trim();
   const { lunchPassword, fullPassword } = readDemoGuestPasswords();
-  const adminPassword = import.meta.env.VITE_DEMO_ADMIN_PASSWORD || "adminpass";
+  const adminPassword = import.meta.env.VITE_DEMO_ADMIN_PASSWORD || "admin";
   const expiresAt = Date.now() + 2 * 60 * 60 * 1000;
 
   if (normalizedPassword === adminPassword) {

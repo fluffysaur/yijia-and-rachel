@@ -150,8 +150,8 @@ export async function listAdminInviteRows() {
 
 export async function readGuestPasswords() {
   const fallback = {
-    lunchPassword: process.env.LUNCH_PASSWORD || "samplechurchpass",
-    fullPassword: process.env.FULL_PASSWORD || "sampledinnerpass",
+    lunchPassword: process.env.LUNCH_PASSWORD || "church",
+    fullPassword: process.env.FULL_PASSWORD || "dinner",
   };
 
   try {

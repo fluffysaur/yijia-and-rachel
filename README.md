@@ -23,9 +23,9 @@ Vite development uses demo mode by default. Demo mode loads sample invite groups
 
 Demo passwords:
 
-- Admin dashboard: `adminpass` or `VITE_DEMO_ADMIN_PASSWORD`
-- Full-detail guest access: `sampledinnerpass`
-- Lunch-only guest access: `samplechurchpass`
+- Admin dashboard: `admin` or `VITE_DEMO_ADMIN_PASSWORD`
+- Full-detail guest access: `dinner`
+- Lunch-only guest access: `church`
 - Direct invite access: use an invite password from the admin dashboard, such as `demo-family-tan`
 
 To use Supabase locally, set `VITE_ENABLE_SUPABASE_IN_DEV=true` and provide the Supabase env vars below.

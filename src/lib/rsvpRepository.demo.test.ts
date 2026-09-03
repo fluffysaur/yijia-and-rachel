@@ -78,9 +78,13 @@ describe("demo RSVP repository", () => {
 
   it("persists demo guest passwords", async () => {
     expect(await getGuestPasswords()).toEqual({
-      lunchPassword: "samplechurchpass",
-      fullPassword: "sampledinnerpass",
+      lunchPassword: "church",
+      fullPassword: "dinner",
     });
+
+    expect(createDemoSessionForPassword("church")).toMatchObject({ role: "lunch" });
+    expect(createDemoSessionForPassword("dinner")).toMatchObject({ role: "full" });
+    expect(createDemoSessionForPassword("admin")).toMatchObject({ role: "admin" });
 
     await updateGuestPasswords({ lunchPassword: "lunch-local", fullPassword: "full-local" });
 
